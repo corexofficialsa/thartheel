@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Amiri } from "next/font/google";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const amiri = Amiri({ subsets: ["arabic"], weight: ["400", "700"] });
+import { arabicFont } from "@/lib/fonts";
+import { QuranStandIllustration } from "./quran-stand-illustration";
 
 export function HeroSection() {
   return (
@@ -18,7 +17,7 @@ export function HeroSection() {
         <div className="aspect-square w-[42rem] rounded-full bg-gradient-to-br from-primary/25 via-accent/20 to-transparent" />
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2 md:items-center md:px-6 md:py-28">
+      <div className="mx-auto grid max-w-6xl gap-14 px-4 py-20 md:grid-cols-2 md:items-center md:px-6 md:py-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -38,12 +37,7 @@ export function HeroSection() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button
-              size="lg"
-              className="h-11 rounded-xl px-6 text-base"
-              nativeButton={false}
-              render={<Link href="/register/student" />}
-            >
+            <Button size="lg" className="h-11 rounded-xl px-6 text-base" nativeButton={false} render={<Link href="/register/student" />}>
               Register as a student <ArrowRight className="size-4" />
             </Button>
             <Button
@@ -66,20 +60,23 @@ export function HeroSection() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
           className="relative"
         >
-          <div className="rounded-4xl border border-border/70 bg-card/80 p-8 shadow-xl shadow-primary/5 ring-1 ring-foreground/5 backdrop-blur">
-            <p dir="rtl" lang="ar" className={`${amiri.className} text-right text-3xl leading-[2] text-foreground md:text-4xl`}>
-              وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا
-            </p>
-            <div className="mt-4 h-px bg-border" />
-            <p className="mt-4 text-sm text-muted-foreground">
-              &ldquo;And recite the Qur&apos;an with measured recitation.&rdquo;
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">Al-Muzzammil 73:4</p>
+          <div className="overflow-hidden rounded-4xl bg-gradient-to-br from-[#1b3564] to-[#0b1730] shadow-2xl shadow-primary/20 ring-1 ring-black/10">
+            <QuranStandIllustration className="h-64 w-full md:h-72" />
+            <div className="border-t border-white/10 px-7 py-6">
+              <p dir="rtl" lang="ar" className={`${arabicFont.className} text-right text-2xl leading-loose text-[#f5f1e4] md:text-[1.75rem]`}>
+                وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا
+              </p>
+              <div className="mt-3 h-px bg-white/10" />
+              <p className="mt-3 text-sm text-[#cbd4ea]">
+                &ldquo;And recite the Qur&apos;an with measured recitation.&rdquo;
+              </p>
+              <p className="mt-1 text-xs text-[#8d9ac0]">Al-Muzzammil 73:4</p>
+            </div>
           </div>
           <div className="absolute -bottom-6 -left-6 -z-10 size-28 rounded-full bg-accent/30 blur-2xl" />
         </motion.div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Mic, RotateCcw, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { arabicFont } from "@/lib/fonts";
 
 const MAX_DURATION_SECONDS = 90;
 
@@ -107,7 +108,7 @@ export function AyahRecorderField({
       </div>
 
       <div className="space-y-2 rounded-xl bg-secondary/50 p-4 text-center">
-        <p dir="rtl" lang="ar" className="text-2xl leading-relaxed font-medium">
+        <p dir="rtl" lang="ar" className={`${arabicFont.className} text-2xl leading-loose`}>
           {ayah.arabicText}
         </p>
         <p className="text-sm text-muted-foreground">{ayah.translation}</p>

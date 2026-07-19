@@ -6,7 +6,18 @@
 // Usage:
 //   ADMIN_NAME="Jane Doe" ADMIN_EMAIL="jane@example.com" ADMIN_PASSWORD="..." \
 //     npm run bootstrap:admin
-import { createAdminClient } from "../lib/supabase/admin";
+// Not lib/supabase/admin.ts: that module imports "server-only", which relies
+// on Next.js's bundler to alias it away and throws unconditionally when
+// required outside of it (e.g. run directly via tsx, as this script is).
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../lib/supabase/types";
+import { supabaseServiceRoleKey, supabaseUrl } from "../lib/supabase/env";
+
+function createAdminClient() {
+  return createClient<Database>(supabaseUrl(), supabaseServiceRoleKey(), {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 async function main() {
   const name = process.env.ADMIN_NAME;

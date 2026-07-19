@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import {
   Sidebar,
   SidebarContent,
@@ -13,16 +13,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { ROLE_LABEL, type NavItem } from "./nav-config";
+import { getNavItems, ROLE_LABEL } from "./nav-config";
 import type { UserRole } from "@/lib/supabase/types";
 
-export function AppSidebar({ items, role }: { items: NavItem[]; role: UserRole }) {
+export function AppSidebar({ role }: { role: UserRole }) {
   const pathname = usePathname();
+  const items = getNavItems(role);
 
   return (
     <Sidebar collapsible="none" className="hidden md:flex">
       <SidebarHeader className="flex-row items-center gap-2 px-4 py-4">
-        <GraduationCap className="size-6 text-primary" />
+        <LogoMark className="size-8" />
         <div className="flex flex-col leading-tight">
           <span className="font-semibold">Halaqa Academy</span>
           <span className="text-xs text-muted-foreground">{ROLE_LABEL[role]} Portal</span>

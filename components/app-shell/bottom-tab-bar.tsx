@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import type { NavItem } from "./nav-config";
+import { getNavItems } from "./nav-config";
+import type { UserRole } from "@/lib/supabase/types";
 
-export function BottomTabBar({ items }: { items: NavItem[] }) {
+export function BottomTabBar({ role }: { role: UserRole }) {
   const pathname = usePathname();
+  const items = getNavItems(role);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-sidebar md:hidden pb-[env(safe-area-inset-bottom)]">

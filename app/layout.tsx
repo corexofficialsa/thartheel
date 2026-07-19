@@ -19,12 +19,19 @@ export const metadata: Metadata = {
   title: "Halaqa Academy",
   description: "Student, teacher, board, finance, and admin portals for the academy.",
   manifest: "/manifest.json",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Halaqa Academy" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1e4b8f",
+  themeColor: "#152b54",
 };
 
 export default function RootLayout({

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { GraduationCap, LogIn, Menu, UserPlus, Users } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,9 +25,7 @@ export function MarketingNav() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <GraduationCap className="size-5" />
-          </span>
+          <LogoMark className="size-9" />
           <span className="font-heading text-lg font-semibold tracking-tight">Halaqa Academy</span>
         </Link>
 
