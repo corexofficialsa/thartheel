@@ -12,7 +12,7 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
   const parsed = loginSchema.safeParse({
     identifier: formData.get("identifier"),
     password: formData.get("password"),
-    role: formData.get("role"),
+    role: formData.get("role") || undefined,
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? GENERIC_ERROR };
@@ -50,10 +50,11 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
     return { error: GENERIC_ERROR };
   }
 
-  // Only student/teacher accounts are steered by which login form was used —
-  // board/finance/admin accounts can use either form without friction, since
-  // there's no separate login route for them.
+  // Only the student/teacher forms steer by role (they send one); the staff
+  // form sends none, so admin/board/finance — and anyone else — logs in
+  // straight through to whatever portal their actual role redirects to.
   if (
+    parsed.data.role &&
     (profile.role === "student" || profile.role === "teacher") &&
     profile.role !== parsed.data.role
   ) {

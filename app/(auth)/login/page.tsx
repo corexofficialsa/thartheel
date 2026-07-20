@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap, Users } from "lucide-react";
+import { Briefcase, GraduationCap, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LoginChooserPage() {
@@ -32,6 +32,18 @@ export default function LoginChooserPage() {
           <span>
             <span className="block font-medium">Teacher log in</span>
             <span className="block text-sm text-muted-foreground">Manage classrooms, homework, and students.</span>
+          </span>
+        </Link>
+        <Link
+          href="/login/staff"
+          className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-primary hover:bg-secondary/50"
+        >
+          <span className="flex size-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <Briefcase className="size-5" />
+          </span>
+          <span>
+            <span className="block font-medium">Staff log in</span>
+            <span className="block text-sm text-muted-foreground">Admin, board, and finance accounts.</span>
           </span>
         </Link>
       </CardContent>

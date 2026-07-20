@@ -8,18 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "@/app/(auth)/login/actions";
 
-export function LoginForm({ role }: { role: "student" | "teacher" }) {
+export function LoginForm({ role }: { role: "student" | "teacher" | "staff" }) {
   const [state, formAction, isPending] = useActionState(signIn, undefined);
-  const registerHref = role === "student" ? "/register/student" : "/register/teacher";
-  const otherRoleHref = role === "student" ? "/login/teacher" : "/login/student";
-  const otherRoleLabel = role === "student" ? "Teacher" : "Student";
 
   return (
     <form action={formAction} className="space-y-4">
-      <input type="hidden" name="role" value={role} />
+      {role !== "staff" && <input type="hidden" name="role" value={role} />}
 
       <div className="space-y-2">
-        <Label htmlFor="identifier">{role === "teacher" ? "Email or username" : "Email"}</Label>
+        <Label htmlFor="identifier">{role === "student" ? "Email" : "Email or username"}</Label>
         <Input id="identifier" name="identifier" autoComplete="username" required />
       </div>
 
@@ -41,20 +38,25 @@ export function LoginForm({ role }: { role: "student" | "teacher" }) {
         {isPending ? "Logging in..." : "Log in"}
       </Button>
 
-      <div className="space-y-1 text-center text-sm text-muted-foreground">
-        <p>
-          New here?{" "}
-          <Link href={registerHref} className="text-primary underline underline-offset-4">
-            Register as a {role}
-          </Link>
-          .
-        </p>
-        <p>
-          <Link href={otherRoleHref} className="text-primary underline underline-offset-4">
-            {otherRoleLabel} log in instead
-          </Link>
-        </p>
-      </div>
+      {role !== "staff" && (
+        <div className="space-y-1 text-center text-sm text-muted-foreground">
+          <p>
+            New here?{" "}
+            <Link href={`/register/${role}`} className="text-primary underline underline-offset-4">
+              Register as a {role}
+            </Link>
+            .
+          </p>
+          <p>
+            <Link
+              href={role === "student" ? "/login/teacher" : "/login/student"}
+              className="text-primary underline underline-offset-4"
+            >
+              {role === "student" ? "Teacher" : "Student"} log in instead
+            </Link>
+          </p>
+        </div>
+      )}
     </form>
   );
 }

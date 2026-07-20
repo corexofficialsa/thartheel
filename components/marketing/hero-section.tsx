@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { arabicFont } from "@/lib/fonts";
-import { QuranStandIllustration } from "./quran-stand-illustration";
 
 export function HeroSection() {
   return (
@@ -65,17 +65,25 @@ export function HeroSection() {
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
           className="relative"
         >
-          <div className="overflow-hidden rounded-4xl bg-gradient-to-br from-[#1b3564] to-[#0b1730] shadow-2xl shadow-primary/20 ring-1 ring-black/10">
-            <QuranStandIllustration className="h-64 w-full md:h-72" />
-            <div className="border-t border-white/10 px-7 py-6">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-4xl shadow-2xl shadow-primary/20 ring-1 ring-black/10 md:aspect-[3/4]">
+            <Image
+              src="/hero-quran-stand.jpg"
+              alt="An open Qur'an resting on a wooden rehal stand"
+              fill
+              priority
+              sizes="(min-width: 768px) 40vw, 90vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0b1526] via-[#0b1526]/15 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 px-7 py-7">
               <p dir="rtl" lang="ar" className={`${arabicFont.className} text-right text-2xl leading-loose text-[#f5f1e4] md:text-[1.75rem]`}>
                 وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا
               </p>
-              <div className="mt-3 h-px bg-white/10" />
-              <p className="mt-3 text-sm text-[#cbd4ea]">
+              <div className="mt-3 h-px bg-white/15" />
+              <p className="mt-3 text-sm text-[#dde3f2]">
                 &ldquo;And recite the Qur&apos;an with measured recitation.&rdquo;
               </p>
-              <p className="mt-1 text-xs text-[#8d9ac0]">Al-Muzzammil 73:4</p>
+              <p className="mt-1 text-xs text-[#a7b2cf]">Al-Muzzammil 73:4</p>
             </div>
           </div>
           <div className="absolute -bottom-6 -left-6 -z-10 size-28 rounded-full bg-accent/30 blur-2xl" />
