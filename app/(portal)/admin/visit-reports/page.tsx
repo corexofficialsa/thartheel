@@ -15,10 +15,13 @@ export default async function AdminVisitReportsPage() {
   ]);
 
   const classroomNameById = new Map((classrooms ?? []).map((c) => [c.id, c.name]));
-  const fileUrls = new Map<string, string | null>();
-  for (const report of reports ?? []) {
-    if (report.file_url) fileUrls.set(report.id, await createSignedUrl("halaqa-visit-reports", report.file_url));
-  }
+  const fileUrls = new Map<string, string | null>(
+    await Promise.all(
+      (reports ?? [])
+        .filter((report) => report.file_url)
+        .map(async (report) => [report.id, await createSignedUrl("halaqa-visit-reports", report.file_url!)] as const)
+    )
+  );
 
   return (
     <div className="space-y-6">

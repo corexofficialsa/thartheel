@@ -1,7 +1,9 @@
 import "server-only";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { ProfileStatus, UserRole } from "@/lib/supabase/types";
+import { decodeProfileHeader } from "./profile-header";
 
 export type CurrentProfile = {
   id: string;
@@ -12,9 +14,18 @@ export type CurrentProfile = {
 };
 
 // Second-layer defense-in-depth: middleware already gates by role/status per
-// route group, but any Server Component/Action reachable from multiple roles
-// should still re-check here rather than trusting the URL alone.
+// route group and forwards the verified profile via the x-profile header
+// (see proxy.ts), so this only re-queries Supabase when that header is
+// missing — a route middleware doesn't cover — rather than re-doing the same
+// auth round-trip on every single portal page.
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
+  const headerList = await headers();
+  const forwarded = headerList.get("x-profile");
+  if (forwarded) {
+    const profile = decodeProfileHeader<CurrentProfile>(forwarded);
+    if (profile) return profile;
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

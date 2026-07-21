@@ -18,12 +18,12 @@ export default async function StudentRegistrationsPage() {
   const levelNameById = new Map((levels ?? []).map((level) => [level.id, level.name]));
 
   const pendingIds = (pending ?? []).map((row) => row.id);
-  const { data: recitations } =
+  const [{ data: recitations }, { data: ayahs }] = await Promise.all([
     pendingIds.length > 0
-      ? await supabase.from("student_recitations").select("profile_id, ayah_id, audio_url").in("profile_id", pendingIds)
-      : { data: [] as { profile_id: string; ayah_id: string | null; audio_url: string }[] };
-
-  const { data: ayahs } = await supabase.from("quran_ayahs").select("id, reference");
+      ? supabase.from("student_recitations").select("profile_id, ayah_id, audio_url").in("profile_id", pendingIds)
+      : Promise.resolve({ data: [] as { profile_id: string; ayah_id: string | null; audio_url: string }[] }),
+    supabase.from("quran_ayahs").select("id, reference"),
+  ]);
   const ayahReferenceById = new Map((ayahs ?? []).map((a) => [a.id, a.reference]));
 
   const recitationByProfileId = new Map((recitations ?? []).map((r) => [r.profile_id, r]));
