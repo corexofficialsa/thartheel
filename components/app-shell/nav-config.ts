@@ -43,6 +43,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   board: [
     { href: "/board", label: "Home", icon: LayoutDashboard },
     { href: "/board/teachers", label: "Teachers", icon: Users },
+    { href: "/board/students", label: "Students", icon: GraduationCap },
     { href: "/board/visit-reports", label: "Visit Reports", icon: ClipboardCheck },
     { href: "/board/finance", label: "Finance", icon: DollarSign },
   ],

@@ -14,7 +14,7 @@ export function CreateClassroomForm({ levels }: { levels: { id: string; name: st
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">
       <div className="space-y-2 sm:col-span-2">
         <Label htmlFor="name">Classroom name</Label>
-        <Input id="name" name="name" placeholder="e.g. Qaida Noorania — Batch A" required />
+        <Input id="name" name="name" placeholder="e.g. Qaida Al-Madania — Batch A" required />
       </div>
       <div className="space-y-2">
         <Label htmlFor="levelId">Level</Label>

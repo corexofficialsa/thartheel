@@ -1,4 +1,5 @@
 import { RegistrationRowActions } from "@/components/admin/registration-row-actions";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createSignedUrl } from "@/lib/storage/signed-url";
@@ -18,13 +19,17 @@ export default async function StudentRegistrationsPage() {
   const levelNameById = new Map((levels ?? []).map((level) => [level.id, level.name]));
 
   const pendingIds = (pending ?? []).map((row) => row.id);
-  const [{ data: recitations }, { data: ayahs }] = await Promise.all([
+  const [{ data: recitations }, { data: ayahs }, { data: invoices }] = await Promise.all([
     pendingIds.length > 0
       ? supabase.from("student_recitations").select("profile_id, ayah_id, audio_url").in("profile_id", pendingIds)
       : Promise.resolve({ data: [] as { profile_id: string; ayah_id: string | null; audio_url: string }[] }),
     supabase.from("quran_ayahs").select("id, reference"),
+    pendingIds.length > 0
+      ? supabase.from("fee_invoices").select("student_id, status").eq("period", "registration").in("student_id", pendingIds)
+      : Promise.resolve({ data: [] as { student_id: string; status: string }[] }),
   ]);
   const ayahReferenceById = new Map((ayahs ?? []).map((a) => [a.id, a.reference]));
+  const paidByStudentId = new Map((invoices ?? []).map((i) => [i.student_id, i.status === "paid"]));
 
   const recitationByProfileId = new Map((recitations ?? []).map((r) => [r.profile_id, r]));
   const signedAudioByProfileId = new Map(
@@ -59,6 +64,7 @@ export default async function StudentRegistrationsPage() {
                     <TableHead>Phone</TableHead>
                     <TableHead>Level</TableHead>
                     <TableHead>Recitation</TableHead>
+                    <TableHead>Payment</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -66,6 +72,7 @@ export default async function StudentRegistrationsPage() {
                   {pending.map((row) => {
                     const recitation = recitationByProfileId.get(row.id);
                     const signedAudioUrl = signedAudioByProfileId.get(row.id);
+                    const isPaid = paidByStudentId.get(row.id) ?? false;
                     return (
                       <TableRow key={row.id}>
                         <TableCell className="font-medium">{row.name}</TableCell>
@@ -87,7 +94,14 @@ export default async function StudentRegistrationsPage() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <RegistrationRowActions profileId={row.id} />
+                          <Badge variant={isPaid ? "default" : "secondary"}>{isPaid ? "Paid" : "Awaiting payment"}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <RegistrationRowActions
+                            profileId={row.id}
+                            approveDisabled={!isPaid}
+                            approveDisabledReason={!isPaid ? "Awaiting payment from finance" : undefined}
+                          />
                         </TableCell>
                       </TableRow>
                     );

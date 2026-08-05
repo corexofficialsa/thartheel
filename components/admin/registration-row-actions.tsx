@@ -1,21 +1,27 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { approveRegistration, rejectRegistration, type ActionState } from "@/app/(portal)/admin/registrations/actions";
 
-function ApproveForm({ profileId }: { profileId: string }) {
+function ApproveForm({ profileId, disabled, disabledReason }: { profileId: string; disabled?: boolean; disabledReason?: string }) {
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(approveRegistration, undefined);
+
+  useEffect(() => {
+    if (state?.success) toast.success(state.success);
+  }, [state]);
 
   return (
     <form action={formAction} className="inline-flex flex-col items-end gap-1">
       <input type="hidden" name="profileId" value={profileId} />
-      <Button type="submit" size="sm" disabled={isPending}>
+      <Button type="submit" size="sm" disabled={isPending || disabled} title={disabled ? disabledReason : undefined}>
         {isPending ? "Approving..." : "Approve"}
       </Button>
+      {disabled && disabledReason && <p className="text-xs text-muted-foreground">{disabledReason}</p>}
       {state?.error && <p className="text-xs text-destructive">{state.error}</p>}
     </form>
   );
@@ -52,10 +58,18 @@ function RejectDialog({ profileId }: { profileId: string }) {
   );
 }
 
-export function RegistrationRowActions({ profileId }: { profileId: string }) {
+export function RegistrationRowActions({
+  profileId,
+  approveDisabled,
+  approveDisabledReason,
+}: {
+  profileId: string;
+  approveDisabled?: boolean;
+  approveDisabledReason?: string;
+}) {
   return (
     <div className="flex items-center justify-end gap-2">
-      <ApproveForm profileId={profileId} />
+      <ApproveForm profileId={profileId} disabled={approveDisabled} disabledReason={approveDisabledReason} />
       <RejectDialog profileId={profileId} />
     </div>
   );

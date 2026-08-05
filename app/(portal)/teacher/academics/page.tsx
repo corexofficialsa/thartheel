@@ -89,10 +89,11 @@ export default async function TeacherAcademicsPage() {
     .select("id, title, file_url, level_id, created_at")
     .order("created_at", { ascending: false });
   const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
-  const noteUrls = new Map<string, string | null>();
-  for (const note of notes ?? []) {
-    noteUrls.set(note.id, await createSignedUrl("teaching-notes", note.file_url));
-  }
+  const noteUrls = new Map<string, string | null>(
+    await Promise.all(
+      (notes ?? []).map(async (note) => [note.id, await createSignedUrl("teaching-notes", note.file_url)] as const)
+    )
+  );
 
   return (
     <div className="space-y-6">
@@ -113,7 +114,7 @@ export default async function TeacherAcademicsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Record a milestone</CardTitle>
-              <CardDescription>Qaida Noorania lessons, Tajweed &amp; Qira&apos;at progress.</CardDescription>
+              <CardDescription>Qaida Al-Madania lessons, Recitation Learning progress.</CardDescription>
             </CardHeader>
             <CardContent>
               <RecordMilestoneForm students={students ?? []} tracks={tracks ?? []} />

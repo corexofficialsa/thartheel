@@ -58,15 +58,10 @@ export default async function TeacherHomeworkPage() {
       : { data: [] as { submission_id: string; grade: number | null; feedback: string | null }[] };
   const gradeBySubmissionId = new Map((grades ?? []).map((g) => [g.submission_id, g]));
 
-  const signedUrls = new Map<string, string | null>();
-  for (const submission of submissions ?? []) {
-    if (submission.video_url) {
-      signedUrls.set(submission.video_url, await createSignedUrl("homework-submissions", submission.video_url));
-    }
-    if (submission.audio_url) {
-      signedUrls.set(submission.audio_url, await createSignedUrl("homework-submissions", submission.audio_url));
-    }
-  }
+  const mediaPaths = (submissions ?? []).flatMap((s) => [s.video_url, s.audio_url].filter((p): p is string => Boolean(p)));
+  const signedUrls = new Map<string, string | null>(
+    await Promise.all(mediaPaths.map(async (path) => [path, await createSignedUrl("homework-submissions", path)] as const))
+  );
 
   const submissionsByHomeworkId = new Map<string, typeof submissions>();
   for (const submission of submissions ?? []) {

@@ -4,18 +4,18 @@ import { Reveal } from "./reveal";
 const PROGRAMS = [
   {
     name: "Level 1",
-    tagline: "Qaida Noorania",
+    tagline: "Qaida Al-Madania",
     description:
       "For students starting from the very beginning — Arabic letters, correct pronunciation, and the foundations of reading the Qur'an confidently.",
-    points: ["Letter recognition & pronunciation", "Basic Tajweed rules", "17-milestone tracked curriculum"],
+    points: ["Starts from the Arabic letters", "Correct pronunciation & basic Tajweed", "17-milestone tracked curriculum"],
     icon: BookOpenText,
   },
   {
     name: "Level 2",
-    tagline: "Tajweed & Qira'at",
+    tagline: "Recitation Learning",
     description:
       "For students who already recite. A short recitation is recorded at registration so a teacher can place you at the right pace from day one.",
-    points: ["Advanced Tajweed & Qira'at", "Recitation placement at sign-up", "10-milestone tracked curriculum"],
+    points: ["Advanced recitation & Tajweed", "Recitation placement at sign-up", "10-milestone tracked curriculum"],
     icon: Mic,
   },
 ];

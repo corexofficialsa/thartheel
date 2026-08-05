@@ -99,5 +99,16 @@ export async function registerAccount(input: RegisterAccountInput): Promise<Regi
     }
   }
 
+  // Students go to finance for a registration-fee invoice before an admin
+  // can approve them (see approve_profile() in 0018_finance_payment_gate.sql).
+  // Teachers don't pay a registration fee, so this is student-only.
+  if (input.role === "student") {
+    await supabase.from("fee_invoices").insert({
+      student_id: userId,
+      period: "registration",
+      amount: 100,
+    });
+  }
+
   return { ok: true };
 }

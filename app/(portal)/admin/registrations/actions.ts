@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { notify } from "@/lib/notify";
 import { createClient } from "@/lib/supabase/server";
 
-export type ActionState = { error?: string } | undefined;
+export type ActionState = { error?: string; success?: string } | undefined;
 
 const PORTAL_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -25,7 +25,12 @@ export async function approveRegistration(_prevState: ActionState, formData: For
   if (fetchError || !profile) return { error: "Registration not found." };
 
   const { error } = await supabase.rpc("approve_profile", { p_profile_id: profileId });
-  if (error) return { error: "Could not approve this registration." };
+  if (error) {
+    if (error.message.includes("payment_not_confirmed")) {
+      return { error: "Finance hasn't confirmed this student's registration payment yet." };
+    }
+    return { error: "Could not approve this registration." };
+  }
 
   if (profile.whatsapp_number) {
     await notify("whatsapp", profile.whatsapp_number, "registration_approved", {
@@ -37,6 +42,7 @@ export async function approveRegistration(_prevState: ActionState, formData: For
 
   revalidatePath("/admin/registrations/student");
   revalidatePath("/admin/registrations/teacher");
+  return { success: `${profile.name} has been approved — they can now log in with the details they registered with.` };
 }
 
 export async function rejectRegistration(_prevState: ActionState, formData: FormData): Promise<ActionState> {

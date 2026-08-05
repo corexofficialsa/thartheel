@@ -14,13 +14,17 @@ import { markFeePaid, refundDeposit } from "./actions";
 export default async function FinanceLedgerPage() {
   const supabase = await createClient();
 
-  const [{ data: records }, { data: students }, { data: staff }] = await Promise.all([
+  const [{ data: records }, { data: activeStudents }, { data: allStudents }, { data: staff }] = await Promise.all([
     supabase.from("finance_records").select("id, type, category, amount, description, date").order("date", { ascending: false }).limit(30),
     supabase.from("profiles").select("id, name").eq("role", "student").eq("status", "active"),
+    // Registration-fee invoices belong to still-pending students, so the
+    // invoice table's name lookup needs to cover them too, not just active ones.
+    supabase.from("profiles").select("id, name").eq("role", "student"),
     supabase.from("profiles").select("id, name, role").in("role", ["teacher", "admin"]).eq("status", "active"),
   ]);
+  const students = activeStudents;
 
-  const studentNameById = new Map((students ?? []).map((s) => [s.id, s.name]));
+  const studentNameById = new Map((allStudents ?? []).map((s) => [s.id, s.name]));
 
   const [{ data: invoices }, { data: deposits }, { data: budgets }, { data: allocations }] = await Promise.all([
     supabase.from("fee_invoices").select("id, student_id, period, amount, status").order("period", { ascending: false }),
