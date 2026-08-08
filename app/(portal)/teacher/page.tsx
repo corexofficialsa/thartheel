@@ -1,4 +1,5 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen, CalendarCheck, ClipboardList } from "lucide-react";
+import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,24 +46,9 @@ export default async function TeacherHomePage() {
         <p className="text-muted-foreground">Your classrooms and homework at a glance.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardDescription>Classrooms</CardDescription>
-            <CardTitle className="text-3xl">{classroomIds.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Submissions to grade</CardDescription>
-            <CardTitle className="text-3xl">{ungradedCount}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Attendance today</CardDescription>
-            <CardTitle className="text-3xl">{attendanceToday ?? 0}</CardTitle>
-          </CardHeader>
-        </Card>
+        <StatCard icon={BookOpen} label="Classrooms" value={classroomIds.length} href="/teacher/classrooms" />
+        <StatCard icon={ClipboardList} label="Submissions to grade" value={ungradedCount} href="/teacher/homework" />
+        <StatCard icon={CalendarCheck} label="Attendance today" value={attendanceToday ?? 0} />
       </div>
     </div>
   );

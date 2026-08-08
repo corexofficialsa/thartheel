@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, GraduationCap, Users } from "lucide-react";
+import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,28 +27,14 @@ export default async function BoardHomePage() {
         <p className="text-muted-foreground">A brief on everything happening across the academy.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Link href="/board/teachers">
-          <Card className="transition-colors hover:bg-accent/40">
-            <CardHeader>
-              <CardDescription>Active teachers</CardDescription>
-              <CardTitle className="text-3xl">{teacherCount ?? 0}</CardTitle>
-            </CardHeader>
-          </Card>
-        </Link>
-        <Card>
-          <CardHeader>
-            <CardDescription>Active students</CardDescription>
-            <CardTitle className="text-3xl">{studentCount ?? 0}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Link href="/board/finance">
-          <Card className="transition-colors hover:bg-accent/40">
-            <CardHeader>
-              <CardDescription>Net finance this month</CardDescription>
-              <CardTitle className="text-3xl">{(income - expense).toFixed(0)} SAR</CardTitle>
-            </CardHeader>
-          </Card>
-        </Link>
+        <StatCard icon={Users} label="Active teachers" value={teacherCount ?? 0} href="/board/teachers" />
+        <StatCard icon={GraduationCap} label="Active students" value={studentCount ?? 0} href="/board/students" />
+        <StatCard
+          icon={DollarSign}
+          label="Net finance this month"
+          value={`${(income - expense).toFixed(0)} SAR`}
+          href="/board/finance"
+        />
       </div>
     </div>
   );

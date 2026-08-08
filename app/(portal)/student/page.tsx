@@ -1,8 +1,6 @@
-import Link from "next/link";
-import { Flame } from "lucide-react";
-import { AnimatedNumber } from "@/components/animated-number";
+import { BarChart3, CalendarCheck, ClipboardList, Flame } from "lucide-react";
+import { StatCard } from "@/components/portal/stat-card";
 import { LeaderboardCard } from "@/components/student/leaderboard-card";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import { computeStreak } from "@/lib/attendance/streak";
 import { createClient } from "@/lib/supabase/server";
@@ -65,40 +63,15 @@ export default async function StudentHomePage() {
         <p className="text-muted-foreground">Here&apos;s your progress at a glance.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardDescription className="flex items-center gap-1">
-              <Flame className="size-3.5 text-accent" /> Attendance streak
-            </CardDescription>
-            <CardTitle className="text-3xl">
-              <AnimatedNumber value={streak} suffix={streak === 1 ? " day" : " days"} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Attendance this month</CardDescription>
-            <CardTitle className="text-3xl">
-              <AnimatedNumber value={attendanceCount ?? 0} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Homework pending</CardDescription>
-            <CardTitle className="text-3xl">
-              <AnimatedNumber value={pendingCount} />
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Link href="/student/progress">
-          <Card className="transition-colors hover:bg-accent/40">
-            <CardHeader>
-              <CardDescription>{firstTrack?.name ?? "Current milestone"}</CardDescription>
-              <CardTitle className="text-3xl">{milestoneLabel}</CardTitle>
-            </CardHeader>
-          </Card>
-        </Link>
+        <StatCard icon={Flame} label="Attendance streak" value={streak} suffix={streak === 1 ? " day" : " days"} />
+        <StatCard icon={CalendarCheck} label="Attendance this month" value={attendanceCount ?? 0} />
+        <StatCard icon={ClipboardList} label="Homework pending" value={pendingCount} />
+        <StatCard
+          icon={BarChart3}
+          label={firstTrack?.name ?? "Current milestone"}
+          value={milestoneLabel}
+          href="/student/progress"
+        />
       </div>
 
       <LeaderboardCard entries={leaderboard ?? []} currentStudentId={profile.id} />
