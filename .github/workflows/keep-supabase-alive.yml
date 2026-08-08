@@ -1,0 +1,35 @@
+name: Keep Supabase Alive
+
+# Supabase free-tier projects pause after 7 days with no API activity. This
+# pings the project every 3 days (comfortable margin) with a trivial,
+# harmless read against a publicly-readable table, so it never goes idle
+# long enough to pause.
+#
+# If this project ever migrates to a different Supabase project again (as it
+# did once already, Tokyo -> Frankfurt), update SUPABASE_URL and
+# SUPABASE_ANON_KEY below to match the new project's values.
+
+on:
+  schedule:
+    - cron: "0 0 */3 * *"
+  workflow_dispatch: {}
+
+env:
+  SUPABASE_URL: https://pyvsyiwsttltnkaewiti.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5dnN5aXdzdHRsdG5rYWV3aXRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2NDk4NjIsImV4cCI6MjEwMTIyNTg2Mn0.V70OANYpVxi5nfwM4O5jQCD4TrdYu4inoMGj55KWYy0
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/quran_ayahs?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Supabase ping status: $status"
+          if [ "$status" -ge 400 ]; then
+            echo "::error::Supabase ping failed with status $status"
+            exit 1
+          fi
