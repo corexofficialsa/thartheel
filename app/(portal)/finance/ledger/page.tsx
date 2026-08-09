@@ -33,6 +33,8 @@ export default async function FinanceLedgerPage() {
     supabase.from("salary_allocations").select("id, profile_id, role, amount, period").order("period", { ascending: false }),
   ]);
 
+  const admissionInvoices = (invoices ?? []).filter((invoice) => invoice.period === "registration");
+
   const spentByPeriodCategory = new Map<string, number>();
   for (const record of records ?? []) {
     if (record.type !== "expense") continue;
@@ -53,6 +55,7 @@ export default async function FinanceLedgerPage() {
       <Tabs defaultValue="ledger">
         <TabsList>
           <TabsTrigger value="ledger">Ledger</TabsTrigger>
+          <TabsTrigger value="admission">Admission</TabsTrigger>
           <TabsTrigger value="fees">Fees</TabsTrigger>
           <TabsTrigger value="deposits">Deposits</TabsTrigger>
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
@@ -90,6 +93,56 @@ export default async function FinanceLedgerPage() {
                     <TableCell>{record.category}</TableCell>
                     <TableCell>{record.description ?? "—"}</TableCell>
                     <TableCell className="text-right">{record.amount.toFixed(2)} SAR</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="admission" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Admission fees</CardTitle>
+            </CardHeader>
+            <p className="px-6 pb-4 text-sm text-muted-foreground">
+              New student registrations awaiting admission fee payment. Admin can&apos;t approve a registration until
+              it&apos;s marked paid here.
+            </p>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {admissionInvoices.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      No admission fees pending.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {admissionInvoices.map((invoice) => (
+                  <TableRow key={invoice.id}>
+                    <TableCell>{studentNameById.get(invoice.student_id) ?? "Student"}</TableCell>
+                    <TableCell>{invoice.amount.toFixed(2)} SAR</TableCell>
+                    <TableCell>
+                      <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {invoice.status !== "paid" && (
+                        <form action={markFeePaid}>
+                          <input type="hidden" name="invoiceId" value={invoice.id} />
+                          <Button type="submit" size="sm" variant="outline">
+                            Mark paid
+                          </Button>
+                        </form>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { getNavItems } from "./nav-config";
+import { getActiveHref, getNavItems } from "./nav-config";
 import type { UserRole } from "@/lib/supabase/types";
 
 export function BottomTabBar({ role }: { role: UserRole }) {
   const pathname = usePathname();
   const items = getNavItems(role);
+  const activeHref = getActiveHref(items, pathname);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-sidebar md:hidden pb-[env(safe-area-inset-bottom)]">
       {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const active = item.href === activeHref;
         const Icon = item.icon;
         return (
           <Link

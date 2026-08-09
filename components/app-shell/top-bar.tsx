@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -50,12 +51,14 @@ export function TopBar({ name, role }: { name: string; role: UserRole }) {
             <span className="hidden text-sm font-medium sm:inline">{name}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              <div className="flex flex-col">
-                <span>{name}</span>
-                <span className="text-xs font-normal text-muted-foreground">{ROLE_LABEL[role]}</span>
-              </div>
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span>{name}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{ROLE_LABEL[role]}</span>
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleSignOut} variant="destructive">
               <LogOut />

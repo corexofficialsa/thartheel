@@ -13,12 +13,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { getNavItems, ROLE_LABEL } from "./nav-config";
+import { getActiveHref, getNavItems, ROLE_LABEL } from "./nav-config";
 import type { UserRole } from "@/lib/supabase/types";
 
 export function AppSidebar({ role }: { role: UserRole }) {
   const pathname = usePathname();
   const items = getNavItems(role);
+  const activeHref = getActiveHref(items, pathname);
 
   return (
     <Sidebar collapsible="none" className="hidden md:flex">
@@ -34,7 +35,7 @@ export function AppSidebar({ role }: { role: UserRole }) {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const active = item.href === activeHref;
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton render={<Link href={item.href} />} isActive={active}>

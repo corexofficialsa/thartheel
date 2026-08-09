@@ -6,7 +6,42 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
-const Select = SelectPrimitive.Root
+// Base UI's <Select.Value> renders the raw value (e.g. a database id) unless
+// an explicit value->label `items` map is supplied — unlike the Radix
+// primitive this component was ported from, it doesn't mirror the selected
+// <Select.Item>'s rendered children automatically. Deriving `items` from the
+// <SelectItem> children here means every call site keeps working exactly as
+// before (plain JSX options) while the trigger still shows the real label.
+function collectSelectItemLabels(node: React.ReactNode, map: Record<string, React.ReactNode>) {
+  React.Children.forEach(node, (child) => {
+    if (!React.isValidElement(child)) return
+    const childProps = child.props as { value?: unknown; children?: React.ReactNode }
+    if (child.type === SelectItem) {
+      if (typeof childProps.value === "string") map[childProps.value] = childProps.children
+      return
+    }
+    if (childProps.children != null) collectSelectItemLabels(childProps.children, map)
+  })
+}
+
+function Select<Value = unknown, Multiple extends boolean | undefined = false>({
+  children,
+  items,
+  ...props
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+  const derivedItems = React.useMemo(() => {
+    if (items) return items
+    const map: Record<string, React.ReactNode> = {}
+    collectSelectItemLabels(children, map)
+    return map
+  }, [children, items])
+
+  return (
+    <SelectPrimitive.Root items={derivedItems as never} {...props}>
+      {children}
+    </SelectPrimitive.Root>
+  )
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
