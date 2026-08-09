@@ -453,6 +453,29 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      complaints: {
+        Row: {
+          id: string;
+          submitted_by: string | null;
+          submitted_by_name: string;
+          submitted_by_role: "student" | "teacher";
+          subject: string;
+          description: string;
+          status: "open" | "in_review" | "resolved";
+          resolution_note: string | null;
+          resolved_by: string | null;
+          resolved_at: string | null;
+          created_at: string;
+        };
+        Insert: never; // created only via submit_complaint() RPC
+        Update: {
+          status?: "open" | "in_review" | "resolved";
+          resolution_note?: string | null;
+          resolved_by?: string | null;
+          resolved_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -469,6 +492,7 @@ export type Database = {
         Returns: { locked: boolean; reason?: string; meeting_link?: string };
       };
       start_conversation: { Args: { p_other_user_id: string }; Returns: string };
+      submit_complaint: { Args: { p_subject: string; p_description: string }; Returns: string };
       top_student_leaderboard: {
         Args: Record<string, never>;
         Returns: { profile_id: string; name: string; score: number }[];

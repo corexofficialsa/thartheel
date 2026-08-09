@@ -36,6 +36,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { href: "/admin", label: "Home", icon: LayoutDashboard },
     { href: "/admin/registrations/student", label: "Student Reg", icon: GraduationCap },
     { href: "/admin/registrations/teacher", label: "Teacher Reg", icon: UserCog },
+    { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   ],
   board: [
     { href: "/board", label: "Home", icon: LayoutDashboard },
@@ -43,6 +44,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { href: "/board/students", label: "Students", icon: GraduationCap },
     { href: "/board/visit-reports", label: "Visit Reports", icon: ClipboardCheck },
     { href: "/board/finance", label: "Finance", icon: DollarSign },
+    { href: "/board/messages", label: "Messages", icon: MessageSquare },
   ],
   finance: [
     { href: "/finance", label: "Home", icon: LayoutDashboard },

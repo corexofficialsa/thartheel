@@ -12,7 +12,7 @@ export function BottomTabBar({ role }: { role: UserRole }) {
   const activeHref = getActiveHref(items, pathname);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-sidebar md:hidden pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t bg-sidebar md:hidden pb-[env(safe-area-inset-bottom)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {items.map((item) => {
         const active = item.href === activeHref;
         const Icon = item.icon;
@@ -21,7 +21,7 @@ export function BottomTabBar({ role }: { role: UserRole }) {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors",
+              "flex min-w-16 flex-1 shrink-0 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors",
               active ? "text-primary" : "text-muted-foreground"
             )}
           >
