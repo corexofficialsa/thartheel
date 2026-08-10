@@ -45,17 +45,17 @@ export default async function TeacherHomeworkPage() {
         }[] };
 
   const studentIds = [...new Set((submissions ?? []).map((s) => s.student_id))];
-  const { data: students } =
-    studentIds.length > 0
-      ? await supabase.from("profiles").select("id, name").in("id", studentIds)
-      : { data: [] as { id: string; name: string }[] };
-  const studentNameById = new Map((students ?? []).map((s) => [s.id, s.name]));
-
   const submissionIds = (submissions ?? []).map((s) => s.id);
-  const { data: grades } =
+  // Both only depend on `submissions`, not on each other — one round trip, not two.
+  const [{ data: students }, { data: grades }] = await Promise.all([
+    studentIds.length > 0
+      ? supabase.from("profiles").select("id, name").in("id", studentIds)
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
     submissionIds.length > 0
-      ? await supabase.from("homework_grades").select("submission_id, grade, feedback").in("submission_id", submissionIds)
-      : { data: [] as { submission_id: string; grade: number | null; feedback: string | null }[] };
+      ? supabase.from("homework_grades").select("submission_id, grade, feedback").in("submission_id", submissionIds)
+      : Promise.resolve({ data: [] as { submission_id: string; grade: number | null; feedback: string | null }[] }),
+  ]);
+  const studentNameById = new Map((students ?? []).map((s) => [s.id, s.name]));
   const gradeBySubmissionId = new Map((grades ?? []).map((g) => [g.submission_id, g]));
 
   const mediaPaths = (submissions ?? []).flatMap((s) => [s.video_url, s.audio_url].filter((p): p is string => Boolean(p)));

@@ -14,24 +14,32 @@ import { markFeePaid, refundDeposit } from "./actions";
 export default async function FinanceLedgerPage() {
   const supabase = await createClient();
 
-  const [{ data: records }, { data: activeStudents }, { data: allStudents }, { data: staff }] = await Promise.all([
+  // Single round of 8 parallel queries — none of these depend on each
+  // other's results, so there's no reason to split them across two
+  // sequential Promise.all batches (each round trip to Frankfurt adds up).
+  const [
+    { data: records },
+    { data: activeStudents },
+    { data: allStudents },
+    { data: staff },
+    { data: invoices },
+    { data: deposits },
+    { data: budgets },
+    { data: allocations },
+  ] = await Promise.all([
     supabase.from("finance_records").select("id, type, category, amount, description, date").order("date", { ascending: false }).limit(30),
     supabase.from("profiles").select("id, name").eq("role", "student").eq("status", "active"),
     // Registration-fee invoices belong to still-pending students, so the
     // invoice table's name lookup needs to cover them too, not just active ones.
     supabase.from("profiles").select("id, name").eq("role", "student"),
     supabase.from("profiles").select("id, name, role").in("role", ["teacher", "admin"]).eq("status", "active"),
-  ]);
-  const students = activeStudents;
-
-  const studentNameById = new Map((allStudents ?? []).map((s) => [s.id, s.name]));
-
-  const [{ data: invoices }, { data: deposits }, { data: budgets }, { data: allocations }] = await Promise.all([
     supabase.from("fee_invoices").select("id, student_id, period, amount, status").order("period", { ascending: false }),
     supabase.from("caution_deposits").select("id, student_id, amount, status, collected_at").order("collected_at", { ascending: false }),
     supabase.from("budgets").select("id, period, category, limit_amount"),
     supabase.from("salary_allocations").select("id, profile_id, role, amount, period").order("period", { ascending: false }),
   ]);
+  const students = activeStudents;
+  const studentNameById = new Map((allStudents ?? []).map((s) => [s.id, s.name]));
 
   const admissionInvoices = (invoices ?? []).filter((invoice) => invoice.period === "registration");
 

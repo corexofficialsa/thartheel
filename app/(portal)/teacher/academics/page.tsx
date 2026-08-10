@@ -16,28 +16,67 @@ export default async function TeacherAcademicsPage() {
   const profile = await requireRole("teacher");
   const supabase = await createClient();
 
-  const { data: classrooms } = await supabase.from("classrooms").select("id, name").eq("teacher_id", profile.id);
+  // Fetched in 3 rounds matched to real data dependencies (each round only
+  // waits on ids produced by the round before it) instead of one query at a
+  // time — this page used to make ~7 sequential round trips to Supabase.
+  const [{ data: classrooms }, { data: tracks }, { data: levels }, { data: notes }] = await Promise.all([
+    supabase.from("classrooms").select("id, name").eq("teacher_id", profile.id),
+    supabase.from("syllabus_tracks").select("id, name, total_milestones"),
+    supabase.from("levels").select("id, name"),
+    supabase.from("teaching_notes").select("id, title, file_url, level_id, created_at").order("created_at", { ascending: false }),
+  ]);
   const classroomIds = (classrooms ?? []).map((c) => c.id);
+  const classroomNameById = new Map((classrooms ?? []).map((c) => [c.id, c.name]));
+  const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
 
-  const { data: enrollments } =
+  const [{ data: enrollments }, { data: exams }, { data: allEnrollments }, noteUrlEntries] = await Promise.all([
     classroomIds.length > 0
-      ? await supabase.from("classroom_students").select("student_id").in("classroom_id", classroomIds)
-      : { data: [] as { student_id: string }[] };
+      ? supabase.from("classroom_students").select("student_id").in("classroom_id", classroomIds)
+      : Promise.resolve({ data: [] as { student_id: string }[] }),
+    classroomIds.length > 0
+      ? supabase
+          .from("exams")
+          .select("id, classroom_id, title, exam_type, scheduled_at")
+          .in("classroom_id", classroomIds)
+          .order("scheduled_at", { ascending: false })
+      : Promise.resolve({ data: [] as { id: string; classroom_id: string; title: string; exam_type: string; scheduled_at: string }[] }),
+    classroomIds.length > 0
+      ? supabase.from("classroom_students").select("classroom_id, student_id").in("classroom_id", classroomIds)
+      : Promise.resolve({ data: [] as { classroom_id: string; student_id: string }[] }),
+    Promise.all((notes ?? []).map(async (note) => [note.id, await createSignedUrl("teaching-notes", note.file_url)] as const)),
+  ]);
   const studentIds = [...new Set((enrollments ?? []).map((e) => e.student_id))];
+  const examIds = (exams ?? []).map((e) => e.id);
+  const noteUrls = new Map<string, string | null>(noteUrlEntries);
 
-  const [{ data: students }, { data: tracks }, { data: levels }] = await Promise.all([
+  const enrolledByClassroom = new Map<string, string[]>();
+  for (const row of allEnrollments ?? []) {
+    const list = enrolledByClassroom.get(row.classroom_id) ?? [];
+    list.push(row.student_id);
+    enrolledByClassroom.set(row.classroom_id, list);
+  }
+
+  const [{ data: students }, { data: milestones }, { data: progressReports }, { data: results }] = await Promise.all([
     studentIds.length > 0
       ? supabase.from("profiles").select("id, name").in("id", studentIds)
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-    supabase.from("syllabus_tracks").select("id, name, total_milestones"),
-    supabase.from("levels").select("id, name"),
+    studentIds.length > 0
+      ? supabase.from("student_milestones").select("student_id, track_id, milestone_index").in("student_id", studentIds)
+      : Promise.resolve({ data: [] as { student_id: string; track_id: string; milestone_index: number }[] }),
+    studentIds.length > 0
+      ? supabase
+          .from("progress_reports")
+          .select("id, student_id, period, notes, created_at")
+          .in("student_id", studentIds)
+          .order("created_at", { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: [] as { id: string; student_id: string; period: string; notes: string; created_at: string }[] }),
+    examIds.length > 0
+      ? supabase.from("exam_results").select("exam_id, student_id, marks").in("exam_id", examIds)
+      : Promise.resolve({ data: [] as { exam_id: string; student_id: string; marks: number }[] }),
   ]);
   const studentNameById = new Map((students ?? []).map((s) => [s.id, s.name]));
-
-  const { data: milestones } =
-    studentIds.length > 0
-      ? await supabase.from("student_milestones").select("student_id, track_id, milestone_index").in("student_id", studentIds)
-      : { data: [] as { student_id: string; track_id: string; milestone_index: number }[] };
+  const resultByExamStudent = new Map(results?.map((r) => [`${r.exam_id}:${r.student_id}`, r.marks]) ?? []);
 
   const currentMilestoneByStudentTrack = new Map<string, number>();
   for (const m of milestones ?? []) {
@@ -45,55 +84,6 @@ export default async function TeacherAcademicsPage() {
     const current = currentMilestoneByStudentTrack.get(key) ?? 0;
     if (m.milestone_index > current) currentMilestoneByStudentTrack.set(key, m.milestone_index);
   }
-
-  const { data: progressReports } =
-    studentIds.length > 0
-      ? await supabase
-          .from("progress_reports")
-          .select("id, student_id, period, notes, created_at")
-          .in("student_id", studentIds)
-          .order("created_at", { ascending: false })
-          .limit(20)
-      : { data: [] as { id: string; student_id: string; period: string; notes: string; created_at: string }[] };
-
-  const { data: exams } =
-    classroomIds.length > 0
-      ? await supabase
-          .from("exams")
-          .select("id, classroom_id, title, exam_type, scheduled_at")
-          .in("classroom_id", classroomIds)
-          .order("scheduled_at", { ascending: false })
-      : { data: [] as { id: string; classroom_id: string; title: string; exam_type: string; scheduled_at: string }[] };
-  const classroomNameById = new Map((classrooms ?? []).map((c) => [c.id, c.name]));
-
-  const examIds = (exams ?? []).map((e) => e.id);
-  const { data: results } =
-    examIds.length > 0
-      ? await supabase.from("exam_results").select("exam_id, student_id, marks").in("exam_id", examIds)
-      : { data: [] as { exam_id: string; student_id: string; marks: number }[] };
-  const resultByExamStudent = new Map(results?.map((r) => [`${r.exam_id}:${r.student_id}`, r.marks]) ?? []);
-
-  const enrolledByClassroom = new Map<string, string[]>();
-  const { data: allEnrollments } =
-    classroomIds.length > 0
-      ? await supabase.from("classroom_students").select("classroom_id, student_id").in("classroom_id", classroomIds)
-      : { data: [] as { classroom_id: string; student_id: string }[] };
-  for (const row of allEnrollments ?? []) {
-    const list = enrolledByClassroom.get(row.classroom_id) ?? [];
-    list.push(row.student_id);
-    enrolledByClassroom.set(row.classroom_id, list);
-  }
-
-  const { data: notes } = await supabase
-    .from("teaching_notes")
-    .select("id, title, file_url, level_id, created_at")
-    .order("created_at", { ascending: false });
-  const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
-  const noteUrls = new Map<string, string | null>(
-    await Promise.all(
-      (notes ?? []).map(async (note) => [note.id, await createSignedUrl("teaching-notes", note.file_url)] as const)
-    )
-  );
 
   return (
     <div className="space-y-6">
