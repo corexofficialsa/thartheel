@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -15,16 +16,14 @@ export async function recordMilestone(_prevState: ActionState, formData: FormDat
   const index = Number(milestoneIndex);
   if (!Number.isInteger(index) || index < 1) return { error: "Enter a valid milestone number." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase
     .from("student_milestones")
     .upsert(
-      { student_id: studentId, track_id: trackId, milestone_index: index, recorded_by: user.id },
+      { student_id: studentId, track_id: trackId, milestone_index: index, recorded_by: profile.id },
       { onConflict: "student_id,track_id,milestone_index" }
     );
 
@@ -44,15 +43,13 @@ export async function createProgressReport(_prevState: ActionState, formData: Fo
   }
   if (typeof notes !== "string" || !notes.trim()) return { error: "Enter your notes." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase.from("progress_reports").insert({
     student_id: studentId,
-    teacher_id: user.id,
+    teacher_id: profile.id,
     period: period as "daily" | "weekly" | "monthly",
     notes: notes.trim(),
   });
@@ -117,13 +114,11 @@ export async function uploadTeachingNote(_prevState: ActionState, formData: Form
   if (typeof title !== "string" || !title.trim()) return { error: "Enter a title." };
   if (!(file instanceof File) || file.size === 0) return { error: "Choose a file to upload." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
-  const path = `${user.id}/${Date.now()}-${file.name}`;
+  const path = `${profile.id}/${Date.now()}-${file.name}`;
   const { error: uploadError } = await supabase.storage
     .from("teaching-notes")
     .upload(path, file, { contentType: file.type });
@@ -133,7 +128,7 @@ export async function uploadTeachingNote(_prevState: ActionState, formData: Form
     title: title.trim(),
     file_url: path,
     level_id: typeof levelId === "string" && levelId ? levelId : null,
-    uploaded_by: user.id,
+    uploaded_by: profile.id,
   });
 
   if (error) return { error: "Could not save note metadata." };

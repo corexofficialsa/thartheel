@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string; success?: string } | undefined;
@@ -58,18 +59,16 @@ export async function updateComplaintStatus(
   if (typeof complaintId !== "string" || !complaintId) return { error: "Invalid complaint." };
   if (status !== "open" && status !== "in_review" && status !== "resolved") return { error: "Invalid status." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase
     .from("complaints")
     .update({
       status,
       resolution_note: typeof resolutionNote === "string" && resolutionNote.trim() ? resolutionNote.trim() : null,
-      resolved_by: status === "resolved" ? user.id : null,
+      resolved_by: status === "resolved" ? profile.id : null,
       resolved_at: status === "resolved" ? new Date().toISOString() : null,
     })
     .eq("id", complaintId);

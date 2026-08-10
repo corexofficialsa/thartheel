@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -18,11 +19,9 @@ export async function addFinanceRecord(_prevState: ActionState, formData: FormDa
   if (!Number.isFinite(amountValue) || amountValue <= 0) return { error: "Enter a valid amount." };
   if (typeof date !== "string" || !date) return { error: "Select a date." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase.from("finance_records").insert({
     type,
@@ -30,7 +29,7 @@ export async function addFinanceRecord(_prevState: ActionState, formData: FormDa
     amount: amountValue,
     description: typeof description === "string" && description.trim() ? description.trim() : null,
     date,
-    created_by: user.id,
+    created_by: profile.id,
   });
 
   if (error) return { error: "Could not save record." };

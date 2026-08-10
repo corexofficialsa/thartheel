@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { notify } from "@/lib/notify";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,17 +17,15 @@ export async function createHomework(_prevState: ActionState, formData: FormData
   if (typeof title !== "string" || !title.trim()) return { error: "Enter a title." };
   if (typeof dueDate !== "string" || !dueDate) return { error: "Set a due date." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { data: homework, error } = await supabase
     .from("homework")
     .insert({
       classroom_id: classroomId,
-      teacher_id: user.id,
+      teacher_id: profile.id,
       title: title.trim(),
       description: typeof description === "string" && description.trim() ? description.trim() : null,
       due_date: new Date(dueDate).toISOString(),
@@ -68,18 +67,16 @@ export async function gradeSubmission(_prevState: ActionState, formData: FormDat
 
   if (typeof submissionId !== "string") return { error: "Invalid request." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase.from("homework_grades").upsert(
     {
       submission_id: submissionId,
       grade: typeof grade === "string" && grade.trim() ? Number(grade) : null,
       feedback: typeof feedback === "string" && feedback.trim() ? feedback.trim() : null,
-      graded_by: user.id,
+      graded_by: profile.id,
     },
     { onConflict: "submission_id" }
   );

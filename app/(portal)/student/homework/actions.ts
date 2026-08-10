@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -13,16 +14,14 @@ export async function submitHomework(_prevState: ActionState, formData: FormData
 
   if (typeof homeworkId !== "string") return { error: "Invalid request." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase.from("homework_submissions").upsert(
     {
       homework_id: homeworkId,
-      student_id: user.id,
+      student_id: profile.id,
       text_answer: typeof textAnswer === "string" && textAnswer.trim() ? textAnswer.trim() : null,
       video_url: typeof videoPath === "string" && videoPath ? videoPath : null,
       audio_url: typeof audioPath === "string" && audioPath ? audioPath : null,

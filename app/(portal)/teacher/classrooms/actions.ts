@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -13,14 +14,12 @@ export async function createClassroom(_prevState: ActionState, formData: FormDat
   if (typeof name !== "string" || !name.trim()) return { error: "Enter a classroom name." };
   if (typeof levelId !== "string" || !levelId) return { error: "Select a level." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Not authenticated." };
 
   const { error } = await supabase.from("classrooms").insert({
-    teacher_id: user.id,
+    teacher_id: profile.id,
     name: name.trim(),
     level_id: levelId,
     meeting_link: typeof meetingLink === "string" && meetingLink.trim() ? meetingLink.trim() : null,

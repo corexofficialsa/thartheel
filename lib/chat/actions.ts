@@ -1,5 +1,6 @@
 "use server";
 
+import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type StartConversationResult = { ok: true; conversationId: string } | { ok: false; error: string };
@@ -19,15 +20,13 @@ export type SendMessageResult = { ok: true } | { ok: false; error: string };
 export async function sendMessage(conversationId: string, content: string): Promise<SendMessageResult> {
   if (!content.trim()) return { ok: false, error: "Message cannot be empty." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false, error: "Not authenticated." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not authenticated." };
 
   const { error } = await supabase.from("messages").insert({
     conversation_id: conversationId,
-    sender_id: user.id,
+    sender_id: profile.id,
     content: content.trim(),
   });
   if (error) return { ok: false, error: "Could not send message." };
