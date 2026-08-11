@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GraduationCap, LogIn, Menu, UserPlus, Users } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
@@ -19,7 +20,22 @@ const NAV_LINKS = [
 ];
 
 export function MarketingNav() {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Closing the sheet (React state) and next/link's own click handling
+  // (async — it fetches the RSC payload before committing the route) were
+  // two independent systems racing on the same click, and in production
+  // builds specifically the navigation sometimes lost that race and just
+  // silently did nothing (worse on touch/Android). Taking the click over
+  // completely and driving both from one place removes the race outright.
+  function navigateFromSheet(href: string) {
+    return (event: React.MouseEvent) => {
+      event.preventDefault();
+      setMobileOpen(false);
+      router.push(href);
+    };
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -88,21 +104,21 @@ export function MarketingNav() {
             <div className="my-2 h-px bg-border" />
             <Link
               href="/register/student"
-              onClick={() => setMobileOpen(false)}
+              onClick={navigateFromSheet("/register/student")}
               className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-secondary"
             >
               Register as a student
             </Link>
             <Link
               href="/register/teacher"
-              onClick={() => setMobileOpen(false)}
+              onClick={navigateFromSheet("/register/teacher")}
               className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-secondary"
             >
               Register as a teacher
             </Link>
             <Link
               href="/login"
-              onClick={() => setMobileOpen(false)}
+              onClick={navigateFromSheet("/login")}
               className="mt-2 rounded-lg bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground"
             >
               Log in
