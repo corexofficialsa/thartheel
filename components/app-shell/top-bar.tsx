@@ -60,7 +60,7 @@ export function TopBar({ name, role }: { name: string; role: UserRole }) {
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={handleSignOut} variant="destructive">
+            <DropdownMenuItem onClick={handleSignOut} variant="destructive">
               <LogOut />
               Sign out
             </DropdownMenuItem>
