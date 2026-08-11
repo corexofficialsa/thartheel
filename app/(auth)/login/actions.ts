@@ -67,5 +67,11 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
     };
   }
 
-  redirect(`/${profile.role}`);
+  // Students and teachers land straight in their classrooms rather than
+  // the stats dashboard — "Home" in the nav still reaches the dashboard.
+  const LANDING_PATH: Partial<Record<typeof profile.role, string>> = {
+    student: "/student/classrooms",
+    teacher: "/teacher/classrooms",
+  };
+  redirect(LANDING_PATH[profile.role] ?? `/${profile.role}`);
 }
