@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function RegistrationSuccess() {
   return (
@@ -8,6 +10,9 @@ export function RegistrationSuccess() {
       <p className="text-sm text-muted-foreground">
         An admin will review your details. Once approved, you&apos;ll get a WhatsApp message with a link to log in.
       </p>
+      <Button className="mt-2" nativeButton={false} render={<Link href="/" />}>
+        Go back to home
+      </Button>
     </div>
   );
 }

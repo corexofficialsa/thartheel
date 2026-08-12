@@ -1,6 +1,7 @@
 import { AddRecordForm } from "@/components/finance/add-record-form";
 import { CollectDepositForm } from "@/components/finance/collect-deposit-form";
 import { CreateInvoiceForm } from "@/components/finance/create-invoice-form";
+import { DownloadInvoiceButton } from "@/components/finance/download-invoice-button";
 import { SetBudgetForm } from "@/components/finance/set-budget-form";
 import { SetSalaryForm } from "@/components/finance/set-salary-form";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +34,7 @@ export default async function FinanceLedgerPage() {
     // invoice table's name lookup needs to cover them too, not just active ones.
     supabase.from("profiles").select("id, name").eq("role", "student"),
     supabase.from("profiles").select("id, name, role").in("role", ["teacher", "admin"]).eq("status", "active"),
-    supabase.from("fee_invoices").select("id, student_id, period, amount, status").order("period", { ascending: false }),
+    supabase.from("fee_invoices").select("id, student_id, period, amount, status, paid_at").order("period", { ascending: false }),
     supabase.from("caution_deposits").select("id, student_id, amount, status, collected_at").order("collected_at", { ascending: false }),
     supabase.from("budgets").select("id, period, category, limit_amount"),
     supabase.from("salary_allocations").select("id, profile_id, role, amount, period").order("period", { ascending: false }),
@@ -63,7 +64,7 @@ export default async function FinanceLedgerPage() {
       <Tabs defaultValue="ledger">
         <TabsList>
           <TabsTrigger value="ledger">Ledger</TabsTrigger>
-          <TabsTrigger value="admission">Admission</TabsTrigger>
+          <TabsTrigger value="admission">Registration</TabsTrigger>
           <TabsTrigger value="fees">Fees</TabsTrigger>
           <TabsTrigger value="deposits">Deposits</TabsTrigger>
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
@@ -111,11 +112,11 @@ export default async function FinanceLedgerPage() {
         <TabsContent value="admission" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Admission fees</CardTitle>
+              <CardTitle>Registration fees</CardTitle>
             </CardHeader>
             <p className="px-6 pb-4 text-sm text-muted-foreground">
-              New student registrations awaiting admission fee payment. Admin can&apos;t approve a registration until
-              it&apos;s marked paid here.
+              New student registrations awaiting the registration fee payment. Admin can&apos;t approve a registration
+              until it&apos;s marked paid here.
             </p>
             <Table>
               <TableHeader>
@@ -142,7 +143,15 @@ export default async function FinanceLedgerPage() {
                       <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {invoice.status !== "paid" && (
+                      {invoice.status === "paid" ? (
+                        <DownloadInvoiceButton
+                          invoiceId={invoice.id}
+                          studentName={studentNameById.get(invoice.student_id) ?? "Student"}
+                          period={invoice.period}
+                          amount={invoice.amount}
+                          paidAt={invoice.paid_at}
+                        />
+                      ) : (
                         <form action={markFeePaid}>
                           <input type="hidden" name="invoiceId" value={invoice.id} />
                           <Button type="submit" size="sm" variant="outline">
@@ -191,7 +200,15 @@ export default async function FinanceLedgerPage() {
                       <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {invoice.status !== "paid" && (
+                      {invoice.status === "paid" ? (
+                        <DownloadInvoiceButton
+                          invoiceId={invoice.id}
+                          studentName={studentNameById.get(invoice.student_id) ?? "Student"}
+                          period={invoice.period}
+                          amount={invoice.amount}
+                          paidAt={invoice.paid_at}
+                        />
+                      ) : (
                         <form action={markFeePaid}>
                           <input type="hidden" name="invoiceId" value={invoice.id} />
                           <Button type="submit" size="sm" variant="outline">

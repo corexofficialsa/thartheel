@@ -61,13 +61,39 @@ export async function markFeePaid(formData: FormData): Promise<void> {
   const invoiceId = formData.get("invoiceId");
   if (typeof invoiceId !== "string") return;
 
+  const profile = await getCurrentProfile();
+  if (!profile) return;
   const supabase = await createClient();
-  await supabase
+
+  const { data: invoice } = await supabase
+    .from("fee_invoices")
+    .select("student_id, period, amount, status")
+    .eq("id", invoiceId)
+    .single();
+  if (!invoice || invoice.status === "paid") return;
+
+  const { error } = await supabase
     .from("fee_invoices")
     .update({ status: "paid", paid_at: new Date().toISOString(), method: "manual" })
     .eq("id", invoiceId);
+  if (error) return;
+
+  // A paid fee is real revenue — record it in finance_records so it shows
+  // up in the Ledger totals and board's finance overview, both of which
+  // only ever read finance_records, not fee_invoices.
+  const { data: student } = await supabase.from("profiles").select("name").eq("id", invoice.student_id).single();
+  await supabase.from("finance_records").insert({
+    type: "income",
+    category: invoice.period === "registration" ? "Registration fee" : "Tuition fee",
+    amount: invoice.amount,
+    description: `${student?.name ?? "Student"} — ${invoice.period}`,
+    date: new Date().toISOString().slice(0, 10),
+    created_by: profile.id,
+  });
 
   revalidatePath("/finance/ledger");
+  revalidatePath("/finance");
+  revalidatePath("/board/finance");
 }
 
 export async function collectDeposit(_prevState: ActionState, formData: FormData): Promise<ActionState> {

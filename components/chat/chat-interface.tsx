@@ -44,7 +44,8 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as ChatMessage]);
+          const incoming = payload.new as ChatMessage;
+          setMessages((prev) => (prev.some((m) => m.id === incoming.id) ? prev : [...prev, incoming]));
         }
       )
       .subscribe();
@@ -64,7 +65,12 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
     setDraft("");
     startTransition(async () => {
       const result = await sendMessage(conversationId, content);
-      if (!result.ok) setError(result.error);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setError(null);
+      setMessages((prev) => (prev.some((m) => m.id === result.message.id) ? prev : [...prev, result.message]));
     });
   }
 
