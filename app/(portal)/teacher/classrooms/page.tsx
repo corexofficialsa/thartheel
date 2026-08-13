@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { JoinClassroomButton } from "@/components/classroom/join-classroom-button";
+import { ClassroomLockToggle } from "@/components/teacher/classroom-lock-toggle";
 import { CreateClassroomForm } from "@/components/teacher/create-classroom-form";
 import { EnrollStudentForm } from "@/components/teacher/enroll-student-form";
 import { MeetingLinkForm } from "@/components/teacher/meeting-link-form";
@@ -17,7 +18,7 @@ export default async function TeacherClassroomsPage() {
   const [{ data: classrooms }, { data: levels }, { data: activeStudents }] = await Promise.all([
     supabase
       .from("classrooms")
-      .select("id, name, level_id, meeting_link, created_at")
+      .select("id, name, level_id, meeting_link, teacher_joined_at, join_locked_override, created_at")
       .eq("teacher_id", profile.id)
       .order("created_at", { ascending: false }),
     supabase.from("levels").select("id, name"),
@@ -29,6 +30,17 @@ export default async function TeacherClassroomsPage() {
     classroomIds.length > 0
       ? await supabase.from("classroom_students").select("classroom_id, student_id").in("classroom_id", classroomIds)
       : { data: [] as { classroom_id: string; student_id: string }[] };
+
+  // Mirrors the auto-lock rule evaluated server-side in join_classroom() —
+  // this is just for display, the RPC is the actual source of truth at
+  // the moment a student clicks join.
+  function isEffectivelyLocked(classroom: { teacher_joined_at: string | null; join_locked_override: boolean | null }) {
+    if (classroom.join_locked_override !== null) return classroom.join_locked_override;
+    if (!classroom.teacher_joined_at) return false;
+    const joinedAt = new Date(classroom.teacher_joined_at);
+    if (joinedAt.toDateString() !== new Date().toDateString()) return false;
+    return Date.now() - joinedAt.getTime() > 20 * 60 * 1000;
+  }
 
   const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
   const studentById = new Map((activeStudents ?? []).map((s) => [s.id, s]));
@@ -78,6 +90,15 @@ export default async function TeacherClassroomsPage() {
               <div>
                 <p className="mb-1 text-sm font-medium">Meeting link</p>
                 <MeetingLinkForm classroomId={classroom.id} meetingLink={classroom.meeting_link} />
+              </div>
+
+              <div>
+                <p className="mb-1 text-sm font-medium">Student join access</p>
+                <ClassroomLockToggle
+                  classroomId={classroom.id}
+                  effectivelyLocked={isEffectivelyLocked(classroom)}
+                  isManualOverride={classroom.join_locked_override !== null}
+                />
               </div>
 
               <Separator />

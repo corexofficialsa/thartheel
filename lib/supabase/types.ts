@@ -70,6 +70,8 @@ export type Database = {
           batch_id: string | null;
           name: string;
           meeting_link: string | null;
+          teacher_joined_at: string | null;
+          join_locked_override: boolean | null;
           created_at: string;
         };
         Insert: {
@@ -491,6 +493,7 @@ export type Database = {
         Args: { p_classroom_id: string };
         Returns: { locked: boolean; reason?: string; meeting_link?: string };
       };
+      set_classroom_join_lock: { Args: { p_classroom_id: string; p_locked: boolean | null }; Returns: void };
       start_conversation: { Args: { p_other_user_id: string }; Returns: string };
       submit_complaint: { Args: { p_subject: string; p_description: string }; Returns: string };
       top_student_leaderboard: {
