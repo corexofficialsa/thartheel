@@ -15,7 +15,25 @@ export async function startConversation(otherUserId: string): Promise<StartConve
   return { ok: true, conversationId: data };
 }
 
-export type ChatMessage = { id: string; conversation_id: string; sender_id: string; content: string; created_at: string };
+// open_classroom_conversation() validates the caller teaches/is enrolled in
+// the classroom, finds-or-creates its one group conversation, and lazily
+// adds the caller as a participant (self-healing for students enrolled
+// after the conversation already exists).
+export async function openClassroomConversation(classroomId: string): Promise<StartConversationResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("open_classroom_conversation", { p_classroom_id: classroomId });
+  if (error || !data) return { ok: false, error: "Could not open this classroom chat." };
+  return { ok: true, conversationId: data };
+}
+
+export type ChatMessage = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  sender_name: string;
+  content: string;
+  created_at: string;
+};
 
 export type SendMessageResult = { ok: true; message: ChatMessage } | { ok: false; error: string };
 
@@ -40,15 +58,23 @@ export async function sendMessage(conversationId: string, content: string): Prom
     .select("id, conversation_id, sender_id, content, created_at")
     .single();
   if (error || !data) return { ok: false, error: "Could not send message." };
-  return { ok: true, message: data };
+  return { ok: true, message: { ...data, sender_name: profile.name } };
 }
 
 export async function getMessages(conversationId: string): Promise<ChatMessage[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data: messages } = await supabase
     .from("messages")
     .select("id, conversation_id, sender_id, content, created_at")
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
-  return data ?? [];
+
+  const senderIds = [...new Set((messages ?? []).map((m) => m.sender_id))];
+  const { data: senders } =
+    senderIds.length > 0
+      ? await supabase.from("profiles").select("id, name").in("id", senderIds)
+      : { data: [] as { id: string; name: string }[] };
+  const nameById = new Map((senders ?? []).map((s) => [s.id, s.name]));
+
+  return (messages ?? []).map((m) => ({ ...m, sender_name: nameById.get(m.sender_id) ?? "Unknown" }));
 }

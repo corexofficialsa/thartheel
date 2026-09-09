@@ -10,7 +10,7 @@ export default async function TeacherChatPage() {
   const profile = await requireRole("teacher");
   const supabase = await createClient();
 
-  const { data: classrooms } = await supabase.from("classrooms").select("id").eq("teacher_id", profile.id);
+  const { data: classrooms } = await supabase.from("classrooms").select("id, name").eq("teacher_id", profile.id);
   const classroomIds = (classrooms ?? []).map((c) => c.id);
 
   const [{ data: enrollments }, { data: board }, complaints] = await Promise.all([
@@ -26,6 +26,7 @@ export default async function TeacherChatPage() {
     studentIds.length > 0 ? await supabase.from("profiles").select("id, name").in("id", studentIds) : { data: [] as { id: string; name: string }[] };
 
   const contacts: ChatContact[] = [
+    ...(classrooms ?? []).map((c) => ({ id: c.id, name: c.name, subtitle: "Classroom chat", kind: "classroom" as const })),
     ...(students ?? []).map((s) => ({ id: s.id, name: s.name, subtitle: "Student" })),
     ...(board ?? []).map((b) => ({ id: b.id, name: b.name, subtitle: "Board Committee" })),
   ];

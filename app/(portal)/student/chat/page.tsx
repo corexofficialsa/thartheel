@@ -18,8 +18,8 @@ export default async function StudentChatPage() {
 
   const [{ data: classrooms }, complaints] = await Promise.all([
     classroomIds.length > 0
-      ? supabase.from("classrooms").select("teacher_id").in("id", classroomIds)
-      : Promise.resolve({ data: [] as { teacher_id: string }[] }),
+      ? supabase.from("classrooms").select("id, name, teacher_id").in("id", classroomIds)
+      : Promise.resolve({ data: [] as { id: string; name: string; teacher_id: string }[] }),
     getVisibleComplaints(),
   ]);
   const teacherIds = [...new Set((classrooms ?? []).map((c) => c.teacher_id))];
@@ -27,7 +27,10 @@ export default async function StudentChatPage() {
   const { data: teachers } =
     teacherIds.length > 0 ? await supabase.from("profiles").select("id, name").in("id", teacherIds) : { data: [] as { id: string; name: string }[] };
 
-  const contacts: ChatContact[] = (teachers ?? []).map((t) => ({ id: t.id, name: t.name, subtitle: "Teacher" }));
+  const contacts: ChatContact[] = [
+    ...(teachers ?? []).map((t) => ({ id: t.id, name: t.name, subtitle: "Teacher" })),
+    ...(classrooms ?? []).map((c) => ({ id: c.id, name: c.name, subtitle: "Classroom chat", kind: "classroom" as const })),
+  ];
 
   return (
     <div className="space-y-6">

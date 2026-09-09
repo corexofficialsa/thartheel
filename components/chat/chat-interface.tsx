@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { getMessages, sendMessage, startConversation, type ChatMessage } from "@/lib/chat/actions";
+import { getMessages, openClassroomConversation, sendMessage, startConversation, type ChatMessage } from "@/lib/chat/actions";
 
-export type ChatContact = { id: string; name: string; subtitle?: string };
+export type ChatContact = { id: string; name: string; subtitle?: string; kind?: "user" | "classroom" };
 
 export function ChatInterface({ currentUserId, contacts }: { currentUserId: string; contacts: ChatContact[] }) {
   const [selectedContact, setSelectedContact] = useState<ChatContact | null>(null);
@@ -25,7 +25,8 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
     setMessages([]);
     setError(null);
     startTransition(async () => {
-      const result = await startConversation(contact.id);
+      const result =
+        contact.kind === "classroom" ? await openClassroomConversation(contact.id) : await startConversation(contact.id);
       if (!result.ok) {
         setError(result.error);
         return;
@@ -102,17 +103,24 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
           <>
             <div className="border-b px-4 py-2 font-medium">{selectedContact.name}</div>
             <div className="flex-1 space-y-2 overflow-y-auto p-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "max-w-xs rounded-lg px-3 py-2 text-sm",
-                    message.sender_id === currentUserId ? "ml-auto bg-primary text-primary-foreground" : "bg-secondary"
-                  )}
-                >
-                  {message.content}
-                </div>
-              ))}
+              {messages.map((message) => {
+                const isMine = message.sender_id === currentUserId;
+                return (
+                  <div key={message.id} className={cn("max-w-xs", isMine && "ml-auto")}>
+                    {selectedContact.kind === "classroom" && !isMine && (
+                      <p className="mb-0.5 px-1 text-xs font-medium text-muted-foreground">{message.sender_name}</p>
+                    )}
+                    <div
+                      className={cn(
+                        "rounded-lg px-3 py-2 text-sm",
+                        isMine ? "bg-primary text-primary-foreground" : "bg-secondary"
+                      )}
+                    >
+                      {message.content}
+                    </div>
+                  </div>
+                );
+              })}
               <div ref={bottomRef} />
             </div>
             {error && <p className="px-4 text-xs text-destructive">{error}</p>}

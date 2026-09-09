@@ -1,7 +1,6 @@
 import { X } from "lucide-react";
 import { JoinClassroomButton } from "@/components/classroom/join-classroom-button";
 import { ClassroomLockToggle } from "@/components/teacher/classroom-lock-toggle";
-import { CreateClassroomForm } from "@/components/teacher/create-classroom-form";
 import { EnrollStudentForm } from "@/components/teacher/enroll-student-form";
 import { MeetingLinkForm } from "@/components/teacher/meeting-link-form";
 import { Button } from "@/components/ui/button";
@@ -55,18 +54,16 @@ export default async function TeacherClassroomsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Classrooms</h1>
-        <p className="text-muted-foreground">Manage your classrooms, meeting links, and enrolled students.</p>
+        <p className="text-muted-foreground">
+          Manage your classrooms, meeting links, and enrolled students. Only admin or board can create a new classroom.
+        </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>New classroom</CardTitle>
-          <CardDescription>Create a classroom for one of your levels.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateClassroomForm levels={levels ?? []} />
-        </CardContent>
-      </Card>
+      {(classrooms ?? []).length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          No classrooms yet — ask admin or board to create one and assign you as the teacher.
+        </p>
+      )}
 
       {(classrooms ?? []).map((classroom) => {
         const enrolledIds = enrolledByClassroom.get(classroom.id) ?? [];

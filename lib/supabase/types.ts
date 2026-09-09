@@ -182,8 +182,13 @@ export type Database = {
         Relationships: [];
       };
       conversations: {
-        Row: { id: string; type: "student_teacher" | "teacher_board"; created_at: string };
-        Insert: never; // created only via start_conversation() RPC
+        Row: {
+          id: string;
+          type: "student_teacher" | "teacher_board" | "classroom_group";
+          classroom_id: string | null;
+          created_at: string;
+        };
+        Insert: never; // created only via start_conversation()/open_classroom_conversation() RPCs
         Update: never;
         Relationships: [];
       };
@@ -494,6 +499,7 @@ export type Database = {
         Returns: { locked: boolean; reason?: string; meeting_link?: string };
       };
       set_classroom_join_lock: { Args: { p_classroom_id: string; p_locked: boolean | null }; Returns: void };
+      open_classroom_conversation: { Args: { p_classroom_id: string }; Returns: string };
       start_conversation: { Args: { p_other_user_id: string }; Returns: string };
       submit_complaint: { Args: { p_subject: string; p_description: string }; Returns: string };
       top_student_leaderboard: {

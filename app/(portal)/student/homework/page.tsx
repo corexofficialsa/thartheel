@@ -1,6 +1,7 @@
 import { HomeworkSubmissionForm } from "@/components/student/homework-submission-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,6 +49,54 @@ export default async function StudentHomeworkPage() {
       : { data: [] as { submission_id: string; grade: number | null; feedback: string | null }[] };
   const gradeBySubmissionId = new Map((grades ?? []).map((g) => [g.submission_id, g]));
 
+  const currentHomework = (homeworkList ?? []).filter((hw) => !submissionByHomeworkId.has(hw.id));
+  const pastHomework = (homeworkList ?? []).filter((hw) => submissionByHomeworkId.has(hw.id));
+
+  function renderCard(hw: NonNullable<typeof homeworkList>[number]) {
+    const submission = submissionByHomeworkId.get(hw.id);
+    const grade = submission ? gradeBySubmissionId.get(submission.id) : undefined;
+    const isPastDue = new Date(hw.due_date) < new Date();
+
+    return (
+      <Card key={hw.id}>
+        <CardHeader className="flex-row items-start justify-between gap-4">
+          <div>
+            <CardTitle>{hw.title}</CardTitle>
+            <CardDescription>
+              {classroomNameById.get(hw.classroom_id) ?? "Classroom"} — due{" "}
+              {new Date(hw.due_date).toLocaleString()}
+            </CardDescription>
+          </div>
+          {submission ? (
+            <Badge variant={grade ? "default" : "secondary"}>{grade ? "Graded" : "Submitted"}</Badge>
+          ) : (
+            <Badge variant={isPastDue ? "destructive" : "outline"}>{isPastDue ? "Overdue" : "Pending"}</Badge>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {hw.description && <p className="text-sm text-muted-foreground">{hw.description}</p>}
+
+          {grade && (
+            <div className="rounded-md border bg-secondary/40 p-3 text-sm">
+              <p className="font-medium">
+                Grade: {grade.grade ?? "—"}
+              </p>
+              {grade.feedback && <p className="mt-1 text-muted-foreground">{grade.feedback}</p>}
+            </div>
+          )}
+
+          <HomeworkSubmissionForm
+            homeworkId={hw.id}
+            studentId={profile.id}
+            existingTextAnswer={submission?.text_answer}
+            existingVideoPath={submission?.video_url}
+            existingAudioPath={submission?.audio_url}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -55,56 +104,32 @@ export default async function StudentHomeworkPage() {
         <p className="text-muted-foreground">Answer with text, video, or audio — whatever your teacher asks for.</p>
       </div>
 
-      {(!homeworkList || homeworkList.length === 0) && (
+      {(!homeworkList || homeworkList.length === 0) ? (
         <p className="text-sm text-muted-foreground">No homework has been assigned yet.</p>
+      ) : (
+        <Tabs defaultValue="current">
+          <TabsList>
+            <TabsTrigger value="current">Current ({currentHomework.length})</TabsTrigger>
+            <TabsTrigger value="past">Past Homework ({pastHomework.length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="current" className="space-y-4">
+            {currentHomework.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nothing pending — you&apos;re all caught up.</p>
+            ) : (
+              currentHomework.map(renderCard)
+            )}
+          </TabsContent>
+
+          <TabsContent value="past" className="space-y-4">
+            {pastHomework.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Homework you&apos;ve submitted will show up here.</p>
+            ) : (
+              pastHomework.map(renderCard)
+            )}
+          </TabsContent>
+        </Tabs>
       )}
-
-      <div className="space-y-4">
-        {(homeworkList ?? []).map((hw) => {
-          const submission = submissionByHomeworkId.get(hw.id);
-          const grade = submission ? gradeBySubmissionId.get(submission.id) : undefined;
-          const isPastDue = new Date(hw.due_date) < new Date();
-
-          return (
-            <Card key={hw.id}>
-              <CardHeader className="flex-row items-start justify-between gap-4">
-                <div>
-                  <CardTitle>{hw.title}</CardTitle>
-                  <CardDescription>
-                    {classroomNameById.get(hw.classroom_id) ?? "Classroom"} — due{" "}
-                    {new Date(hw.due_date).toLocaleString()}
-                  </CardDescription>
-                </div>
-                {submission ? (
-                  <Badge variant={grade ? "default" : "secondary"}>{grade ? "Graded" : "Submitted"}</Badge>
-                ) : (
-                  <Badge variant={isPastDue ? "destructive" : "outline"}>{isPastDue ? "Overdue" : "Pending"}</Badge>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {hw.description && <p className="text-sm text-muted-foreground">{hw.description}</p>}
-
-                {grade && (
-                  <div className="rounded-md border bg-secondary/40 p-3 text-sm">
-                    <p className="font-medium">
-                      Grade: {grade.grade ?? "—"}
-                    </p>
-                    {grade.feedback && <p className="mt-1 text-muted-foreground">{grade.feedback}</p>}
-                  </div>
-                )}
-
-                <HomeworkSubmissionForm
-                  homeworkId={hw.id}
-                  studentId={profile.id}
-                  existingTextAnswer={submission?.text_answer}
-                  existingVideoPath={submission?.video_url}
-                  existingAudioPath={submission?.audio_url}
-                />
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
     </div>
   );
 }
