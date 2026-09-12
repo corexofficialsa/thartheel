@@ -1,6 +1,7 @@
 import { AddRecordForm } from "@/components/finance/add-record-form";
 import { CollectDepositForm } from "@/components/finance/collect-deposit-form";
 import { CreateInvoiceForm } from "@/components/finance/create-invoice-form";
+import { DeleteRecordButton } from "@/components/finance/delete-record-button";
 import { DownloadInvoiceButton } from "@/components/finance/download-invoice-button";
 import { SetBudgetForm } from "@/components/finance/set-budget-form";
 import { SetSalaryForm } from "@/components/finance/set-salary-form";
@@ -10,7 +11,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
-import { markFeePaid, refundDeposit } from "./actions";
+import {
+  deleteBudget,
+  deleteDeposit,
+  deleteFeeInvoice,
+  deleteFinanceRecord,
+  deleteSalaryAllocation,
+  markFeePaid,
+  refundDeposit,
+} from "./actions";
 
 export default async function FinanceLedgerPage() {
   const supabase = await createClient();
@@ -92,6 +101,7 @@ export default async function FinanceLedgerPage() {
                   <TableHead>Category</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -102,6 +112,14 @@ export default async function FinanceLedgerPage() {
                     <TableCell>{record.category}</TableCell>
                     <TableCell>{record.description ?? "—"}</TableCell>
                     <TableCell className="text-right">{record.amount.toFixed(2)} SAR</TableCell>
+                    <TableCell className="text-right">
+                      <DeleteRecordButton
+                        action={deleteFinanceRecord}
+                        fieldName="recordId"
+                        fieldValue={record.id}
+                        itemLabel={`This ${record.type} record (${record.category})`}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -143,22 +161,30 @@ export default async function FinanceLedgerPage() {
                       <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {invoice.status === "paid" ? (
-                        <DownloadInvoiceButton
-                          invoiceId={invoice.id}
-                          studentName={studentNameById.get(invoice.student_id) ?? "Student"}
-                          period={invoice.period}
-                          amount={invoice.amount}
-                          paidAt={invoice.paid_at}
+                      <div className="flex items-center justify-end gap-1">
+                        {invoice.status === "paid" ? (
+                          <DownloadInvoiceButton
+                            invoiceId={invoice.id}
+                            studentName={studentNameById.get(invoice.student_id) ?? "Student"}
+                            period={invoice.period}
+                            amount={invoice.amount}
+                            paidAt={invoice.paid_at}
+                          />
+                        ) : (
+                          <form action={markFeePaid}>
+                            <input type="hidden" name="invoiceId" value={invoice.id} />
+                            <Button type="submit" size="sm" variant="outline">
+                              Mark paid
+                            </Button>
+                          </form>
+                        )}
+                        <DeleteRecordButton
+                          action={deleteFeeInvoice}
+                          fieldName="invoiceId"
+                          fieldValue={invoice.id}
+                          itemLabel={`This registration fee invoice for ${studentNameById.get(invoice.student_id) ?? "this student"}`}
                         />
-                      ) : (
-                        <form action={markFeePaid}>
-                          <input type="hidden" name="invoiceId" value={invoice.id} />
-                          <Button type="submit" size="sm" variant="outline">
-                            Mark paid
-                          </Button>
-                        </form>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -200,22 +226,30 @@ export default async function FinanceLedgerPage() {
                       <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {invoice.status === "paid" ? (
-                        <DownloadInvoiceButton
-                          invoiceId={invoice.id}
-                          studentName={studentNameById.get(invoice.student_id) ?? "Student"}
-                          period={invoice.period}
-                          amount={invoice.amount}
-                          paidAt={invoice.paid_at}
+                      <div className="flex items-center justify-end gap-1">
+                        {invoice.status === "paid" ? (
+                          <DownloadInvoiceButton
+                            invoiceId={invoice.id}
+                            studentName={studentNameById.get(invoice.student_id) ?? "Student"}
+                            period={invoice.period}
+                            amount={invoice.amount}
+                            paidAt={invoice.paid_at}
+                          />
+                        ) : (
+                          <form action={markFeePaid}>
+                            <input type="hidden" name="invoiceId" value={invoice.id} />
+                            <Button type="submit" size="sm" variant="outline">
+                              Mark paid
+                            </Button>
+                          </form>
+                        )}
+                        <DeleteRecordButton
+                          action={deleteFeeInvoice}
+                          fieldName="invoiceId"
+                          fieldValue={invoice.id}
+                          itemLabel={`This fee invoice for ${studentNameById.get(invoice.student_id) ?? "this student"}`}
                         />
-                      ) : (
-                        <form action={markFeePaid}>
-                          <input type="hidden" name="invoiceId" value={invoice.id} />
-                          <Button type="submit" size="sm" variant="outline">
-                            Mark paid
-                          </Button>
-                        </form>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -255,14 +289,22 @@ export default async function FinanceLedgerPage() {
                       <Badge variant={deposit.status === "held" ? "secondary" : "default"}>{deposit.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {deposit.status === "held" && (
-                        <form action={refundDeposit}>
-                          <input type="hidden" name="depositId" value={deposit.id} />
-                          <Button type="submit" size="sm" variant="outline">
-                            Refund
-                          </Button>
-                        </form>
-                      )}
+                      <div className="flex items-center justify-end gap-1">
+                        {deposit.status === "held" && (
+                          <form action={refundDeposit}>
+                            <input type="hidden" name="depositId" value={deposit.id} />
+                            <Button type="submit" size="sm" variant="outline">
+                              Refund
+                            </Button>
+                          </form>
+                        )}
+                        <DeleteRecordButton
+                          action={deleteDeposit}
+                          fieldName="depositId"
+                          fieldValue={deposit.id}
+                          itemLabel={`This deposit for ${studentNameById.get(deposit.student_id) ?? "this student"}`}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -292,6 +334,7 @@ export default async function FinanceLedgerPage() {
                   <TableHead>Limit</TableHead>
                   <TableHead>Spent</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -308,6 +351,14 @@ export default async function FinanceLedgerPage() {
                         <Badge variant={overBudget ? "destructive" : "default"}>
                           {overBudget ? "Over budget" : "On track"}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DeleteRecordButton
+                          action={deleteBudget}
+                          fieldName="budgetId"
+                          fieldValue={budget.id}
+                          itemLabel={`This budget for ${budget.category} (${budget.period})`}
+                        />
                       </TableCell>
                     </TableRow>
                   );
@@ -337,6 +388,7 @@ export default async function FinanceLedgerPage() {
                   <TableHead>Role</TableHead>
                   <TableHead>Period</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -346,6 +398,14 @@ export default async function FinanceLedgerPage() {
                     <TableCell className="capitalize">{allocation.role}</TableCell>
                     <TableCell>{allocation.period}</TableCell>
                     <TableCell className="text-right">{allocation.amount.toFixed(2)} SAR</TableCell>
+                    <TableCell className="text-right">
+                      <DeleteRecordButton
+                        action={deleteSalaryAllocation}
+                        fieldName="allocationId"
+                        fieldValue={allocation.id}
+                        itemLabel={`This salary allocation for ${staffNameById.get(allocation.profile_id) ?? "this person"} (${allocation.period})`}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

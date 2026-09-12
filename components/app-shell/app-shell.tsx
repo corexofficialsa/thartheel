@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { UserRole } from "@/lib/supabase/types";
 import { BottomTabBar } from "./bottom-tab-bar";
+import { PageTransition } from "./page-transition";
 import { AppSidebar } from "./sidebar-nav";
 import { TopBar } from "./top-bar";
 
@@ -19,7 +20,9 @@ export function AppShell({
         <AppSidebar role={role} />
         <div className="flex min-h-svh w-full flex-1 flex-col">
           <TopBar name={name} role={role} />
-          <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-6">{children}</main>
+          <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-6 md:pb-6">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <BottomTabBar role={role} />
         </div>
       </div>

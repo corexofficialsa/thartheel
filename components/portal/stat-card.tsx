@@ -20,9 +20,14 @@ export function StatCard({
   className?: string;
 }) {
   const content = (
-    <Card className={cn(href && "transition-colors hover:bg-accent/10", className)}>
+    <Card
+      className={cn(
+        href && "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-foreground/10 hover:ring-foreground/15",
+        className
+      )}
+    >
       <CardContent className="flex flex-col gap-3">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-200 ease-out group-hover/card:scale-110">
           <Icon className="size-4" />
         </span>
         <div>

@@ -49,7 +49,7 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.98 0.004 258);
   --foreground: oklch(0.22 0.04 258);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.04 258);
@@ -64,15 +64,15 @@
   --accent: oklch(0.82 0.13 85);
   --accent-foreground: oklch(0.25 0.05 258);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.02 258);
-  --input: oklch(0.9 0.02 258);
+  --border: oklch(0.91 0.015 258);
+  --input: oklch(0.91 0.015 258);
   --ring: oklch(0.55 0.14 258);
   --chart-1: oklch(0.55 0.16 258);
   --chart-2: oklch(0.75 0.14 85);
   --chart-3: oklch(0.65 0.1 220);
   --chart-4: oklch(0.6 0.12 40);
   --chart-5: oklch(0.4 0.05 258);
-  --radius: 0.75rem;
+  --radius: 0.85rem;
   --sidebar: oklch(0.98 0.005 258);
   --sidebar-foreground: oklch(0.25 0.05 258);
   --sidebar-primary: oklch(0.42 0.16 258);
@@ -126,5 +126,32 @@
   }
   html {
     @apply font-sans;
+  }
+  /* Smooths the light/dark toggle instead of an instant color snap. */
+  html,
+  body {
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
+  }
+}
+
+@layer utilities {
+  /* One shared entrance animation for page content — a soft fade + rise,
+     applied on every portal page's main wrapper so navigation feels alive
+     without a JS animation library. */
+  .animate-page-in {
+    animation: page-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

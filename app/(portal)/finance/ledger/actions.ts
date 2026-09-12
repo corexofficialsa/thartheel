@@ -119,6 +119,36 @@ export async function refundDeposit(formData: FormData): Promise<void> {
   revalidatePath("/finance/ledger");
 }
 
+// Delete actions below are for cleaning up mistakenly-added entries — RLS
+// (each table's *_write "for all" policy) already lets finance delete any
+// row, not just ones they created themselves.
+
+export async function deleteFinanceRecord(formData: FormData): Promise<void> {
+  const recordId = formData.get("recordId");
+  if (typeof recordId !== "string") return;
+  const supabase = await createClient();
+  await supabase.from("finance_records").delete().eq("id", recordId);
+  revalidatePath("/finance/ledger");
+  revalidatePath("/finance");
+  revalidatePath("/board/finance");
+}
+
+export async function deleteFeeInvoice(formData: FormData): Promise<void> {
+  const invoiceId = formData.get("invoiceId");
+  if (typeof invoiceId !== "string") return;
+  const supabase = await createClient();
+  await supabase.from("fee_invoices").delete().eq("id", invoiceId);
+  revalidatePath("/finance/ledger");
+}
+
+export async function deleteDeposit(formData: FormData): Promise<void> {
+  const depositId = formData.get("depositId");
+  if (typeof depositId !== "string") return;
+  const supabase = await createClient();
+  await supabase.from("caution_deposits").delete().eq("id", depositId);
+  revalidatePath("/finance/ledger");
+}
+
 export async function setBudget(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const period = formData.get("period");
   const category = formData.get("category");
@@ -138,6 +168,14 @@ export async function setBudget(_prevState: ActionState, formData: FormData): Pr
     );
 
   if (error) return { error: "Could not save budget." };
+  revalidatePath("/finance/ledger");
+}
+
+export async function deleteBudget(formData: FormData): Promise<void> {
+  const budgetId = formData.get("budgetId");
+  if (typeof budgetId !== "string") return;
+  const supabase = await createClient();
+  await supabase.from("budgets").delete().eq("id", budgetId);
   revalidatePath("/finance/ledger");
 }
 
@@ -169,5 +207,13 @@ export async function setSalaryAllocation(_prevState: ActionState, formData: For
 
   if (error) return { error: "Could not save allocation." };
 
+  revalidatePath("/finance/ledger");
+}
+
+export async function deleteSalaryAllocation(formData: FormData): Promise<void> {
+  const allocationId = formData.get("allocationId");
+  if (typeof allocationId !== "string") return;
+  const supabase = await createClient();
+  await supabase.from("salary_allocations").delete().eq("id", allocationId);
   revalidatePath("/finance/ledger");
 }
