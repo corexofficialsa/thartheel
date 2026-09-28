@@ -42,7 +42,7 @@ export function CreateClassroomForm({
     <form onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-4">
       <div className="space-y-2 sm:col-span-2">
         <Label htmlFor="name">Classroom name</Label>
-        <Input id="name" name="name" placeholder="e.g. Qaida Al-Madania — Batch A" required />
+        <Input id="name" name="name" placeholder="e.g. Level 1 — Batch A" required />
       </div>
       <div className="space-y-2">
         <Label htmlFor="teacherId">Teacher</Label>

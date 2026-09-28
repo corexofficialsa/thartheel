@@ -17,11 +17,11 @@ export async function submitComplaint(_prevState: ActionState, formData: FormDat
     p_subject: subject.trim(),
     p_description: description.trim(),
   });
-  if (error) return { error: "Could not submit your complaint. Please try again." };
+  if (error) return { error: "Could not send your request. Please try again." };
 
   revalidatePath("/student/chat");
   revalidatePath("/teacher/chat");
-  return { success: "Your complaint has been submitted to the academy admin." };
+  return { success: "Your request has been sent to the academy admin." };
 }
 
 export type Complaint = {
@@ -56,7 +56,7 @@ export async function updateComplaintStatus(
   const complaintId = formData.get("complaintId");
   const status = formData.get("status");
   const resolutionNote = formData.get("resolutionNote");
-  if (typeof complaintId !== "string" || !complaintId) return { error: "Invalid complaint." };
+  if (typeof complaintId !== "string" || !complaintId) return { error: "Invalid request." };
   if (status !== "open" && status !== "in_review" && status !== "resolved") return { error: "Invalid status." };
 
   const profile = await getCurrentProfile();
@@ -72,7 +72,7 @@ export async function updateComplaintStatus(
       resolved_at: status === "resolved" ? new Date().toISOString() : null,
     })
     .eq("id", complaintId);
-  if (error) return { error: "Could not update this complaint." };
+  if (error) return { error: "Could not update this request." };
 
   revalidatePath("/admin/messages");
   revalidatePath("/board/messages");

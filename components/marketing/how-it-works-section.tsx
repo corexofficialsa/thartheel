@@ -4,7 +4,7 @@ const STEPS = [
   {
     step: "01",
     title: "Register",
-    description: "Choose student or teacher and fill in your details. Level 2 students record a short recitation.",
+    description: "Choose student or teacher and fill in your details. Level 2 and 3 students record a short recitation.",
   },
   {
     step: "02",

@@ -32,7 +32,7 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
-            Live classes, tracked attendance, teacher-graded homework, and milestone-based progress reports — for
+            Live classes, tracked attendance, teacher-graded homework, and phase-based progress reports — for
             students and teachers alike, in one calm, focused portal.
           </p>
 

@@ -34,6 +34,20 @@ export async function createClassroom(_prevState: ActionState, formData: FormDat
   revalidateClassroomPaths();
 }
 
+export async function renameClassroom(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const classroomId = formData.get("classroomId");
+  const name = formData.get("name");
+  if (typeof classroomId !== "string" || !classroomId) return { error: "Invalid classroom." };
+  if (typeof name !== "string" || !name.trim()) return { error: "Enter a classroom name." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("classrooms").update({ name: name.trim() }).eq("id", classroomId);
+  if (error) return { error: "Could not rename classroom." };
+
+  revalidateClassroomPaths();
+  revalidatePath("/teacher/classrooms");
+}
+
 export async function assignTeacher(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const classroomId = formData.get("classroomId");
   const teacherId = formData.get("teacherId");

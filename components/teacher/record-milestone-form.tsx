@@ -41,10 +41,10 @@ export function RecordMilestoneForm({
           ))}
         </SelectContent>
       </Select>
-      <Input name="milestoneIndex" type="number" min={1} placeholder="Milestone #" required />
+      <Input name="milestoneIndex" type="number" min={1} placeholder="Phase #" required />
       {state?.error && <p className="text-sm text-destructive sm:col-span-4">{state.error}</p>}
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Saving..." : "Record milestone"}
+        {isPending ? "Saving..." : "Record phase"}
       </Button>
     </form>
   );

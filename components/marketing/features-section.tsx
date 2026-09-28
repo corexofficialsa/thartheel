@@ -13,7 +13,7 @@ const FEATURES = [
     icon: Mic2,
   },
   {
-    title: "Milestone tracking",
+    title: "Phase tracking",
     description: "Progress through the syllabus is tracked step by step, visible to students and parents alike.",
     icon: CalendarCheck,
   },

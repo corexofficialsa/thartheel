@@ -4,6 +4,7 @@ import { SubmitComplaintForm } from "@/components/complaints/submit-complaint-fo
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getVisibleComplaints } from "@/lib/complaints/actions";
 import { requireRole } from "@/lib/auth/session";
+import { getUnreadByContact } from "@/lib/notifications/counts";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function TeacherChatPage() {
@@ -31,21 +32,23 @@ export default async function TeacherChatPage() {
     ...(board ?? []).map((b) => ({ id: b.id, name: b.name, subtitle: "Board Committee" })),
   ];
 
+  const unreadByContact = await getUnreadByContact(profile.id);
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Chat</h1>
-        <p className="text-muted-foreground">Message your students or the board committee, or raise a complaint with admin.</p>
+        <p className="text-muted-foreground">Message your students or the board committee, or reach admin through Support.</p>
       </div>
 
       <Tabs defaultValue="messages">
         <TabsList>
           <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="complaints">Complaints</TabsTrigger>
+          <TabsTrigger value="complaints">Support</TabsTrigger>
         </TabsList>
 
         <TabsContent value="messages">
-          <ChatInterface currentUserId={profile.id} contacts={contacts} />
+          <ChatInterface currentUserId={profile.id} contacts={contacts} unreadByContact={unreadByContact} />
         </TabsContent>
 
         <TabsContent value="complaints" className="space-y-6">

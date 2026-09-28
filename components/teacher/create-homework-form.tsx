@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { AnswerModeCheckboxes } from "@/components/teacher/answer-mode-checkboxes";
 import { createHomework, type ActionState } from "@/app/(portal)/teacher/homework/actions";
 
 export function CreateHomeworkForm({ classrooms }: { classrooms: { id: string; name: string }[] }) {
@@ -39,6 +40,9 @@ export function CreateHomeworkForm({ classrooms }: { classrooms: { id: string; n
       <div className="space-y-2 sm:col-span-2">
         <Label htmlFor="description">Instructions (optional)</Label>
         <Textarea id="description" name="description" rows={3} />
+      </div>
+      <div className="sm:col-span-2">
+        <AnswerModeCheckboxes />
       </div>
       {state?.error && <p className="text-sm text-destructive sm:col-span-2">{state.error}</p>}
       <div className="sm:col-span-2">

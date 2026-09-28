@@ -68,7 +68,7 @@ export default async function StudentHomePage() {
         <StatCard icon={ClipboardList} label="Homework pending" value={pendingCount} />
         <StatCard
           icon={BarChart3}
-          label={firstTrack?.name ?? "Current milestone"}
+          label={firstTrack?.name ?? "Current phase"}
           value={milestoneLabel}
           href="/student/progress"
         />

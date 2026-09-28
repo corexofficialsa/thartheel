@@ -1,4 +1,4 @@
-import { DollarSign, GraduationCap, Users } from "lucide-react";
+import { BookOpen, DollarSign, GraduationCap, Users } from "lucide-react";
 import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -11,9 +11,10 @@ export default async function BoardHomePage() {
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const [{ count: teacherCount }, { count: studentCount }, { data: records }] = await Promise.all([
+  const [{ count: teacherCount }, { count: studentCount }, { count: classroomCount }, { data: records }] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "teacher").eq("status", "active"),
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student").eq("status", "active"),
+    supabase.from("classrooms").select("id", { count: "exact", head: true }),
     supabase.from("finance_records").select("type, amount").gte("date", startOfMonth.toISOString().slice(0, 10)),
   ]);
 
@@ -26,9 +27,10 @@ export default async function BoardHomePage() {
         <h1 className="text-2xl font-semibold">Board Overview</h1>
         <p className="text-muted-foreground">A brief on everything happening across the academy.</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} label="Active teachers" value={teacherCount ?? 0} href="/board/teachers" />
         <StatCard icon={GraduationCap} label="Active students" value={studentCount ?? 0} href="/board/students" />
+        <StatCard icon={BookOpen} label="Classrooms" value={classroomCount ?? 0} href="/board/classrooms" />
         <StatCard
           icon={DollarSign}
           label="Net finance this month"

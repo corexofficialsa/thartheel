@@ -39,7 +39,7 @@ export function TopBar({ name, role }: { name: string; role: UserRole }) {
 
   return (
     <header className="flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
-      <span className="font-semibold md:hidden">Halaqa Academy</span>
+      <span className="font-semibold md:hidden">Mirqath Quran Academy</span>
       <div className="hidden md:block" />
       <div className="flex items-center gap-1">
         <ThemeToggle />

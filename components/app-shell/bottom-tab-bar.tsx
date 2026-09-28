@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import type { UnreadCounts } from "@/lib/notifications/counts";
 import { getActiveHref, getNavItems } from "./nav-config";
+import { UnreadBadge } from "./unread-badge";
 import type { UserRole } from "@/lib/supabase/types";
 
-export function BottomTabBar({ role }: { role: UserRole }) {
+export function BottomTabBar({ role, unread }: { role: UserRole; unread: UnreadCounts }) {
   const pathname = usePathname();
   const items = getNavItems(role);
   const activeHref = getActiveHref(items, pathname);
@@ -25,7 +27,10 @@ export function BottomTabBar({ role }: { role: UserRole }) {
               active ? "text-primary" : "text-muted-foreground"
             )}
           >
-            <Icon className="size-5" strokeWidth={active ? 2.5 : 2} />
+            <span className="relative">
+              <Icon className="size-5" strokeWidth={active ? 2.5 : 2} />
+              {item.badge && <UnreadBadge count={unread[item.badge]} className="absolute -top-1.5 -right-2.5" />}
+            </span>
             {item.label}
           </Link>
         );

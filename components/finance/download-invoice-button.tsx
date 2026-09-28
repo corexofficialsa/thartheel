@@ -21,7 +21,7 @@ export function DownloadInvoiceButton({
     const doc = new jsPDF();
 
     doc.setFontSize(18);
-    doc.text("Halaqa Academy", 20, 25);
+    doc.text("Mirqath Quran Academy", 20, 25);
     doc.setFontSize(12);
     doc.text("Payment Receipt", 20, 33);
 

@@ -5,6 +5,7 @@
 
 export type UserRole = "student" | "teacher" | "board" | "finance" | "admin";
 export type ProfileStatus = "pending" | "active" | "rejected" | "removed";
+export type HomeworkMode = "text" | "audio" | "video";
 
 export type Database = {
   public: {
@@ -114,6 +115,7 @@ export type Database = {
           attachment_url: string | null;
           audio_url: string | null;
           due_date: string;
+          allowed_modes: HomeworkMode[];
           created_at: string;
         };
         Insert: {
@@ -125,8 +127,33 @@ export type Database = {
           attachment_url?: string | null;
           audio_url?: string | null;
           due_date: string;
+          allowed_modes?: HomeworkMode[];
         };
         Update: Partial<Database["public"]["Tables"]["homework"]["Insert"]>;
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: "message" | "homework" | "graded" | "reopened";
+          title: string;
+          body: string | null;
+          link: string | null;
+          conversation_id: string | null;
+          classroom_id: string | null;
+          actor_id: string | null;
+          read_at: string | null;
+          created_at: string;
+        };
+        Insert: never; // created only by database triggers
+        Update: { read_at?: string | null };
+        Relationships: [];
+      };
+      homework_resubmit_grants: {
+        Row: { homework_id: string; student_id: string; granted_by: string | null; created_at: string };
+        Insert: { homework_id: string; student_id: string; granted_by?: string | null };
+        Update: never;
         Relationships: [];
       };
       homework_submissions: {
@@ -357,6 +384,7 @@ export type Database = {
           student_id: string;
           period: string;
           amount: number;
+          amount_paid: number;
           status: "due" | "paid" | "overdue";
           paid_at: string | null;
           method: string | null;
@@ -367,6 +395,7 @@ export type Database = {
           student_id: string;
           period: string;
           amount?: number;
+          amount_paid?: number;
           status?: "due" | "paid" | "overdue";
           paid_at?: string | null;
           method?: string | null;
@@ -409,13 +438,23 @@ export type Database = {
       salary_allocations: {
         Row: {
           id: string;
-          profile_id: string;
-          role: UserRole;
+          profile_id: string | null;
+          role: UserRole | null;
+          category: "staff" | "tech_support" | "tech_maintenance";
+          payee: string | null;
           amount: number;
           period: string;
           created_at: string;
         };
-        Insert: { id?: string; profile_id: string; role: UserRole; amount: number; period: string };
+        Insert: {
+          id?: string;
+          profile_id?: string | null;
+          role?: UserRole | null;
+          category?: "staff" | "tech_support" | "tech_maintenance";
+          payee?: string | null;
+          amount: number;
+          period: string;
+        };
         Update: never;
         Relationships: [];
       };
@@ -500,6 +539,10 @@ export type Database = {
       };
       set_classroom_join_lock: { Args: { p_classroom_id: string; p_locked: boolean | null }; Returns: void };
       open_classroom_conversation: { Args: { p_classroom_id: string }; Returns: string };
+      set_attendance: {
+        Args: { p_classroom_id: string; p_student_id: string; p_date: string; p_present: boolean };
+        Returns: void;
+      };
       start_conversation: { Args: { p_other_user_id: string }; Returns: string };
       submit_complaint: { Args: { p_subject: string; p_description: string }; Returns: string };
       top_student_leaderboard: {

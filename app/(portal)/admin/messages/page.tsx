@@ -10,10 +10,10 @@ export default async function AdminMessagesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Messages</h1>
-        <p className="text-muted-foreground">Complaints submitted by students and teachers.</p>
+        <p className="text-muted-foreground">Support requests from students and teachers.</p>
       </div>
       {complaints.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No complaints yet.</p>
+        <p className="text-sm text-muted-foreground">No support requests yet.</p>
       ) : (
         <div className="space-y-3">
           {complaints.map((complaint) => (

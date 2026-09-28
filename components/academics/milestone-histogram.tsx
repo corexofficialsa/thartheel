@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 
 export function MilestoneHistogram({ data }: { data: { milestone: number; count: number }[] }) {
   if (data.every((d) => d.count === 0)) {
-    return <p className="text-sm text-muted-foreground">No milestones recorded yet.</p>;
+    return <p className="text-sm text-muted-foreground">No phases recorded yet.</p>;
   }
 
   return (
@@ -33,7 +33,7 @@ export function MilestoneHistogram({ data }: { data: { milestone: number; count:
             color: "var(--card-foreground)",
             fontSize: 12,
           }}
-          labelFormatter={(label) => `Milestone ${label}`}
+          labelFormatter={(label) => `Phase ${label}`}
           formatter={(value) => [`${value}`, "Students"]}
         />
         <Bar dataKey="count" fill="var(--chart-1)" radius={[4, 4, 0, 0]} maxBarSize={24} />

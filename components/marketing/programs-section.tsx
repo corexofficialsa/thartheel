@@ -1,4 +1,4 @@
-import { BookOpenText, Mic } from "lucide-react";
+import { Award, BookOpenText, Mic } from "lucide-react";
 import { Reveal } from "./reveal";
 
 const PROGRAMS = [
@@ -7,7 +7,7 @@ const PROGRAMS = [
     tagline: "Qaida Al-Madania",
     description:
       "For students starting from the very beginning — Arabic letters, correct pronunciation, and the foundations of reading the Qur'an confidently.",
-    points: ["Starts from the Arabic letters", "Correct pronunciation & basic Tajweed", "17-milestone tracked curriculum"],
+    points: ["Starts from the Arabic letters", "Correct pronunciation & basic Tajweed", "17-phase tracked curriculum"],
     icon: BookOpenText,
   },
   {
@@ -15,8 +15,16 @@ const PROGRAMS = [
     tagline: "Recitation Learning",
     description:
       "For students who already recite. A short recitation is recorded at registration so a teacher can place you at the right pace from day one.",
-    points: ["Advanced recitation & Tajweed", "Recitation placement at sign-up", "10-milestone tracked curriculum"],
+    points: ["Advanced recitation & Tajweed", "Recitation placement at sign-up", "10-phase tracked curriculum"],
     icon: Mic,
+  },
+  {
+    name: "Level 3",
+    tagline: "Advanced Recitation",
+    description:
+      "For confident reciters ready for the next step. As with Level 2, a short recitation at registration helps place you correctly.",
+    points: ["Refined recitation & Tajweed mastery", "Recitation placement at sign-up", "10-phase tracked curriculum"],
+    icon: Award,
   },
 ];
 
@@ -24,14 +32,14 @@ export function ProgramsSection() {
   return (
     <section id="programs" className="mx-auto max-w-6xl px-4 py-20 md:px-6">
       <Reveal className="mx-auto max-w-2xl text-center">
-        <h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">Two programs, one clear path</h2>
+        <h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">Three levels, one clear path</h2>
         <p className="mt-3 text-muted-foreground">
-          Every student registers into Level 1 or Level 2 — the right one is easy to tell from where you&apos;re
+          Every student registers into Level 1, 2, or 3 — the right one is easy to tell from where you&apos;re
           starting.
         </p>
       </Reveal>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
+      <div className="mt-12 grid gap-6 md:grid-cols-3">
         {PROGRAMS.map((program, i) => (
           <Reveal key={program.name} delay={i * 0.1}>
             <div className="group relative h-full overflow-hidden rounded-3xl border border-border/70 bg-card p-8 ring-1 ring-foreground/5 transition-shadow hover:shadow-lg hover:shadow-primary/5">

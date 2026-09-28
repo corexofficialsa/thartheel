@@ -1,16 +1,33 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
+import { UnreadBadge } from "@/components/app-shell/unread-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { authorizeRealtime, createClient } from "@/lib/supabase/client";
 import { getMessages, openClassroomConversation, sendMessage, startConversation, type ChatMessage } from "@/lib/chat/actions";
+import { markConversationRead } from "@/lib/notifications/actions";
 
-export type ChatContact = { id: string; name: string; subtitle?: string; kind?: "user" | "classroom" };
+export type ChatContact = {
+  id: string;
+  name: string;
+  subtitle?: string;
+  kind?: "user" | "classroom";
+};
 
-export function ChatInterface({ currentUserId, contacts }: { currentUserId: string; contacts: ChatContact[] }) {
+export function ChatInterface({
+  currentUserId,
+  contacts,
+  unreadByContact = {},
+}: {
+  currentUserId: string;
+  contacts: ChatContact[];
+  unreadByContact?: Record<string, number>;
+}) {
+  const router = useRouter();
   const [selectedContact, setSelectedContact] = useState<ChatContact | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -18,6 +35,10 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const contactsRef = useRef(contacts);
+  useEffect(() => {
+    contactsRef.current = contacts;
+  }, [contacts]);
 
   function openContact(contact: ChatContact) {
     setSelectedContact(contact);
@@ -33,28 +54,55 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
       }
       setConversationId(result.conversationId);
       setMessages(await getMessages(result.conversationId));
+      if (unreadByContact[contact.id]) {
+        await markConversationRead(result.conversationId);
+        router.refresh();
+      }
     });
   }
 
   useEffect(() => {
     if (!conversationId) return;
     const supabase = createClient();
-    const channel = supabase
-      .channel(`messages-${conversationId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-        (payload) => {
-          const incoming = payload.new as ChatMessage;
-          setMessages((prev) => (prev.some((m) => m.id === incoming.id) ? prev : [...prev, incoming]));
-        }
-      )
-      .subscribe();
+    let cancelled = false;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    authorizeRealtime(supabase).then(() => {
+      if (cancelled) return;
+      channel = supabase
+        .channel(`messages-${conversationId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload) => {
+            const row = payload.new as Omit<ChatMessage, "sender_name">;
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === row.id)) return prev;
+              // Realtime rows carry no sender name; reuse one we already know.
+              const knownName =
+                prev.find((m) => m.sender_id === row.sender_id)?.sender_name ??
+                contactsRef.current.find((c) => c.id === row.sender_id)?.name ??
+                "";
+              return [...prev, { ...row, sender_name: knownName }];
+            });
+            if (row.sender_id !== currentUserId) {
+              // Already on screen — don't let it count as unread.
+              markConversationRead(conversationId).then(() => router.refresh());
+            }
+          }
+        )
+        .subscribe();
+    });
 
     return () => {
-      supabase.removeChannel(channel);
+      cancelled = true;
+      if (channel) supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, currentUserId, router]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -89,7 +137,12 @@ export function ChatInterface({ currentUserId, contacts }: { currentUserId: stri
               selectedContact?.id === contact.id && "bg-accent"
             )}
           >
-            <div className="font-medium">{contact.name}</div>
+            <div className="flex items-center justify-between gap-2">
+              <span className={cn("truncate font-medium", (unreadByContact[contact.id] ?? 0) > 0 && "font-semibold")}>
+                {contact.name}
+              </span>
+              <UnreadBadge count={unreadByContact[contact.id] ?? 0} />
+            </div>
             {contact.subtitle && <div className="text-xs text-muted-foreground">{contact.subtitle}</div>}
           </button>
         ))}

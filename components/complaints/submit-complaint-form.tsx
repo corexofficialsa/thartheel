@@ -28,7 +28,7 @@ export function SubmitComplaintForm() {
       {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
       {state?.success && <p className="text-sm text-emerald-600 dark:text-emerald-400">{state.success}</p>}
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Submitting..." : "Submit complaint"}
+        {isPending ? "Sending..." : "Send to support"}
       </Button>
     </form>
   );

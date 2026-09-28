@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { requireRole } from "@/lib/auth/session";
+import { isJoinEffectivelyLocked } from "@/lib/classroom/join-lock";
 import { createClient } from "@/lib/supabase/server";
 import { unenrollStudent } from "./actions";
 
@@ -29,17 +30,6 @@ export default async function TeacherClassroomsPage() {
     classroomIds.length > 0
       ? await supabase.from("classroom_students").select("classroom_id, student_id").in("classroom_id", classroomIds)
       : { data: [] as { classroom_id: string; student_id: string }[] };
-
-  // Mirrors the auto-lock rule evaluated server-side in join_classroom() —
-  // this is just for display, the RPC is the actual source of truth at
-  // the moment a student clicks join.
-  function isEffectivelyLocked(classroom: { teacher_joined_at: string | null; join_locked_override: boolean | null }) {
-    if (classroom.join_locked_override !== null) return classroom.join_locked_override;
-    if (!classroom.teacher_joined_at) return false;
-    const joinedAt = new Date(classroom.teacher_joined_at);
-    if (joinedAt.toDateString() !== new Date().toDateString()) return false;
-    return Date.now() - joinedAt.getTime() > 20 * 60 * 1000;
-  }
 
   const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
   const studentById = new Map((activeStudents ?? []).map((s) => [s.id, s]));
@@ -93,7 +83,7 @@ export default async function TeacherClassroomsPage() {
                 <p className="mb-1 text-sm font-medium">Student join access</p>
                 <ClassroomLockToggle
                   classroomId={classroom.id}
-                  effectivelyLocked={isEffectivelyLocked(classroom)}
+                  effectivelyLocked={isJoinEffectivelyLocked(classroom)}
                   isManualOverride={classroom.join_locked_override !== null}
                 />
               </div>

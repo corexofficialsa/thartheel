@@ -4,7 +4,7 @@ import type { Complaint } from "@/lib/complaints/actions";
 
 export function MyComplaintsList({ complaints }: { complaints: Complaint[] }) {
   if (complaints.length === 0) {
-    return <p className="text-sm text-muted-foreground">You haven&apos;t submitted any complaints.</p>;
+    return <p className="text-sm text-muted-foreground">You haven&apos;t sent any support requests.</p>;
   }
 
   return (

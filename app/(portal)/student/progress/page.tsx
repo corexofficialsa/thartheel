@@ -41,7 +41,7 @@ export default async function StudentProgressPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Progress</h1>
-        <p className="text-muted-foreground">Your milestones, teacher notes, and exam results.</p>
+        <p className="text-muted-foreground">Your phases, teacher notes, and exam results.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -52,7 +52,7 @@ export default async function StudentProgressPage() {
               <CardHeader>
                 <CardTitle>{track.name}</CardTitle>
                 <CardDescription>
-                  Milestone {current} of {track.total_milestones}
+                  Phase {current} of {track.total_milestones}
                 </CardDescription>
               </CardHeader>
               <CardContent>

@@ -1,7 +1,9 @@
 import { X } from "lucide-react";
+import { JoinClassroomButton } from "@/components/classroom/join-classroom-button";
 import { AssignTeacherForm } from "@/components/classrooms/assign-teacher-form";
 import { CreateClassroomForm } from "@/components/classrooms/create-classroom-form";
 import { EnrollStudentForm } from "@/components/classrooms/enroll-student-form";
+import { RenameClassroomForm } from "@/components/classrooms/rename-classroom-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -66,9 +68,12 @@ export async function ClassroomRosterManager() {
 
         return (
           <Card key={classroom.id}>
-            <CardHeader>
-              <CardTitle>{classroom.name}</CardTitle>
-              <CardDescription>{levelNameById.get(classroom.level_id ?? "") ?? "No level"}</CardDescription>
+            <CardHeader className="flex-row flex-wrap items-start justify-between gap-3">
+              <div className="space-y-1">
+                <RenameClassroomForm classroomId={classroom.id} currentName={classroom.name} />
+                <CardDescription>{levelNameById.get(classroom.level_id ?? "") ?? "No level"}</CardDescription>
+              </div>
+              <JoinClassroomButton classroomId={classroom.id} label="Join class" />
             </CardHeader>
             <CardContent className="space-y-4">
               <div>

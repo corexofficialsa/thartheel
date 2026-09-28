@@ -1,39 +1,40 @@
 import { AddRecordForm } from "@/components/finance/add-record-form";
-import { CollectDepositForm } from "@/components/finance/collect-deposit-form";
 import { CreateInvoiceForm } from "@/components/finance/create-invoice-form";
 import { DeleteRecordButton } from "@/components/finance/delete-record-button";
 import { DownloadInvoiceButton } from "@/components/finance/download-invoice-button";
+import { InvoicePaymentControls } from "@/components/finance/invoice-payment-controls";
 import { SetBudgetForm } from "@/components/finance/set-budget-form";
 import { SetSalaryForm } from "@/components/finance/set-salary-form";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
-import {
-  deleteBudget,
-  deleteDeposit,
-  deleteFeeInvoice,
-  deleteFinanceRecord,
-  deleteSalaryAllocation,
-  markFeePaid,
-  refundDeposit,
-} from "./actions";
+import { deleteBudget, deleteFeeInvoice, deleteFinanceRecord, deleteSalaryAllocation } from "./actions";
+
+const SALARY_CATEGORY_LABEL = {
+  staff: "Staff",
+  tech_support: "Tech support",
+  tech_maintenance: "Tech maintenance",
+} as const;
+
+function invoiceStatus(invoice: { status: string; amount: number; amount_paid: number }) {
+  if (invoice.status === "paid") return { label: "paid", variant: "default" as const };
+  if (invoice.amount_paid > 0) return { label: "partial", variant: "outline" as const };
+  return { label: invoice.status, variant: "secondary" as const };
+}
 
 export default async function FinanceLedgerPage() {
   const supabase = await createClient();
 
-  // Single round of 8 parallel queries — none of these depend on each
-  // other's results, so there's no reason to split them across two
-  // sequential Promise.all batches (each round trip to Frankfurt adds up).
+  // Single round of parallel queries — none of these depend on each other's
+  // results, so there's no reason to split them across sequential batches.
   const [
     { data: records },
     { data: activeStudents },
     { data: allStudents },
     { data: staff },
     { data: invoices },
-    { data: deposits },
     { data: budgets },
     { data: allocations },
   ] = await Promise.all([
@@ -43,10 +44,15 @@ export default async function FinanceLedgerPage() {
     // invoice table's name lookup needs to cover them too, not just active ones.
     supabase.from("profiles").select("id, name").eq("role", "student"),
     supabase.from("profiles").select("id, name, role").in("role", ["teacher", "admin"]).eq("status", "active"),
-    supabase.from("fee_invoices").select("id, student_id, period, amount, status, paid_at").order("period", { ascending: false }),
-    supabase.from("caution_deposits").select("id, student_id, amount, status, collected_at").order("collected_at", { ascending: false }),
+    supabase
+      .from("fee_invoices")
+      .select("id, student_id, period, amount, amount_paid, status, paid_at")
+      .order("period", { ascending: false }),
     supabase.from("budgets").select("id, period, category, limit_amount"),
-    supabase.from("salary_allocations").select("id, profile_id, role, amount, period").order("period", { ascending: false }),
+    supabase
+      .from("salary_allocations")
+      .select("id, profile_id, role, category, payee, amount, period")
+      .order("period", { ascending: false }),
   ]);
   const students = activeStudents;
   const studentNameById = new Map((allStudents ?? []).map((s) => [s.id, s.name]));
@@ -67,7 +73,7 @@ export default async function FinanceLedgerPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Finance</h1>
-        <p className="text-muted-foreground">Ledger, fees, deposits, budgets, and salary allocations.</p>
+        <p className="text-muted-foreground">Ledger, fees, budgets, and salary allocations.</p>
       </div>
 
       <Tabs defaultValue="ledger">
@@ -75,7 +81,6 @@ export default async function FinanceLedgerPage() {
           <TabsTrigger value="ledger">Ledger</TabsTrigger>
           <TabsTrigger value="admission">Registration</TabsTrigger>
           <TabsTrigger value="fees">Fees</TabsTrigger>
-          <TabsTrigger value="deposits">Deposits</TabsTrigger>
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
           <TabsTrigger value="salaries">Salaries</TabsTrigger>
         </TabsList>
@@ -141,6 +146,7 @@ export default async function FinanceLedgerPage() {
                 <TableRow>
                   <TableHead>Student</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Paid</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
@@ -148,7 +154,7 @@ export default async function FinanceLedgerPage() {
               <TableBody>
                 {admissionInvoices.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
                       No admission fees pending.
                     </TableCell>
                   </TableRow>
@@ -157,12 +163,13 @@ export default async function FinanceLedgerPage() {
                   <TableRow key={invoice.id}>
                     <TableCell>{studentNameById.get(invoice.student_id) ?? "Student"}</TableCell>
                     <TableCell>{invoice.amount.toFixed(2)} SAR</TableCell>
+                    <TableCell>{invoice.amount_paid.toFixed(2)} SAR</TableCell>
                     <TableCell>
-                      <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
+                      <Badge variant={invoiceStatus(invoice).variant}>{invoiceStatus(invoice).label}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        {invoice.status === "paid" ? (
+                        {invoice.status === "paid" && (
                           <DownloadInvoiceButton
                             invoiceId={invoice.id}
                             studentName={studentNameById.get(invoice.student_id) ?? "Student"}
@@ -170,14 +177,13 @@ export default async function FinanceLedgerPage() {
                             amount={invoice.amount}
                             paidAt={invoice.paid_at}
                           />
-                        ) : (
-                          <form action={markFeePaid}>
-                            <input type="hidden" name="invoiceId" value={invoice.id} />
-                            <Button type="submit" size="sm" variant="outline">
-                              Mark paid
-                            </Button>
-                          </form>
                         )}
+                        <InvoicePaymentControls
+                          invoiceId={invoice.id}
+                          amount={invoice.amount}
+                          amountPaid={invoice.amount_paid}
+                          isPaid={invoice.status === "paid"}
+                        />
                         <DeleteRecordButton
                           action={deleteFeeInvoice}
                           fieldName="invoiceId"
@@ -212,6 +218,7 @@ export default async function FinanceLedgerPage() {
                   <TableHead>Student</TableHead>
                   <TableHead>Period</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Paid</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
@@ -222,12 +229,13 @@ export default async function FinanceLedgerPage() {
                     <TableCell>{studentNameById.get(invoice.student_id) ?? "Student"}</TableCell>
                     <TableCell>{invoice.period}</TableCell>
                     <TableCell>{invoice.amount.toFixed(2)} SAR</TableCell>
+                    <TableCell>{invoice.amount_paid.toFixed(2)} SAR</TableCell>
                     <TableCell>
-                      <Badge variant={invoice.status === "paid" ? "default" : "secondary"}>{invoice.status}</Badge>
+                      <Badge variant={invoiceStatus(invoice).variant}>{invoiceStatus(invoice).label}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
-                        {invoice.status === "paid" ? (
+                        {invoice.status === "paid" && (
                           <DownloadInvoiceButton
                             invoiceId={invoice.id}
                             studentName={studentNameById.get(invoice.student_id) ?? "Student"}
@@ -235,74 +243,18 @@ export default async function FinanceLedgerPage() {
                             amount={invoice.amount}
                             paidAt={invoice.paid_at}
                           />
-                        ) : (
-                          <form action={markFeePaid}>
-                            <input type="hidden" name="invoiceId" value={invoice.id} />
-                            <Button type="submit" size="sm" variant="outline">
-                              Mark paid
-                            </Button>
-                          </form>
                         )}
+                        <InvoicePaymentControls
+                          invoiceId={invoice.id}
+                          amount={invoice.amount}
+                          amountPaid={invoice.amount_paid}
+                          isPaid={invoice.status === "paid"}
+                        />
                         <DeleteRecordButton
                           action={deleteFeeInvoice}
                           fieldName="invoiceId"
                           fieldValue={invoice.id}
                           itemLabel={`This fee invoice for ${studentNameById.get(invoice.student_id) ?? "this student"}`}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="deposits" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Collect caution deposit</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CollectDepositForm students={students ?? []} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Deposits</CardTitle>
-            </CardHeader>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(deposits ?? []).map((deposit) => (
-                  <TableRow key={deposit.id}>
-                    <TableCell>{studentNameById.get(deposit.student_id) ?? "Student"}</TableCell>
-                    <TableCell>{deposit.amount.toFixed(2)} SAR</TableCell>
-                    <TableCell>
-                      <Badge variant={deposit.status === "held" ? "secondary" : "default"}>{deposit.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {deposit.status === "held" && (
-                          <form action={refundDeposit}>
-                            <input type="hidden" name="depositId" value={deposit.id} />
-                            <Button type="submit" size="sm" variant="outline">
-                              Refund
-                            </Button>
-                          </form>
-                        )}
-                        <DeleteRecordButton
-                          action={deleteDeposit}
-                          fieldName="depositId"
-                          fieldValue={deposit.id}
-                          itemLabel={`This deposit for ${studentNameById.get(deposit.student_id) ?? "this student"}`}
                         />
                       </div>
                     </TableCell>
@@ -384,30 +336,40 @@ export default async function FinanceLedgerPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Person</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead>Paid to</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Period</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(allocations ?? []).map((allocation) => (
-                  <TableRow key={allocation.id}>
-                    <TableCell>{staffNameById.get(allocation.profile_id) ?? "—"}</TableCell>
-                    <TableCell className="capitalize">{allocation.role}</TableCell>
-                    <TableCell>{allocation.period}</TableCell>
-                    <TableCell className="text-right">{allocation.amount.toFixed(2)} SAR</TableCell>
-                    <TableCell className="text-right">
-                      <DeleteRecordButton
-                        action={deleteSalaryAllocation}
-                        fieldName="allocationId"
-                        fieldValue={allocation.id}
-                        itemLabel={`This salary allocation for ${staffNameById.get(allocation.profile_id) ?? "this person"} (${allocation.period})`}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {(allocations ?? []).map((allocation) => {
+                  const payeeName =
+                    allocation.category === "staff"
+                      ? (allocation.profile_id && staffNameById.get(allocation.profile_id)) ?? "—"
+                      : (allocation.payee ?? "—");
+                  const typeLabel =
+                    allocation.category === "staff" && allocation.role
+                      ? `Staff (${allocation.role})`
+                      : SALARY_CATEGORY_LABEL[allocation.category];
+                  return (
+                    <TableRow key={allocation.id}>
+                      <TableCell>{payeeName}</TableCell>
+                      <TableCell>{typeLabel}</TableCell>
+                      <TableCell>{allocation.period}</TableCell>
+                      <TableCell className="text-right">{allocation.amount.toFixed(2)} SAR</TableCell>
+                      <TableCell className="text-right">
+                        <DeleteRecordButton
+                          action={deleteSalaryAllocation}
+                          fieldName="allocationId"
+                          fieldValue={allocation.id}
+                          itemLabel={`This allocation for ${payeeName} (${allocation.period})`}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </Card>

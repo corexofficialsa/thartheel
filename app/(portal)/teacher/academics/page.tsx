@@ -89,12 +89,12 @@ export default async function TeacherAcademicsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Academics</h1>
-        <p className="text-muted-foreground">Milestones, progress reports, exams, and teaching notes.</p>
+        <p className="text-muted-foreground">Phases, progress reports, exams, and teaching notes.</p>
       </div>
 
       <Tabs defaultValue="milestones">
         <TabsList>
-          <TabsTrigger value="milestones">Milestones</TabsTrigger>
+          <TabsTrigger value="milestones">Phases</TabsTrigger>
           <TabsTrigger value="reports">Progress Reports</TabsTrigger>
           <TabsTrigger value="exams">Exams</TabsTrigger>
           <TabsTrigger value="notes">Teaching Notes</TabsTrigger>
@@ -103,8 +103,8 @@ export default async function TeacherAcademicsPage() {
         <TabsContent value="milestones" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Record a milestone</CardTitle>
-              <CardDescription>Qaida Al-Madania lessons, Recitation Learning progress.</CardDescription>
+              <CardTitle>Record a phase</CardTitle>
+              <CardDescription>Track each student&apos;s phase in Levels 1–3.</CardDescription>
             </CardHeader>
             <CardContent>
               <RecordMilestoneForm students={students ?? []} tracks={tracks ?? []} />
@@ -120,7 +120,7 @@ export default async function TeacherAcademicsPage() {
               <Card key={track.id}>
                 <CardHeader>
                   <CardTitle>{track.name}</CardTitle>
-                  <CardDescription>Current milestone reached, across students</CardDescription>
+                  <CardDescription>Current phase reached, across students</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <MilestoneHistogram data={histogramData} />

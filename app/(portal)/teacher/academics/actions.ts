@@ -14,7 +14,7 @@ export async function recordMilestone(_prevState: ActionState, formData: FormDat
   if (typeof studentId !== "string" || !studentId) return { error: "Select a student." };
   if (typeof trackId !== "string" || !trackId) return { error: "Select a track." };
   const index = Number(milestoneIndex);
-  if (!Number.isInteger(index) || index < 1) return { error: "Enter a valid milestone number." };
+  if (!Number.isInteger(index) || index < 1) return { error: "Enter a valid phase number." };
 
   const profile = await getCurrentProfile();
   if (!profile) return { error: "Not authenticated." };
@@ -27,7 +27,7 @@ export async function recordMilestone(_prevState: ActionState, formData: FormDat
       { onConflict: "student_id,track_id,milestone_index" }
     );
 
-  if (error) return { error: "Could not record milestone." };
+  if (error) return { error: "Could not record phase." };
 
   revalidatePath("/teacher/academics");
 }

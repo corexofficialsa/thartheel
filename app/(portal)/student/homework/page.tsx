@@ -1,9 +1,10 @@
-import { HomeworkSubmissionForm } from "@/components/student/homework-submission-form";
+import { HomeworkSubmitDialog } from "@/components/student/homework-submit-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import type { HomeworkMode } from "@/lib/supabase/types";
 
 export default async function StudentHomeworkPage() {
   const profile = await requireRole("student");
@@ -22,10 +23,19 @@ export default async function StudentHomeworkPage() {
     classroomIds.length > 0
       ? supabase
           .from("homework")
-          .select("id, classroom_id, title, description, due_date")
+          .select("id, classroom_id, title, description, due_date, allowed_modes")
           .in("classroom_id", classroomIds)
           .order("due_date", { ascending: true })
-      : Promise.resolve({ data: [] as { id: string; classroom_id: string; title: string; description: string | null; due_date: string }[] }),
+      : Promise.resolve({
+          data: [] as {
+            id: string;
+            classroom_id: string;
+            title: string;
+            description: string | null;
+            due_date: string;
+            allowed_modes: HomeworkMode[];
+          }[],
+        }),
   ]);
 
   const classroomNameById = new Map((classrooms ?? []).map((c) => [c.id, c.name]));
@@ -43,11 +53,14 @@ export default async function StudentHomeworkPage() {
   const submissionByHomeworkId = new Map((submissions ?? []).map((s) => [s.homework_id, s]));
   const submissionIds = (submissions ?? []).map((s) => s.id);
 
-  const { data: grades } =
+  const [{ data: grades }, { data: grants }] = await Promise.all([
     submissionIds.length > 0
-      ? await supabase.from("homework_grades").select("submission_id, grade, feedback").in("submission_id", submissionIds)
-      : { data: [] as { submission_id: string; grade: number | null; feedback: string | null }[] };
+      ? supabase.from("homework_grades").select("submission_id, grade, feedback").in("submission_id", submissionIds)
+      : Promise.resolve({ data: [] as { submission_id: string; grade: number | null; feedback: string | null }[] }),
+    supabase.from("homework_resubmit_grants").select("homework_id").eq("student_id", profile.id),
+  ]);
   const gradeBySubmissionId = new Map((grades ?? []).map((g) => [g.submission_id, g]));
+  const grantedHomeworkIds = new Set((grants ?? []).map((g) => g.homework_id));
 
   const currentHomework = (homeworkList ?? []).filter((hw) => !submissionByHomeworkId.has(hw.id));
   const pastHomework = (homeworkList ?? []).filter((hw) => submissionByHomeworkId.has(hw.id));
@@ -56,6 +69,10 @@ export default async function StudentHomeworkPage() {
     const submission = submissionByHomeworkId.get(hw.id);
     const grade = submission ? gradeBySubmissionId.get(submission.id) : undefined;
     const isPastDue = new Date(hw.due_date) < new Date();
+    // Mirrors the database rule (enforce_homework_submission_rules): closed
+    // after the due date or once graded, unless the teacher granted a redo.
+    const hasGrant = grantedHomeworkIds.has(hw.id);
+    const canSubmit = hasGrant || (!isPastDue && !grade);
 
     return (
       <Card key={hw.id}>
@@ -85,13 +102,26 @@ export default async function StudentHomeworkPage() {
             </div>
           )}
 
-          <HomeworkSubmissionForm
-            homeworkId={hw.id}
-            studentId={profile.id}
-            existingTextAnswer={submission?.text_answer}
-            existingVideoPath={submission?.video_url}
-            existingAudioPath={submission?.audio_url}
-          />
+          {canSubmit ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <HomeworkSubmitDialog
+                homeworkId={hw.id}
+                title={hw.title}
+                studentId={profile.id}
+                allowedModes={hw.allowed_modes}
+                existingTextAnswer={submission?.text_answer}
+                existingVideoPath={submission?.video_url}
+                existingAudioPath={submission?.audio_url}
+              />
+              {hasGrant && <span className="text-xs text-muted-foreground">Your teacher reopened this for you.</span>}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {grade
+                ? "Graded — resubmission is closed. Ask your teacher if you'd like to resubmit."
+                : "The due date has passed, so submissions are closed. Ask your teacher to reopen it."}
+            </p>
+          )}
         </CardContent>
       </Card>
     );

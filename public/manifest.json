@@ -1,6 +1,6 @@
 {
-  "name": "Halaqa Academy",
-  "short_name": "Halaqa Academy",
+  "name": "Mirqath Quran Academy",
+  "short_name": "Mirqath",
   "description": "Student, teacher, board, finance, and admin portals for the academy.",
   "start_url": "/login",
   "display": "standalone",

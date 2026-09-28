@@ -16,7 +16,7 @@ const fontSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Halaqa Academy",
+  title: "Mirqath Quran Academy",
   description: "Student, teacher, board, finance, and admin portals for the academy.",
   manifest: "/manifest.json",
   icons: {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Halaqa Academy" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Mirqath Quran Academy" },
 };
 
 export const viewport: Viewport = {

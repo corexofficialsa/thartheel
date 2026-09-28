@@ -42,7 +42,7 @@ export function MarketingNav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoMark className="size-9" />
-          <span className="font-heading text-lg font-semibold tracking-tight">Halaqa Academy</span>
+          <span className="font-heading text-lg font-semibold tracking-tight">Mirqath Quran Academy</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -66,7 +66,7 @@ export function MarketingNav() {
                 <GraduationCap className="size-4" />
                 <span>
                   <span className="block font-medium">Register as a student</span>
-                  <span className="block text-xs text-muted-foreground">Join a Level 1 or Level 2 class</span>
+                  <span className="block text-xs text-muted-foreground">Join a Level 1, 2, or 3 class</span>
                 </span>
               </DropdownMenuItem>
               <DropdownMenuItem render={<Link href="/register/teacher" />} className="gap-2">
@@ -88,7 +88,7 @@ export function MarketingNav() {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="right" className="w-72">
           <SheetHeader>
-            <SheetTitle>Halaqa Academy</SheetTitle>
+            <SheetTitle>Mirqath Quran Academy</SheetTitle>
           </SheetHeader>
           <div className="flex flex-col gap-1 px-4">
             {NAV_LINKS.map((link) => (
