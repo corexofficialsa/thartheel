@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { riyadhToday } from "@/lib/attendance/dates";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function TeacherHomePage() {
   const profile = await requireRole("teacher");
@@ -64,11 +65,8 @@ export default async function TeacherHomePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Assalamu Alaikum, {profile.name.split(" ")[0]}</h1>
-        <p className="text-muted-foreground">Your classrooms, attendance, and homework at a glance.</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <PageHeader eyebrow="Teacher portal" title={<>Assalamu Alaikum, {profile.name.split(" ")[0]}</>} description="Your classrooms, attendance, and homework at a glance." />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         <StatCard icon={BookOpen} label="Classrooms" value={classroomIds.length} href="/teacher/classrooms" />
         <StatCard icon={ClipboardList} label="Submissions to grade" value={ungradedCount} href="/teacher/homework" />
         <StatCard
@@ -81,7 +79,7 @@ export default async function TeacherHomePage() {
 
       {perClassroom.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Today&apos;s attendance</h2>
+          <h2 className="font-heading text-2xl font-normal tracking-[-0.015em]">Today&apos;s attendance</h2>
           <div className="grid gap-4 lg:grid-cols-2">
             {perClassroom.map((c) => (
               <Card key={c.id}>
@@ -97,7 +95,7 @@ export default async function TeacherHomePage() {
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="mb-1.5 text-xs font-medium tracking-wide text-emerald-600 uppercase dark:text-emerald-400">
+                    <p className="mb-1.5 text-xs font-medium tracking-wide text-success uppercase ">
                       Attended
                     </p>
                     {c.present.length === 0 ? (

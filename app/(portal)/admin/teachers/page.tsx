@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function AdminTeachersPage() {
   await requireRole("admin");
@@ -33,10 +34,7 @@ export default async function AdminTeachersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Teachers</h1>
-        <p className="text-muted-foreground">Every active teacher and the classrooms they lead.</p>
-      </div>
+      <PageHeader title="Teachers" description="Every active teacher and the classrooms they lead." />
       <Card>
         <CardHeader>
           <CardTitle>Directory</CardTitle>

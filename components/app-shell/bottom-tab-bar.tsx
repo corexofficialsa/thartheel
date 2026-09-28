@@ -14,7 +14,7 @@ export function BottomTabBar({ role, unread }: { role: UserRole; unread: UnreadC
   const activeHref = getActiveHref(items, pathname);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t bg-sidebar md:hidden pb-[env(safe-area-inset-bottom)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-border/60 bg-background/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {items.map((item) => {
         const active = item.href === activeHref;
         const Icon = item.icon;
@@ -23,12 +23,13 @@ export function BottomTabBar({ role, unread }: { role: UserRole; unread: UnreadC
             key={item.href}
             href={item.href}
             className={cn(
-              "flex min-w-16 flex-1 shrink-0 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors",
-              active ? "text-primary" : "text-muted-foreground"
+              "relative flex min-w-[4.75rem] flex-1 shrink-0 flex-col items-center gap-1 px-1.5 pt-2.5 pb-2 text-[11px] font-medium whitespace-nowrap transition-colors",
+              "before:absolute before:top-0 before:left-1/2 before:h-0.5 before:w-6 before:-translate-x-1/2 before:rounded-full before:bg-brass before:transition-opacity",
+              active ? "text-foreground before:opacity-100" : "text-muted-foreground before:opacity-0"
             )}
           >
             <span className="relative">
-              <Icon className="size-5" strokeWidth={active ? 2.5 : 2} />
+              <Icon className="size-5" strokeWidth={active ? 2.25 : 1.75} />
               {item.badge && <UnreadBadge count={unread[item.badge]} className="absolute -top-1.5 -right-2.5" />}
             </span>
             {item.label}

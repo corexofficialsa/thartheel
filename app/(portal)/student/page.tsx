@@ -4,6 +4,7 @@ import { LeaderboardCard } from "@/components/student/leaderboard-card";
 import { requireRole } from "@/lib/auth/session";
 import { computeStreak } from "@/lib/attendance/streak";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function StudentHomePage() {
   const profile = await requireRole("student");
@@ -58,11 +59,8 @@ export default async function StudentHomePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Assalamu Alaikum, {profile.name.split(" ")[0]}</h1>
-        <p className="text-muted-foreground">Here&apos;s your progress at a glance.</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <PageHeader eyebrow="Student portal" title={<>Assalamu Alaikum, {profile.name.split(" ")[0]}</>} description={<>Here&apos;s your progress at a glance.</>} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard icon={Flame} label="Attendance streak" value={streak} suffix={streak === 1 ? " day" : " days"} />
         <StatCard icon={CalendarCheck} label="Attendance this month" value={attendanceCount ?? 0} />
         <StatCard icon={ClipboardList} label="Homework pending" value={pendingCount} />

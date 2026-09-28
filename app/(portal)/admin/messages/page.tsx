@@ -1,6 +1,7 @@
 import { ComplaintRow } from "@/components/complaints/complaint-row";
 import { getVisibleComplaints } from "@/lib/complaints/actions";
 import { requireRole } from "@/lib/auth/session";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function AdminMessagesPage() {
   await requireRole("admin");
@@ -8,10 +9,7 @@ export default async function AdminMessagesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Messages</h1>
-        <p className="text-muted-foreground">Support requests from students and teachers.</p>
-      </div>
+      <PageHeader title="Messages" description="Support requests from students and teachers." />
       {complaints.length === 0 ? (
         <p className="text-sm text-muted-foreground">No support requests yet.</p>
       ) : (

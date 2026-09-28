@@ -2,6 +2,7 @@ import { BookOpen, GraduationCap, UserCog, UserPlus, Users } from "lucide-react"
 import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function AdminHomePage() {
   await requireRole("admin");
@@ -23,16 +24,13 @@ export default async function AdminHomePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Admin Overview</h1>
-        <p className="text-muted-foreground">Students, teachers, classrooms, and registrations at a glance.</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <PageHeader title="Admin overview" description="Students, teachers, classrooms, and registrations at a glance." />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard icon={GraduationCap} label="Students" value={studentCount ?? 0} href="/admin/students" />
         <StatCard icon={Users} label="Teachers" value={teacherCount ?? 0} href="/admin/teachers" />
         <StatCard icon={BookOpen} label="Classrooms" value={classroomCount ?? 0} href="/admin/classrooms" />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <StatCard
           icon={UserPlus}
           label="Pending student registrations"

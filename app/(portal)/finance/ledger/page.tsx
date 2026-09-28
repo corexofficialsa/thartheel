@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
 import { deleteBudget, deleteFeeInvoice, deleteFinanceRecord, deleteSalaryAllocation } from "./actions";
+import { PageHeader } from "@/components/portal/page-header";
 
 const SALARY_CATEGORY_LABEL = {
   staff: "Staff",
@@ -71,10 +72,7 @@ export default async function FinanceLedgerPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Finance</h1>
-        <p className="text-muted-foreground">Ledger, fees, budgets, and salary allocations.</p>
-      </div>
+      <PageHeader title="Finance" description="Ledger, fees, budgets, and salary allocations." />
 
       <Tabs defaultValue="ledger">
         <TabsList>

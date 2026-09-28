@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { arabicFont } from "@/lib/fonts";
 
@@ -12,22 +12,21 @@ export function HeroSection() {
     <section className="relative overflow-hidden">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 flex justify-center blur-3xl"
-      >
-        <div className="aspect-square w-[42rem] rounded-full bg-gradient-to-br from-primary/25 via-accent/20 to-transparent" />
-      </div>
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60rem_30rem_at_15%_-10%,color-mix(in_oklch,var(--brass)_14%,transparent),transparent_70%)]"
+      />
 
-      <div className="mx-auto grid max-w-6xl gap-14 px-4 py-20 md:grid-cols-2 md:items-center md:px-6 md:py-28">
+      <div className="mx-auto grid max-w-6xl gap-14 px-4 pt-16 pb-24 md:grid-cols-[1.1fr_0.9fr] md:items-center md:px-6 md:pt-24 md:pb-32">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-border">
-            <Sparkles className="size-3.5 text-accent" /> Admin-approved, structured Quran learning
-          </span>
+          <p className="flex items-center gap-2 text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+            <span aria-hidden className="h-px w-6 bg-brass" />
+            Structured, teacher-led Quran learning
+          </p>
 
-          <h1 className="mt-6 font-heading text-4xl leading-[1.1] font-semibold tracking-tight text-balance md:text-5xl">
+          <h1 className="mt-6 font-heading text-[2.6rem] leading-[1.05] font-normal tracking-[-0.025em] md:text-[3.75rem]">
             A premium Quran academy, built around your child&apos;s progress
           </h1>
 
@@ -65,7 +64,7 @@ export function HeroSection() {
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
           className="relative"
         >
-          <div className="relative aspect-[4/5] overflow-hidden rounded-4xl shadow-2xl shadow-primary/20 ring-1 ring-black/10 md:aspect-[3/4]">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-lifted ring-1 ring-black/10 md:aspect-[3/4]">
             <Image
               src="/hero-quran-stand.jpg"
               alt="An open Qur'an resting on a wooden rehal stand"
@@ -86,7 +85,7 @@ export function HeroSection() {
               <p className="mt-1 text-xs text-[#a7b2cf]">Al-Muzzammil 73:4</p>
             </div>
           </div>
-          <div className="absolute -bottom-6 -left-6 -z-10 size-28 rounded-full bg-accent/30 blur-2xl" />
+          <div aria-hidden className="absolute -bottom-5 -left-5 -z-10 size-full rounded-[2rem] border border-brass/30" />
         </motion.div>
       </div>
     </section>

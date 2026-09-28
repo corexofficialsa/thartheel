@@ -26,7 +26,7 @@ export function SubmitComplaintForm() {
         <Textarea id="description" name="description" placeholder="Describe what happened" required rows={4} />
       </div>
       {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-      {state?.success && <p className="text-sm text-emerald-600 dark:text-emerald-400">{state.success}</p>}
+      {state?.success && <p className="text-sm text-success">{state.success}</p>}
       <Button type="submit" disabled={isPending}>
         {isPending ? "Sending..." : "Send to support"}
       </Button>

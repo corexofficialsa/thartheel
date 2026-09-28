@@ -1,18 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Geist } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
-// Single premium, minimal type family for the whole app — named exactly
-// "--font-sans" so it lines up with the `--font-sans: var(--font-sans)`
-// passthrough in globals.css (the previous "--font-geist-sans" name never
-// matched that token, so Geist was silently never applied).
-const fontSans = Plus_Jakarta_Sans({
+// Geist for interface text, Fraunces (a warm, bookish serif) for display
+// headings — the variable names line up with the `--font-sans` /
+// `--font-heading` tokens in globals.css.
+const fontSans = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+});
+
+const fontHeading = Fraunces({
+  variable: "--font-heading",
+  subsets: ["latin"],
+  weight: "variable",
 });
 
 export const metadata: Metadata = {
@@ -21,7 +25,6 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
@@ -43,9 +46,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fontSans.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${fontHeading.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />

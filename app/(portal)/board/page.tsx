@@ -2,6 +2,7 @@ import { BookOpen, DollarSign, GraduationCap, Users } from "lucide-react";
 import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function BoardHomePage() {
   await requireRole("board");
@@ -23,11 +24,8 @@ export default async function BoardHomePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Board Overview</h1>
-        <p className="text-muted-foreground">A brief on everything happening across the academy.</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <PageHeader title="Board overview" description="A brief on everything happening across the academy." />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard icon={Users} label="Active teachers" value={teacherCount ?? 0} href="/board/teachers" />
         <StatCard icon={GraduationCap} label="Active students" value={studentCount ?? 0} href="/board/students" />
         <StatCard icon={BookOpen} label="Classrooms" value={classroomCount ?? 0} href="/board/classrooms" />

@@ -42,7 +42,7 @@ export function MarketingNav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoMark className="size-9" />
-          <span className="font-heading text-lg font-semibold tracking-tight">Mirqath Quran Academy</span>
+          <span className="font-heading text-lg font-medium tracking-[-0.01em]">Mirqath Quran Academy</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

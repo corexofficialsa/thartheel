@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function StudentRegistrationsPage() {
   const supabase = await createClient();
@@ -40,10 +41,7 @@ export default async function StudentRegistrationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Student Registrations</h1>
-        <p className="text-muted-foreground">Review and approve pending student sign-ups.</p>
-      </div>
+      <PageHeader title="Student registrations" description="Review and approve pending student sign-ups." />
       <Card>
         <CardHeader>
           <CardTitle>Pending</CardTitle>

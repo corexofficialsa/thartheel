@@ -6,6 +6,7 @@ import { getVisibleComplaints } from "@/lib/complaints/actions";
 import { requireRole } from "@/lib/auth/session";
 import { getUnreadByContact } from "@/lib/notifications/counts";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function TeacherChatPage() {
   const profile = await requireRole("teacher");
@@ -36,10 +37,7 @@ export default async function TeacherChatPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Chat</h1>
-        <p className="text-muted-foreground">Message your students or the board committee, or reach admin through Support.</p>
-      </div>
+      <PageHeader title="Chat" description="Message your students or the board committee, or reach admin through Support." />
 
       <Tabs defaultValue="messages">
         <TabsList>

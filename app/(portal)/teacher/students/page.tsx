@@ -2,6 +2,7 @@ import { StudentProgressTable } from "@/components/students/student-progress-tab
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function TeacherStudentsPage() {
   const profile = await requireRole("teacher");
@@ -17,10 +18,7 @@ export default async function TeacherStudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Students</h1>
-        <p className="text-muted-foreground">Students in your classrooms, with their phase, attendance, and grades.</p>
-      </div>
+      <PageHeader title="Students" description="Students in your classrooms, with their phase, attendance, and grades." />
       <Card>
         <CardHeader>
           <CardTitle>Student progress</CardTitle>

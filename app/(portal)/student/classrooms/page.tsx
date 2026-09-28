@@ -2,6 +2,7 @@ import { JoinClassroomButton } from "@/components/classroom/join-classroom-butto
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function StudentClassroomsPage() {
   const profile = await requireRole("student");
@@ -28,10 +29,7 @@ export default async function StudentClassroomsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Classrooms</h1>
-        <p className="text-muted-foreground">Join your class — attendance is recorded automatically.</p>
-      </div>
+      <PageHeader title="Classrooms" description="Join your class — attendance is recorded automatically." />
 
       {(!classrooms || classrooms.length === 0) && (
         <p className="text-sm text-muted-foreground">

@@ -17,15 +17,18 @@ export async function removeStudent(_prevState: ActionState, formData: FormData)
 
   const { data: student } = await supabase
     .from("profiles")
-    .select("name, whatsapp_number")
+    .select("name, email, whatsapp_number")
     .eq("id", profileId)
     .single();
 
   const { error } = await supabase.rpc("remove_profile", { p_profile_id: profileId, p_reason: reason });
   if (error) return { error: "Could not remove this student." };
 
-  if (student?.whatsapp_number) {
-    await notify("whatsapp", student.whatsapp_number, "account_removed", { name: student.name, reason });
+  if (student) {
+    await Promise.all([
+      student.whatsapp_number && notify("whatsapp", student.whatsapp_number, "account_removed", { name: student.name, reason }),
+      student.email && notify("email", student.email, "account_removed", { name: student.name, reason }),
+    ]);
   }
 
   revalidatePath("/board/students");

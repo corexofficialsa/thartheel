@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function BoardVisitReportsPage() {
   const supabase = await createClient();
@@ -24,10 +25,7 @@ export default async function BoardVisitReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Halaqa Visit Reports</h1>
-        <p className="text-muted-foreground">Inspection reports filed by admins during batch visits.</p>
-      </div>
+      <PageHeader title="Halaqa visit reports" description="Inspection reports filed by admins during batch visits." />
 
       <Card>
         <CardHeader>

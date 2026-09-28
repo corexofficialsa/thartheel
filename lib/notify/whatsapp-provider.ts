@@ -14,6 +14,8 @@ const TEMPLATE_PARAMS: { [K in NotifyTemplateName]: (params: NotifyTemplates[K])
   fee_due_reminder: (p) => [p.name, p.amount, p.period],
   account_removed: (p) => [p.name, p.reason],
   homework_posted: (p) => [p.name, p.title, p.classroomName, p.dueDate],
+  // Sent by email only; listed so every template has a mapping.
+  password_reset: (p) => [p.name, p.loginId, p.resetUrl],
 };
 
 // WhatsApp Cloud API wants digits only (country code + number, no "+", spaces, or dashes).

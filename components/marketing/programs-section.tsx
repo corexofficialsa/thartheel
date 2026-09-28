@@ -30,41 +30,46 @@ const PROGRAMS = [
 
 export function ProgramsSection() {
   return (
-    <section id="programs" className="mx-auto max-w-6xl px-4 py-20 md:px-6">
-      <Reveal className="mx-auto max-w-2xl text-center">
-        <h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">Three levels, one clear path</h2>
-        <p className="mt-3 text-muted-foreground">
+    <section id="programs" className="mx-auto max-w-6xl px-4 py-24 md:px-6">
+      <Reveal className="max-w-2xl">
+        <p className="flex items-center gap-2 text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+          <span aria-hidden className="h-px w-6 bg-brass" />
+          Programs
+        </p>
+        <h2 className="mt-4 font-heading text-[2.25rem] leading-[1.1] font-normal tracking-[-0.02em] md:text-5xl">
+          Three levels, one clear path
+        </h2>
+        <p className="mt-4 max-w-[58ch] text-muted-foreground">
           Every student registers into Level 1, 2, or 3 — the right one is easy to tell from where you&apos;re
           starting.
         </p>
       </Reveal>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-3">
+      <ol className="mt-14 border-t border-border">
         {PROGRAMS.map((program, i) => (
-          <Reveal key={program.name} delay={i * 0.1}>
-            <div className="group relative h-full overflow-hidden rounded-3xl border border-border/70 bg-card p-8 ring-1 ring-foreground/5 transition-shadow hover:shadow-lg hover:shadow-primary/5">
-              <div className="flex items-center gap-3">
-                <span className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <program.icon className="size-5" />
-                </span>
-                <div>
-                  <p className="text-xs font-medium tracking-wide text-accent-foreground/70 uppercase">{program.tagline}</p>
-                  <h3 className="font-heading text-xl font-semibold">{program.name}</h3>
+          <Reveal key={program.name} delay={i * 0.08}>
+            <li className="group grid gap-6 border-b border-border py-10 md:grid-cols-[7rem_1fr_1.1fr] md:gap-10">
+              <span className="font-heading text-6xl leading-none font-light text-brass tabular-nums">0{i + 1}</span>
+              <div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <program.icon className="size-4" />
+                  <span className="text-sm">{program.tagline}</span>
                 </div>
+                <h3 className="mt-2 font-heading text-3xl font-normal tracking-[-0.015em]">{program.name}</h3>
+                <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-muted-foreground">{program.description}</p>
               </div>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{program.description}</p>
-              <ul className="mt-5 space-y-2">
+              <ul className="space-y-3 self-center md:border-l md:border-border md:pl-10">
                 {program.points.map((point) => (
-                  <li key={point} className="flex items-start gap-2 text-sm">
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent" />
+                  <li key={point} className="flex items-start gap-3 text-sm">
+                    <span aria-hidden className="mt-2 h-px w-3 shrink-0 bg-brass" />
                     <span>{point}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </li>
           </Reveal>
         ))}
-      </div>
+      </ol>
     </section>
   );
 }

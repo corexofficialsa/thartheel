@@ -5,6 +5,7 @@ import { getVisibleComplaints } from "@/lib/complaints/actions";
 import { requireRole } from "@/lib/auth/session";
 import { getUnreadByContact } from "@/lib/notifications/counts";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function BoardMessagesPage() {
   const profile = await requireRole("board");
@@ -21,10 +22,7 @@ export default async function BoardMessagesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Messages</h1>
-        <p className="text-muted-foreground">Support requests and direct messages with teachers.</p>
-      </div>
+      <PageHeader title="Messages" description="Support requests and direct messages with teachers." />
 
       <Tabs defaultValue="complaints">
         <TabsList>

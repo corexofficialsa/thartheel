@@ -10,6 +10,7 @@ import { requireRole } from "@/lib/auth/session";
 import { isJoinEffectivelyLocked } from "@/lib/classroom/join-lock";
 import { createClient } from "@/lib/supabase/server";
 import { unenrollStudent } from "./actions";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function TeacherClassroomsPage() {
   const profile = await requireRole("teacher");
@@ -42,12 +43,7 @@ export default async function TeacherClassroomsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Classrooms</h1>
-        <p className="text-muted-foreground">
-          Manage your classrooms, meeting links, and enrolled students. Only admin or board can create a new classroom.
-        </p>
-      </div>
+      <PageHeader title="Classrooms" description="Manage your classrooms, meeting links, and enrolled students. Only admin or board can create a new classroom." />
 
       {(classrooms ?? []).length === 0 && (
         <p className="text-sm text-muted-foreground">

@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import type { HomeworkMode } from "@/lib/supabase/types";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function StudentHomeworkPage() {
   const profile = await requireRole("student");
@@ -129,10 +130,7 @@ export default async function StudentHomeworkPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Homework</h1>
-        <p className="text-muted-foreground">Answer with text, video, or audio — whatever your teacher asks for.</p>
-      </div>
+      <PageHeader title="Homework" description="Answer with text, video, or audio — whatever your teacher asks for." />
 
       {(!homeworkList || homeworkList.length === 0) ? (
         <p className="text-sm text-muted-foreground">No homework has been assigned yet.</p>

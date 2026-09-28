@@ -3,6 +3,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 const HISTORY_MONTHS = 12;
 
@@ -50,10 +51,7 @@ export default async function BoardFinancePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Finance</h1>
-        <p className="text-muted-foreground">Monthly finance history for the last {HISTORY_MONTHS} months.</p>
-      </div>
+      <PageHeader title="Finance" description={<>Monthly finance history for the last {HISTORY_MONTHS} months.</>} />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>

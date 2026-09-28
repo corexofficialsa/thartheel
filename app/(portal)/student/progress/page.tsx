@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function StudentProgressPage() {
   const profile = await requireRole("student");
@@ -39,10 +40,7 @@ export default async function StudentProgressPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Progress</h1>
-        <p className="text-muted-foreground">Your phases, teacher notes, and exam results.</p>
-      </div>
+      <PageHeader title="Progress" description="Your phases, teacher notes, and exam results." />
 
       <div className="grid gap-4 sm:grid-cols-2">
         {(tracks ?? []).map((track) => {

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { UnreadBadge } from "@/components/app-shell/unread-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,7 @@ export function ChatInterface({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const contactsRef = useRef(contacts);
   useEffect(() => {
     contactsRef.current = contacts;
@@ -42,6 +43,8 @@ export function ChatInterface({
 
   function openContact(contact: ChatContact) {
     setSelectedContact(contact);
+    // On phones the chat box sits below the page header — bring it fully into view.
+    containerRef.current?.scrollIntoView({ block: "end", behavior: "smooth" });
     setConversationId(null);
     setMessages([]);
     setError(null);
@@ -124,8 +127,17 @@ export function ChatInterface({
   }
 
   return (
-    <div className="flex h-[calc(100svh-12rem)] min-h-96 overflow-hidden rounded-lg border">
-      <div className="w-48 shrink-0 overflow-y-auto border-r sm:w-56">
+    <div
+      ref={containerRef}
+      className="flex h-[calc(100svh-9.5rem-env(safe-area-inset-bottom))] min-h-80 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-soft md:h-[calc(100svh-14rem)] md:min-h-96"
+    >
+      {/* Phones show one pane at a time: the contact list, or the open chat. */}
+      <div
+        className={cn(
+          "w-full shrink-0 overflow-y-auto bg-muted/30 md:block md:w-60 md:border-r",
+          selectedContact && "hidden"
+        )}
+      >
         {contacts.length === 0 && <p className="p-3 text-sm text-muted-foreground">No contacts yet.</p>}
         {contacts.map((contact) => (
           <button
@@ -133,8 +145,8 @@ export function ChatInterface({
             type="button"
             onClick={() => openContact(contact)}
             className={cn(
-              "block w-full border-b px-3 py-2 text-left text-sm hover:bg-accent",
-              selectedContact?.id === contact.id && "bg-accent"
+              "block w-full border-b border-border/60 px-4 py-3 text-left text-sm transition-colors hover:bg-accent",
+              selectedContact?.id === contact.id && "bg-card shadow-[inset_3px_0_0_var(--brass)]"
             )}
           >
             <div className="flex items-center justify-between gap-2">
@@ -147,26 +159,42 @@ export function ChatInterface({
           </button>
         ))}
       </div>
-      <div className="flex flex-1 flex-col">
+      <div className={cn("min-w-0 flex-1 flex-col", selectedContact ? "flex" : "hidden md:flex")}>
         {!selectedContact ? (
           <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
             Select someone to start chatting.
           </div>
         ) : (
           <>
-            <div className="border-b px-4 py-2 font-medium">{selectedContact.name}</div>
+            <div className="flex items-center gap-2 border-b px-3 py-2.5 md:px-5 md:py-3">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                aria-label="Back to conversations"
+                className="md:hidden"
+                onClick={() => {
+                  setSelectedContact(null);
+                  setConversationId(null);
+                }}
+              >
+                <ArrowLeft />
+              </Button>
+              <span className="truncate font-heading text-lg">{selectedContact.name}</span>
+            </div>
             <div className="flex-1 space-y-2 overflow-y-auto p-4">
               {messages.map((message) => {
                 const isMine = message.sender_id === currentUserId;
                 return (
-                  <div key={message.id} className={cn("max-w-xs", isMine && "ml-auto")}>
+                  <div key={message.id} className={cn("w-fit max-w-[80%] md:max-w-xs", isMine && "ml-auto")}>
                     {selectedContact.kind === "classroom" && !isMine && (
                       <p className="mb-0.5 px-1 text-xs font-medium text-muted-foreground">{message.sender_name}</p>
                     )}
                     <div
                       className={cn(
-                        "rounded-lg px-3 py-2 text-sm",
-                        isMine ? "bg-primary text-primary-foreground" : "bg-secondary"
+                        "rounded-2xl px-3.5 py-2 text-sm",
+                        "break-words whitespace-pre-wrap",
+                        isMine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-secondary"
                       )}
                     >
                       {message.content}
@@ -189,7 +217,7 @@ export function ChatInterface({
                 }}
                 placeholder="Type a message..."
               />
-              <Button onClick={handleSend} disabled={isPending || !draft.trim()}>
+              <Button onClick={handleSend} disabled={isPending || !draft.trim()} aria-label="Send message" className="shrink-0">
                 <Send className="size-4" />
               </Button>
             </div>

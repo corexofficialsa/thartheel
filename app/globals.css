@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,6 +27,8 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-brass: var(--brass);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -48,84 +50,95 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* "Ink & brass": warm paper neutrals (one gray family, hue ~80), the brand's
+   deep ink navy as the only strong color, and a muted brass accent used
+   sparingly for emphasis (active nav, highlights). */
 :root {
-  --background: oklch(0.98 0.004 258);
-  --foreground: oklch(0.22 0.04 258);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 258);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 258);
-  --primary: oklch(0.42 0.16 258);
-  --primary-foreground: oklch(0.98 0.01 258);
-  --secondary: oklch(0.95 0.02 258);
-  --secondary-foreground: oklch(0.28 0.06 258);
-  --muted: oklch(0.96 0.01 258);
-  --muted-foreground: oklch(0.5 0.03 258);
-  --accent: oklch(0.82 0.13 85);
-  --accent-foreground: oklch(0.25 0.05 258);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.015 258);
-  --input: oklch(0.91 0.015 258);
-  --ring: oklch(0.55 0.14 258);
-  --chart-1: oklch(0.55 0.16 258);
-  --chart-2: oklch(0.75 0.14 85);
-  --chart-3: oklch(0.65 0.1 220);
-  --chart-4: oklch(0.6 0.12 40);
-  --chart-5: oklch(0.4 0.05 258);
-  --radius: 0.85rem;
-  --sidebar: oklch(0.98 0.005 258);
-  --sidebar-foreground: oklch(0.25 0.05 258);
-  --sidebar-primary: oklch(0.42 0.16 258);
-  --sidebar-primary-foreground: oklch(0.98 0.01 258);
-  --sidebar-accent: oklch(0.9 0.1 85);
-  --sidebar-accent-foreground: oklch(0.25 0.05 258);
-  --sidebar-border: oklch(0.9 0.02 258);
-  --sidebar-ring: oklch(0.55 0.14 258);
+  --background: oklch(0.982 0.006 85);
+  --foreground: oklch(0.24 0.02 265);
+  --card: oklch(0.995 0.003 85);
+  --card-foreground: oklch(0.24 0.02 265);
+  --popover: oklch(0.995 0.003 85);
+  --popover-foreground: oklch(0.24 0.02 265);
+  --primary: oklch(0.34 0.085 262);
+  --primary-foreground: oklch(0.98 0.006 85);
+  --secondary: oklch(0.955 0.008 85);
+  --secondary-foreground: oklch(0.3 0.03 265);
+  --muted: oklch(0.955 0.008 85);
+  --muted-foreground: oklch(0.52 0.015 75);
+  --accent: oklch(0.93 0.035 85);
+  --accent-foreground: oklch(0.36 0.06 70);
+  --brass: oklch(0.7 0.1 78);
+  --destructive: oklch(0.56 0.19 27);
+  --success: oklch(0.55 0.11 155);
+  --border: oklch(0.905 0.01 85);
+  --input: oklch(0.88 0.012 85);
+  --ring: oklch(0.34 0.085 262 / 45%);
+  --chart-1: oklch(0.34 0.085 262);
+  --chart-2: oklch(0.7 0.1 78);
+  --chart-3: oklch(0.55 0.06 200);
+  --chart-4: oklch(0.6 0.09 40);
+  --chart-5: oklch(0.5 0.015 75);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.968 0.008 85);
+  --sidebar-foreground: oklch(0.3 0.02 265);
+  --sidebar-primary: oklch(0.34 0.085 262);
+  --sidebar-primary-foreground: oklch(0.98 0.006 85);
+  --sidebar-accent: oklch(0.93 0.012 85);
+  --sidebar-accent-foreground: oklch(0.24 0.02 265);
+  --sidebar-border: oklch(0.9 0.01 85);
+  --sidebar-ring: oklch(0.34 0.085 262 / 45%);
+  --shadow-color: 40 30% 30%;
 }
 
 .dark {
-  --background: oklch(0.17 0.03 258);
-  --foreground: oklch(0.96 0.01 258);
-  --card: oklch(0.22 0.035 258);
-  --card-foreground: oklch(0.96 0.01 258);
-  --popover: oklch(0.22 0.035 258);
-  --popover-foreground: oklch(0.96 0.01 258);
-  --primary: oklch(0.65 0.15 258);
-  --primary-foreground: oklch(0.15 0.03 258);
-  --secondary: oklch(0.28 0.04 258);
-  --secondary-foreground: oklch(0.94 0.01 258);
-  --muted: oklch(0.28 0.03 258);
-  --muted-foreground: oklch(0.7 0.03 258);
-  --accent: oklch(0.78 0.14 85);
-  --accent-foreground: oklch(0.15 0.03 258);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.65 0.15 258);
-  --chart-1: oklch(0.65 0.15 258);
-  --chart-2: oklch(0.78 0.14 85);
-  --chart-3: oklch(0.55 0.1 220);
-  --chart-4: oklch(0.65 0.12 40);
-  --chart-5: oklch(0.85 0.02 258);
-  --sidebar: oklch(0.2 0.035 258);
-  --sidebar-foreground: oklch(0.94 0.01 258);
-  --sidebar-primary: oklch(0.65 0.15 258);
-  --sidebar-primary-foreground: oklch(0.15 0.03 258);
-  --sidebar-accent: oklch(0.35 0.08 85);
-  --sidebar-accent-foreground: oklch(0.94 0.01 258);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.65 0.15 258);
+  --background: oklch(0.17 0.006 75);
+  --foreground: oklch(0.94 0.008 85);
+  --card: oklch(0.205 0.007 75);
+  --card-foreground: oklch(0.94 0.008 85);
+  --popover: oklch(0.215 0.007 75);
+  --popover-foreground: oklch(0.94 0.008 85);
+  --primary: oklch(0.8 0.06 262);
+  --primary-foreground: oklch(0.18 0.02 265);
+  --secondary: oklch(0.25 0.008 75);
+  --secondary-foreground: oklch(0.92 0.008 85);
+  --muted: oklch(0.25 0.008 75);
+  --muted-foreground: oklch(0.68 0.012 80);
+  --accent: oklch(0.3 0.03 78);
+  --accent-foreground: oklch(0.88 0.06 82);
+  --brass: oklch(0.78 0.09 80);
+  --destructive: oklch(0.68 0.17 24);
+  --success: oklch(0.72 0.11 155);
+  --border: oklch(1 0.01 85 / 10%);
+  --input: oklch(1 0.01 85 / 14%);
+  --ring: oklch(0.8 0.06 262 / 45%);
+  --chart-1: oklch(0.8 0.06 262);
+  --chart-2: oklch(0.78 0.09 80);
+  --chart-3: oklch(0.7 0.06 200);
+  --chart-4: oklch(0.7 0.09 40);
+  --chart-5: oklch(0.68 0.012 80);
+  --sidebar: oklch(0.155 0.006 75);
+  --sidebar-foreground: oklch(0.9 0.008 85);
+  --sidebar-primary: oklch(0.8 0.06 262);
+  --sidebar-primary-foreground: oklch(0.18 0.02 265);
+  --sidebar-accent: oklch(0.23 0.008 75);
+  --sidebar-accent-foreground: oklch(0.96 0.008 85);
+  --sidebar-border: oklch(1 0.01 85 / 8%);
+  --sidebar-ring: oklch(0.8 0.06 262 / 45%);
+  --shadow-color: 30 20% 2%;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+    font-feature-settings: "ss01", "cv11";
+  }
+  body {
+    @apply bg-background text-foreground;
   }
   /* Smooths the light/dark toggle instead of an instant color snap. */
   html,
@@ -134,9 +147,69 @@
       background-color 0.25s ease,
       color 0.25s ease;
   }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Figures line up in tables, stats and money columns. */
+  table,
+  [data-slot="card"] {
+    font-variant-numeric: tabular-nums;
+  }
+  /* One consistent, slightly finer icon stroke — only for icons left at
+     lucide's default, so explicit strokeWidth props still win. */
+  svg.lucide[stroke-width="2"] {
+    stroke-width: 1.75;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--brass) 35%, transparent);
+  }
 }
 
 @layer utilities {
+  /* Soft, warm-tinted elevation — shadows carry the paper hue instead of
+     generic black. */
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px hsl(var(--shadow-color) / 0.06),
+      0 4px 16px -6px hsl(var(--shadow-color) / 0.1);
+  }
+  .shadow-lifted {
+    box-shadow:
+      0 1px 2px hsl(var(--shadow-color) / 0.08),
+      0 18px 40px -16px hsl(var(--shadow-color) / 0.22);
+  }
+  /* Fine paper grain, fixed behind content; pointer-events-none so it
+     never intercepts clicks. */
+  .paper-grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .dark .paper-grain::before {
+    opacity: 0.05;
+  }
+  /* Horizontal scroll hint: a soft shadow appears at whichever edge has more
+     content beyond it (the "local" cover layers scroll with the content and
+     hide the shadow once an edge is reached). Set --scroll-cover to the
+     surface color behind the scroller. */
+  .scroll-hint {
+    --scroll-cover: var(--card);
+    background:
+      linear-gradient(to right, var(--scroll-cover) 35%, transparent) left / 2.5rem 100% no-repeat local,
+      linear-gradient(to left, var(--scroll-cover) 35%, transparent) right / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, hsl(var(--shadow-color) / 0.18), transparent) left / 0.75rem 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, hsl(var(--shadow-color) / 0.18), transparent) right / 0.75rem 100% no-repeat scroll;
+  }
+
   /* One shared entrance animation for page content — a soft fade + rise,
      applied on every portal page's main wrapper so navigation feels alive
      without a JS animation library. */

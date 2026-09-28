@@ -19,7 +19,7 @@ export async function approveRegistration(_prevState: ActionState, formData: For
 
   const { data: profile, error: fetchError } = await supabase
     .from("profiles")
-    .select("name, role, whatsapp_number")
+    .select("name, role, email, whatsapp_number")
     .eq("id", profileId)
     .single();
   if (fetchError || !profile) return { error: "Registration not found." };
@@ -32,13 +32,11 @@ export async function approveRegistration(_prevState: ActionState, formData: For
     return { error: "Could not approve this registration." };
   }
 
-  if (profile.whatsapp_number) {
-    await notify("whatsapp", profile.whatsapp_number, "registration_approved", {
-      name: profile.name,
-      role: profile.role,
-      portalUrl: `${PORTAL_URL}/login`,
-    });
-  }
+  const approvedParams = { name: profile.name, role: profile.role, portalUrl: `${PORTAL_URL}/login` };
+  await Promise.all([
+    profile.whatsapp_number && notify("whatsapp", profile.whatsapp_number, "registration_approved", approvedParams),
+    profile.email && notify("email", profile.email, "registration_approved", approvedParams),
+  ]);
 
   revalidatePath("/admin/registrations/student");
   revalidatePath("/admin/registrations/teacher");
@@ -56,7 +54,7 @@ export async function rejectRegistration(_prevState: ActionState, formData: Form
 
   const { data: profile, error: fetchError } = await supabase
     .from("profiles")
-    .select("name, whatsapp_number")
+    .select("name, email, whatsapp_number")
     .eq("id", profileId)
     .single();
   if (fetchError || !profile) return { error: "Registration not found." };
@@ -64,12 +62,11 @@ export async function rejectRegistration(_prevState: ActionState, formData: Form
   const { error } = await supabase.rpc("reject_profile", { p_profile_id: profileId, p_reason: reason });
   if (error) return { error: "Could not reject this registration." };
 
-  if (profile.whatsapp_number) {
-    await notify("whatsapp", profile.whatsapp_number, "registration_rejected", {
-      name: profile.name,
-      reason,
-    });
-  }
+  const rejectedParams = { name: profile.name, reason };
+  await Promise.all([
+    profile.whatsapp_number && notify("whatsapp", profile.whatsapp_number, "registration_rejected", rejectedParams),
+    profile.email && notify("email", profile.email, "registration_rejected", rejectedParams),
+  ]);
 
   revalidatePath("/admin/registrations/student");
   revalidatePath("/admin/registrations/teacher");

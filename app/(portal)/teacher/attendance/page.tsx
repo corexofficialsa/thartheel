@@ -8,6 +8,7 @@ import { isIsoDate, riyadhToday } from "@/lib/attendance/dates";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/portal/page-header";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -34,10 +35,7 @@ export default async function TeacherAttendancePage({
 
   if (!classrooms || classrooms.length === 0) {
     return (
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">Attendance</h1>
-        <p className="text-muted-foreground">You don&apos;t have a classroom yet.</p>
-      </div>
+      <PageHeader title="Attendance" description="You don't have a classroom yet — admin or board will assign one." />
     );
   }
 
@@ -91,10 +89,7 @@ export default async function TeacherAttendancePage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Attendance</h1>
-        <p className="text-muted-foreground">See who attended, correct records, and browse past days.</p>
-      </div>
+      <PageHeader title="Attendance" description="See who attended, correct records, and browse past days." />
 
       <div className="flex flex-wrap gap-2">
         {classrooms.map((c) => (
@@ -124,7 +119,7 @@ export default async function TeacherAttendancePage({
                 {date === today && " · Today"}
               </CardTitle>
               <CardDescription>
-                <span className="text-emerald-600 dark:text-emerald-400">{presentCount} present</span> ·{" "}
+                <span className="text-success">{presentCount} present</span> ·{" "}
                 <span className="text-destructive">{absentCount} absent</span>
               </CardDescription>
             </div>

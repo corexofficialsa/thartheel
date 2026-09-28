@@ -25,6 +25,19 @@ export function renderTemplate<T extends NotifyTemplateName>(template: T, params
       const p = params as NotifyTemplates["homework_posted"];
       return `Assalamu Alaikum ${p.name}, new homework "${p.title}" has been posted for ${p.classroomName}, due ${p.dueDate}.`;
     }
+    case "password_reset": {
+      const p = params as NotifyTemplates["password_reset"];
+      return `Assalamu Alaikum ${p.name},
+
+We received a request to reset your Mirqath Quran Academy password.
+
+Your login: ${p.loginId}
+
+Set a new password here (the link works once and expires in 1 hour):
+${p.resetUrl}
+
+If you didn't ask for this, you can ignore this email — your current password still works.`;
+    }
     default:
       throw new Error(`Unknown notification template: ${template satisfies never}`);
   }

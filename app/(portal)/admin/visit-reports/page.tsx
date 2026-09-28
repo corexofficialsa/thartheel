@@ -2,6 +2,7 @@ import { UploadVisitReportForm } from "@/components/admin/upload-visit-report-fo
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function AdminVisitReportsPage() {
   const supabase = await createClient();
@@ -25,10 +26,7 @@ export default async function AdminVisitReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Halaqa Visit Reports</h1>
-        <p className="text-muted-foreground">Log inspection reports from your batch visits.</p>
-      </div>
+      <PageHeader title="Halaqa visit reports" description="Log inspection reports from your batch visits." />
 
       <Card>
         <CardHeader>

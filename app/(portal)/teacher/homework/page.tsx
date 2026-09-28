@@ -12,6 +12,7 @@ import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import type { HomeworkMode } from "@/lib/supabase/types";
 import { allowResubmission, deleteHomework } from "./actions";
+import { PageHeader } from "@/components/portal/page-header";
 
 const MODE_LABEL: Record<HomeworkMode, string> = { text: "Text", audio: "Audio", video: "Video" };
 
@@ -131,10 +132,7 @@ export default async function TeacherHomeworkPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Homework</h1>
-        <p className="text-muted-foreground">Assign homework and review student submissions.</p>
-      </div>
+      <PageHeader title="Homework" description="Assign homework and review student submissions." />
 
       <Card>
         <CardHeader>

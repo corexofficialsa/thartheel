@@ -30,13 +30,13 @@ export function AttendanceToggle({
   }
 
   return (
-    <div className="inline-flex rounded-lg border p-0.5" aria-busy={isPending}>
+    <div className="inline-flex shrink-0 rounded-lg border p-0.5" aria-busy={isPending}>
       <button
         type="button"
         onClick={() => set(true)}
         className={cn(
-          "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-          optimisticPresent ? "bg-emerald-600 text-white" : "text-muted-foreground hover:bg-muted"
+          "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors md:h-8 md:px-2.5 md:text-xs",
+          optimisticPresent ? "bg-success text-white" : "text-muted-foreground hover:bg-muted"
         )}
       >
         <Check className="size-3.5" /> Present
@@ -45,7 +45,7 @@ export function AttendanceToggle({
         type="button"
         onClick={() => set(false)}
         className={cn(
-          "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+          "inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors md:h-8 md:px-2.5 md:text-xs",
           !optimisticPresent ? "bg-destructive text-white" : "text-muted-foreground hover:bg-muted"
         )}
       >

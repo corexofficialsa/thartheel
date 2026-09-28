@@ -36,24 +36,26 @@ const FEATURES = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="border-y border-border/60 bg-secondary/30">
-      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
+    <section id="features" className="border-y border-border/60 bg-secondary/50">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-24 md:grid-cols-[0.8fr_1.2fr] md:gap-16 md:px-6">
+        <Reveal className="md:sticky md:top-24 md:self-start">
+          <p className="flex items-center gap-2 text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+            <span aria-hidden className="h-px w-6 bg-brass" />
+            The portal
+          </p>
+          <h2 className="mt-4 font-heading text-[2.25rem] leading-[1.1] font-normal tracking-[-0.02em] md:text-5xl">
             Everything a classroom needs, nothing it doesn&apos;t
           </h2>
-          <p className="mt-3 text-muted-foreground">One calm portal for students, teachers, and admins.</p>
+          <p className="mt-4 max-w-[40ch] text-muted-foreground">One calm portal for students, teachers, and admins.</p>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid sm:grid-cols-2">
           {FEATURES.map((feature, i) => (
-            <Reveal key={feature.title} delay={(i % 3) * 0.08}>
-              <div className="h-full rounded-2xl border border-border/70 bg-card p-6 ring-1 ring-foreground/5">
-                <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <feature.icon className="size-5" />
-                </span>
-                <h3 className="mt-4 font-medium">{feature.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+            <Reveal key={feature.title} delay={(i % 2) * 0.08}>
+              <div className="h-full border-t border-border py-7 sm:pr-8">
+                <feature.icon className="size-5 text-primary" />
+                <h3 className="mt-4 font-heading text-xl font-normal tracking-[-0.01em]">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
               </div>
             </Reveal>
           ))}

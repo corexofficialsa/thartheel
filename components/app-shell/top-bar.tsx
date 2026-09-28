@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { LogoMark } from "@/components/brand/logo-mark";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,15 +39,18 @@ export function TopBar({ name, role }: { name: string; role: UserRole }) {
   }
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
-      <span className="font-semibold md:hidden">Mirqath Quran Academy</span>
-      <div className="hidden md:block" />
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-md md:px-8">
+      <span className="flex items-center gap-2.5 md:hidden">
+        <LogoMark className="size-7" />
+        <span className="font-heading text-[1.05rem] font-medium tracking-[-0.01em]">Mirqath</span>
+      </span>
+      <span className="hidden text-sm text-muted-foreground md:block">{ROLE_LABEL[role]} portal</span>
       <div className="flex items-center gap-1">
         <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="h-9 gap-2 px-2" />}>
-            <Avatar className="size-7">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs">{initials(name)}</AvatarFallback>
+            <Avatar className="size-7 rounded-lg after:rounded-lg">
+              <AvatarFallback className="rounded-lg bg-primary text-[11px] font-medium text-primary-foreground">{initials(name)}</AvatarFallback>
             </Avatar>
             <span className="hidden text-sm font-medium sm:inline">{name}</span>
           </DropdownMenuTrigger>

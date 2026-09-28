@@ -10,6 +10,7 @@ export type NotifyTemplates = {
   fee_due_reminder: { name: string; amount: string; period: string };
   account_removed: { name: string; reason: string };
   homework_posted: { name: string; classroomName: string; title: string; dueDate: string };
+  password_reset: { name: string; loginId: string; resetUrl: string };
 };
 
 export type NotifyTemplateName = keyof NotifyTemplates;

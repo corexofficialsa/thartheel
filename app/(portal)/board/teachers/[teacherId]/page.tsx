@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function TeacherDetailPage({ params }: { params: Promise<{ teacherId: string }> }) {
   const { teacherId } = await params;
@@ -36,10 +37,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{teacher.name}</h1>
-        <p className="text-muted-foreground">{teacher.email}</p>
-      </div>
+      <PageHeader title={teacher.name} description={teacher.email} />
 
       <Card>
         <CardHeader>

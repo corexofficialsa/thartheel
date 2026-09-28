@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireRole } from "@/lib/auth/session";
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function TeacherAcademicsPage() {
   const profile = await requireRole("teacher");
@@ -87,10 +88,7 @@ export default async function TeacherAcademicsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Academics</h1>
-        <p className="text-muted-foreground">Phases, progress reports, exams, and teaching notes.</p>
-      </div>
+      <PageHeader title="Academics" description="Phases, progress reports, exams, and teaching notes." />
 
       <Tabs defaultValue="milestones">
         <TabsList>

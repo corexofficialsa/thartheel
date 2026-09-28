@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const passwordSchema = z.string().min(8, "Password must be at least 8 characters");
+export const passwordSchema = z.string().min(8, "Password must be at least 8 characters");
 const phoneSchema = z.string().min(6, "Enter a valid phone number");
 
 export const studentRegistrationSchema = z

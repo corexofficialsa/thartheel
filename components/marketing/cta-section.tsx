@@ -7,13 +7,13 @@ export function CtaSection() {
   return (
     <section className="mx-auto max-w-6xl px-4 pb-20 md:px-6">
       <Reveal>
-        <div className="relative overflow-hidden rounded-4xl bg-primary px-8 py-16 text-center text-primary-foreground md:py-20">
+        <div className="relative overflow-hidden rounded-[2rem] bg-primary px-8 py-16 text-center text-primary-foreground md:py-24">
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--accent)_0%,_transparent_55%)] opacity-25"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(40rem_20rem_at_50%_-20%,var(--brass),transparent_70%)] opacity-30"
           />
-          <h2 className="relative font-heading text-3xl font-semibold tracking-tight md:text-4xl">
-            Ready to begin the journey?
+          <h2 className="relative font-heading text-[2.25rem] leading-[1.1] font-normal tracking-[-0.02em] md:text-5xl">
+            Begin with the right level
           </h2>
           <p className="relative mx-auto mt-3 max-w-md text-primary-foreground/80">
             Registration takes a few minutes. An admin reviews and approves every new account.

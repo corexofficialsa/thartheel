@@ -3,7 +3,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { cn } from "@/lib/utils";
 
 const RANK_STYLE = [
-  { badge: "bg-accent text-accent-foreground", icon: Crown },
+  { badge: "bg-brass/20 text-accent-foreground", icon: Crown },
   { badge: "bg-secondary text-secondary-foreground", icon: Medal },
   { badge: "bg-secondary text-secondary-foreground", icon: Medal },
 ];

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
+import { PageHeader } from "@/components/portal/page-header";
 
 export default async function BoardStudentsPage() {
   const supabase = await createClient();
@@ -33,10 +34,7 @@ export default async function BoardStudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Students</h1>
-        <p className="text-muted-foreground">Full student directory and attendance.</p>
-      </div>
+      <PageHeader title="Students" description="Full student directory and attendance." />
       <Card>
         <CardHeader>
           <CardTitle>Directory</CardTitle>

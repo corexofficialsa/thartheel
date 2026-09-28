@@ -12,7 +12,7 @@ export default function LoginChooserPage() {
       <CardContent className="grid gap-3">
         <Link
           href="/login/student"
-          className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-primary hover:bg-secondary/50"
+          className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-brass/50 hover:bg-card hover:shadow-soft"
         >
           <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
             <GraduationCap className="size-5" />
@@ -24,9 +24,9 @@ export default function LoginChooserPage() {
         </Link>
         <Link
           href="/login/teacher"
-          className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-primary hover:bg-secondary/50"
+          className="group flex items-center gap-4 rounded-xl border p-4 transition-colors hover:border-brass/50 hover:bg-card hover:shadow-soft"
         >
-          <span className="flex size-10 items-center justify-center rounded-full bg-accent/20 text-accent-foreground">
+          <span className="flex size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
             <Users className="size-5" />
           </span>
           <span>

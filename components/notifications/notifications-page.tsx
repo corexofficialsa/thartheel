@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { markAllNotificationsRead } from "@/lib/notifications/actions";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/portal/page-header";
 
 const KIND_ICON = { message: MessageSquare, homework: BookOpen, graded: CheckCircle2, reopened: RotateCcw } as const;
 
@@ -30,21 +31,19 @@ export async function NotificationsPage({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Notifications</h1>
-          <p className="text-muted-foreground">
-            {unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up."}
-          </p>
-        </div>
-        {unreadCount > 0 && (
-          <form action={markAllNotificationsRead}>
-            <Button type="submit" variant="outline" size="sm">
-              Mark all as read
-            </Button>
-          </form>
-        )}
-      </div>
+      <PageHeader
+        title="Notifications"
+        description={unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up."}
+        actions={
+          unreadCount > 0 && (
+            <form action={markAllNotificationsRead}>
+              <Button type="submit" variant="outline" size="sm">
+                Mark all as read
+              </Button>
+            </form>
+          )
+        }
+      />
 
       {(notifications ?? []).length === 0 ? (
         <Card>
