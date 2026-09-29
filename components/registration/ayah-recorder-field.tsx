@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mic, RotateCcw, Square } from "lucide-react";
+import { Mic, RotateCcw, Square, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { arabicFont } from "@/lib/fonts";
+import { MAX_RECITATION_BYTES } from "@/lib/registration/student-options";
 
 const MAX_DURATION_SECONDS = 90;
 
 function pickMimeType() {
-  const candidates = ["audio/webm;codecs=opus", "audio/webm"];
+  // Safari/iOS records MP4 (AAC); Chrome/Firefox/Android record WebM.
+  const candidates = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
   return candidates.find((type) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(type));
 }
 
@@ -30,6 +32,7 @@ export function AyahRecorderField({
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     return () => {
@@ -54,7 +57,7 @@ export function AyahRecorderField({
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       recorder.onstop = () => {
-        const type = mimeType ?? "audio/webm";
+        const type = recorder.mimeType || mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type });
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
@@ -63,7 +66,7 @@ export function AyahRecorderField({
         if (timerRef.current) clearInterval(timerRef.current);
 
         if (fileInputRef.current) {
-          const file = new File([blob], "recitation.webm", { type });
+          const file = new File([blob], type.includes("mp4") ? "recitation.m4a" : "recitation.webm", { type });
           const dataTransfer = new DataTransfer();
           dataTransfer.items.add(file);
           fileInputRef.current.files = dataTransfer.files;
@@ -90,6 +93,32 @@ export function AyahRecorderField({
     mediaRecorderRef.current?.stop();
   }
 
+  // Uploading an existing audio file is an alternative to recording in the
+  // browser; either way the audio ends up in the one named file input.
+  function handleUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("audio/")) {
+      setError("Please choose an audio file.");
+      return;
+    }
+    if (file.size > MAX_RECITATION_BYTES) {
+      setError("That file is too large (max 8 MB).");
+      return;
+    }
+    setError(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(URL.createObjectURL(file));
+    if (fileInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      fileInputRef.current.files = dataTransfer.files;
+    }
+    setStatus("recorded");
+    onRecordedChange?.(true);
+  }
+
   function reRecord() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
@@ -101,9 +130,10 @@ export function AyahRecorderField({
   return (
     <div className="space-y-4 rounded-2xl border bg-card p-5">
       <div className="space-y-2">
-        <Label>Recitation test</Label>
+        <Label>Read the ayah below</Label>
         <p className="text-sm text-muted-foreground">
-          Level 2 asks for a short recitation. Read the ayah below aloud and record yourself reciting it.
+          Recite this ayah aloud and record yourself, or upload an audio recording of it. This helps your teacher
+          place you at the right pace.
         </p>
       </div>
 
@@ -126,11 +156,17 @@ export function AyahRecorderField({
       )}
       {error && <p className="text-xs text-destructive">{error}</p>}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {status === "idle" && (
-          <Button type="button" size="sm" variant="outline" onClick={startRecording}>
-            <Mic className="size-3.5" /> Start recording
-          </Button>
+          <>
+            <Button type="button" size="sm" onClick={startRecording}>
+              <Mic className="size-3.5" /> Start recording
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => uploadInputRef.current?.click()}>
+              <Upload className="size-3.5" /> Upload audio
+            </Button>
+            <input ref={uploadInputRef} type="file" accept="audio/*" className="hidden" onChange={handleUpload} />
+          </>
         )}
         {status === "recording" && (
           <Button type="button" size="sm" variant="destructive" onClick={stopRecording}>
@@ -139,7 +175,7 @@ export function AyahRecorderField({
         )}
         {status === "recorded" && (
           <Button type="button" size="sm" variant="ghost" onClick={reRecord}>
-            <RotateCcw className="size-3.5" /> Re-record
+            <RotateCcw className="size-3.5" /> Record again
           </Button>
         )}
       </div>

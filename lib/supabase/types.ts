@@ -6,6 +6,18 @@
 export type UserRole = "student" | "teacher" | "board" | "finance" | "admin";
 export type ProfileStatus = "pending" | "active" | "rejected" | "removed";
 export type HomeworkMode = "text" | "audio" | "video";
+export type SkillLevel = "beginner" | "intermediate" | "advanced";
+export type NotificationKind =
+  | "message"
+  | "homework"
+  | "graded"
+  | "reopened"
+  | "submission"
+  | "exam"
+  | "result"
+  | "support"
+  | "payment"
+  | "registration";
 
 export type Database = {
   public: {
@@ -42,6 +54,13 @@ export type Database = {
           batch_id: string | null;
           age: number | null;
           place: string | null;
+          gender: "male" | "female" | null;
+          address: string | null;
+          makharij_level: SkillLevel | null;
+          qaida_level: SkillLevel | null;
+          tajweed_level: SkillLevel | null;
+          preferred_time_slot: string | null;
+          terms_accepted_at: string | null;
           rejection_reason: string | null;
           created_at: string;
           updated_at: string;
@@ -59,6 +78,13 @@ export type Database = {
           batch_id?: string | null;
           age?: number | null;
           place?: string | null;
+          gender?: "male" | "female" | null;
+          address?: string | null;
+          makharij_level?: SkillLevel | null;
+          qaida_level?: SkillLevel | null;
+          tajweed_level?: SkillLevel | null;
+          preferred_time_slot?: string | null;
+          terms_accepted_at?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
         Relationships: [];
@@ -136,7 +162,7 @@ export type Database = {
         Row: {
           id: string;
           user_id: string;
-          kind: "message" | "homework" | "graded" | "reopened";
+          kind: NotificationKind;
           title: string;
           body: string | null;
           link: string | null;

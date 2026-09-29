@@ -1,5 +1,6 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { UnreadCounts } from "@/lib/notifications/counts";
+import type { NotificationItem } from "@/lib/notifications/kinds";
 import type { UserRole } from "@/lib/supabase/types";
 import { BottomTabBar } from "./bottom-tab-bar";
 import { NotificationsListener } from "./notifications-listener";
@@ -12,12 +13,14 @@ export function AppShell({
   name,
   userId,
   unread,
+  recent,
   children,
 }: {
   role: UserRole;
   name: string;
   userId: string;
   unread: UnreadCounts;
+  recent: NotificationItem[];
   children: React.ReactNode;
 }) {
   return (
@@ -32,7 +35,7 @@ export function AppShell({
       <div className="paper-grain flex min-h-svh w-full">
         <AppSidebar role={role} unread={unread} />
         <div className="relative flex min-h-svh w-full min-w-0 flex-1 flex-col">
-          <TopBar name={name} role={role} />
+          <TopBar name={name} role={role} unreadCount={unread.notifications} recent={recent} />
           <main id="main" className="flex-1 px-4 pt-6 pb-24 md:px-8 md:pt-8 md:pb-12">
             <div className="mx-auto w-full max-w-6xl">
               <PageTransition>{children}</PageTransition>

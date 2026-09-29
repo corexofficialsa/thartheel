@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import type { NotificationItem } from "@/lib/notifications/kinds";
+import { NotificationBell } from "./notification-bell";
 import { createClient } from "@/lib/supabase/client";
 import { ROLE_LABEL } from "./nav-config";
 import type { UserRole } from "@/lib/supabase/types";
@@ -28,7 +30,17 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export function TopBar({ name, role }: { name: string; role: UserRole }) {
+export function TopBar({
+  name,
+  role,
+  unreadCount,
+  recent,
+}: {
+  name: string;
+  role: UserRole;
+  unreadCount: number;
+  recent: NotificationItem[];
+}) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -47,6 +59,7 @@ export function TopBar({ name, role }: { name: string; role: UserRole }) {
       <span className="hidden text-sm text-muted-foreground md:block">{ROLE_LABEL[role]} portal</span>
       <div className="flex items-center gap-1">
         <ThemeToggle />
+        <NotificationBell role={role} unreadCount={unreadCount} items={recent} />
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="h-9 gap-2 px-2" />}>
             <Avatar className="size-7 rounded-lg after:rounded-lg">

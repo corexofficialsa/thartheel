@@ -7,17 +7,17 @@ import { registerStudent } from "./actions";
 export default async function StudentRegisterPage() {
   const supabase = await createClient();
   const [{ data: levels }, { data: ayah }] = await Promise.all([
-    supabase.from("levels").select("id, name, requires_recitation").order("name"),
+    supabase.from("levels").select("id, name").order("name"),
     supabase.from("quran_ayahs").select("id, reference, arabic_text, translation").order("id"),
   ]);
 
   const randomAyah = pickRandomAyah(ayah ?? []);
 
   return (
-    <Card>
+    <Card data-wide>
       <CardHeader>
         <CardTitle>Student registration</CardTitle>
-        <CardDescription>Tell us about yourself and the level you&apos;re looking to join.</CardDescription>
+        <CardDescription>Four short steps — it takes about five minutes.</CardDescription>
       </CardHeader>
       <CardContent>
         <StudentRegistrationForm

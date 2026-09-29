@@ -24,7 +24,7 @@ export default async function AdminStudentsPage() {
           <CardDescription>{studentIds.length} active students</CardDescription>
         </CardHeader>
         <CardContent>
-          <StudentProgressTable studentIds={studentIds} />
+          <StudentProgressTable studentIds={studentIds} deletable />
         </CardContent>
       </Card>
     </div>

@@ -1,11 +1,19 @@
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
+import { DeleteStudentButton } from "./delete-student-button";
 
 // Shared by the admin Students page (every active student) and the teacher
 // Students page (students enrolled in that teacher's classrooms). RLS scopes
 // what each caller can read; the caller decides which students to show.
-export async function StudentProgressTable({ studentIds }: { studentIds: string[] }) {
+export async function StudentProgressTable({
+  studentIds,
+  deletable = false,
+}: {
+  studentIds: string[];
+  // Admin only: adds a delete button per student.
+  deletable?: boolean;
+}) {
   if (studentIds.length === 0) {
     return <p className="text-sm text-muted-foreground">No students yet.</p>;
   }
@@ -90,6 +98,7 @@ export async function StudentProgressTable({ studentIds }: { studentIds: string[
             <TableHead className="min-w-40">Phase</TableHead>
             <TableHead>Attendance (30d)</TableHead>
             <TableHead className="text-right">Avg grade</TableHead>
+            {deletable && <TableHead className="w-10"><span className="sr-only">Actions</span></TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -120,6 +129,11 @@ export async function StudentProgressTable({ studentIds }: { studentIds: string[
                 </TableCell>
                 <TableCell>{attendanceByStudent.get(student.id) ?? 0}</TableCell>
                 <TableCell className="text-right">{grade ? (grade.sum / grade.count).toFixed(1) : "—"}</TableCell>
+                {deletable && (
+                  <TableCell className="text-right">
+                    <DeleteStudentButton studentId={student.id} name={student.name} />
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}

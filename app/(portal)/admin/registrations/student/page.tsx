@@ -5,13 +5,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { SKILL_LABEL, timeSlotLabel } from "@/lib/registration/student-options";
 
 export default async function StudentRegistrationsPage() {
   const supabase = await createClient();
   const [{ data: pending }, { data: levels }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, name, email, phone, whatsapp_number, level_id, age, place, created_at")
+      .select(
+        "id, name, email, phone, whatsapp_number, level_id, age, place, gender, address, makharij_level, qaida_level, tajweed_level, preferred_time_slot, terms_accepted_at, created_at"
+      )
       .eq("role", "student")
       .eq("status", "pending")
       .order("created_at", { ascending: true }),
@@ -73,7 +76,34 @@ export default async function StudentRegistrationsPage() {
                     const isPaid = paidByStudentId.get(row.id) ?? false;
                     return (
                       <TableRow key={row.id}>
-                        <TableCell className="font-medium">{row.name}</TableCell>
+                        <TableCell className="align-top">
+                          <div className="font-medium">{row.name}</div>
+                          {row.terms_accepted_at && (
+                            <details className="mt-1 text-xs">
+                              <summary className="cursor-pointer text-primary underline-offset-4 hover:underline">
+                                View answers
+                              </summary>
+                              <dl className="mt-2 grid w-72 grid-cols-[auto_1fr] gap-x-3 gap-y-1 whitespace-normal">
+                                <dt className="text-muted-foreground">Gender</dt>
+                                <dd className="capitalize">{row.gender ?? "—"}</dd>
+                                <dt className="text-muted-foreground">Address</dt>
+                                <dd>{row.address ?? "—"}</dd>
+                                <dt className="text-muted-foreground">WhatsApp</dt>
+                                <dd>{row.whatsapp_number}</dd>
+                                <dt className="text-muted-foreground">Makharij</dt>
+                                <dd>{row.makharij_level ? SKILL_LABEL[row.makharij_level] : "—"}</dd>
+                                <dt className="text-muted-foreground">Qaida</dt>
+                                <dd>{row.qaida_level ? SKILL_LABEL[row.qaida_level] : "—"}</dd>
+                                <dt className="text-muted-foreground">Tajweed</dt>
+                                <dd>{row.tajweed_level ? SKILL_LABEL[row.tajweed_level] : "—"}</dd>
+                                <dt className="text-muted-foreground">Time slot</dt>
+                                <dd>{timeSlotLabel(row.preferred_time_slot)}</dd>
+                                <dt className="text-muted-foreground">Terms</dt>
+                                <dd>Accepted {new Date(row.terms_accepted_at).toLocaleDateString("en-GB")}</dd>
+                              </dl>
+                            </details>
+                          )}
+                        </TableCell>
                         <TableCell>{row.age ?? "—"}</TableCell>
                         <TableCell>{row.place ?? "—"}</TableCell>
                         <TableCell>{row.email}</TableCell>

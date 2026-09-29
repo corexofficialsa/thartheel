@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { Bell, BookOpen, CheckCircle2, MessageSquare, RotateCcw } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { markAllNotificationsRead } from "@/lib/notifications/actions";
+import { NOTIFICATION_ICON } from "@/lib/notifications/kinds";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/portal/page-header";
 
-const KIND_ICON = { message: MessageSquare, homework: BookOpen, graded: CheckCircle2, reopened: RotateCcw } as const;
 
 function timeAgo(iso: string) {
   const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -56,7 +56,7 @@ export async function NotificationsPage({ userId }: { userId: string }) {
         <Card className="py-0">
           <ul className="divide-y">
             {(notifications ?? []).map((n) => {
-              const Icon = KIND_ICON[n.kind];
+              const Icon = NOTIFICATION_ICON[n.kind];
               const content = (
                 <div className={cn("flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50", !n.read_at && "bg-primary/[0.04]")}>
                   <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">

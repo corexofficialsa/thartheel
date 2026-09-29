@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { UserRole } from "@/lib/supabase/types";
+import type { SkillLevel, UserRole } from "@/lib/supabase/types";
 
 type RegisterAccountInput = {
   role: Extract<UserRole, "student" | "teacher">;
@@ -15,6 +15,15 @@ type RegisterAccountInput = {
   place?: string | null;
   cv?: File | null;
   recitation?: { ayahId: string; audio: File } | null;
+  // Student registration form answers (see lib/registration/student-options.ts).
+  details?: {
+    gender: "male" | "female";
+    address: string;
+    makharijLevel: SkillLevel;
+    qaidaLevel: SkillLevel;
+    tajweedLevel: SkillLevel;
+    preferredTimeSlot: string;
+  } | null;
 };
 
 export type RegisterAccountResult = { ok: true } | { ok: false; error: string };
@@ -53,6 +62,17 @@ export async function registerAccount(input: RegisterAccountInput): Promise<Regi
     level_id: input.levelId,
     age: input.age ?? null,
     place: input.place ?? null,
+    ...(input.details
+      ? {
+          gender: input.details.gender,
+          address: input.details.address,
+          makharij_level: input.details.makharijLevel,
+          qaida_level: input.details.qaidaLevel,
+          tajweed_level: input.details.tajweedLevel,
+          preferred_time_slot: input.details.preferredTimeSlot,
+          terms_accepted_at: new Date().toISOString(),
+        }
+      : {}),
   });
 
   if (profileError) {
@@ -82,7 +102,10 @@ export async function registerAccount(input: RegisterAccountInput): Promise<Regi
 
   if (input.recitation) {
     const { ayahId, audio } = input.recitation;
-    const extension = audio.type.includes("webm") ? "webm" : "bin";
+    const extension =
+      { "audio/webm": "webm", "audio/mpeg": "mp3", "audio/mp4": "m4a", "audio/x-m4a": "m4a", "audio/aac": "aac", "audio/wav": "wav", "audio/ogg": "ogg" }[
+        audio.type.split(";")[0]
+      ] ?? "webm";
     const path = `${userId}/recitation.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from("registration-recitations")

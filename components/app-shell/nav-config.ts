@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
-  Bell,
   BookOpen,
   CalendarCheck,
   ClipboardCheck,
@@ -28,7 +27,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { href: "/student/homework", label: "Homework", icon: ClipboardList },
     { href: "/student/progress", label: "Progress", icon: BarChart3 },
     { href: "/student/chat", label: "Chat", icon: MessageSquare, badge: "messages" },
-    { href: "/student/notifications", label: "Notifications", icon: Bell, badge: "notifications" },
   ],
   teacher: [
     { href: "/teacher", label: "Home", icon: Home },
@@ -38,7 +36,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { href: "/teacher/homework", label: "Homework", icon: ClipboardList },
     { href: "/teacher/academics", label: "Academics", icon: BarChart3 },
     { href: "/teacher/chat", label: "Chat", icon: MessageSquare, badge: "messages" },
-    { href: "/teacher/notifications", label: "Notifications", icon: Bell, badge: "notifications" },
   ],
   admin: [
     { href: "/admin", label: "Home", icon: LayoutDashboard },

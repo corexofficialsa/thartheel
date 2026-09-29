@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import type { NotificationItem } from "./kinds";
 
 export type UnreadCounts = { notifications: number; messages: number };
 
@@ -15,6 +16,18 @@ export async function getUnreadCounts(userId: string): Promise<UnreadCounts> {
       .is("read_at", null),
   ]);
   return { notifications: notifications ?? 0, messages: messages ?? 0 };
+}
+
+// The latest few notifications for the top-bar bell.
+export async function getRecentNotifications(userId: string, limit = 8): Promise<NotificationItem[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("notifications")
+    .select("id, kind, title, body, link, read_at, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return data ?? [];
 }
 
 // Unread message counts keyed the same way chat contacts are: a classroom
