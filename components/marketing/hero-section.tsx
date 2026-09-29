@@ -27,7 +27,7 @@ export function HeroSection() {
           </p>
 
           <h1 className="mt-6 font-heading text-[2.6rem] leading-[1.05] font-normal tracking-[-0.025em] md:text-[3.75rem]">
-            A premium Quran academy, built around your child&apos;s progress
+            A premium Quran academy, built around your progress
           </h1>
 
           <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground md:text-lg">
