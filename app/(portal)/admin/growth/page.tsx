@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteLead } from "./actions";
 
 function lastSixMonths(): { key: string; label: string }[] {
   const months = [];
@@ -74,6 +76,9 @@ export default async function AdminGrowthPage() {
                   <TableHead>Contact</TableHead>
                   <TableHead>Notes</TableHead>
                   <TableHead className="text-right">Status</TableHead>
+                  <TableHead className="w-10">
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -85,6 +90,14 @@ export default async function AdminGrowthPage() {
                     <TableCell>{lead.notes ?? "—"}</TableCell>
                     <TableCell className="text-right">
                       <LeadStatusSelect leadId={lead.id} status={lead.status} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <ConfirmDeleteButton
+                        action={deleteLead.bind(null, lead.id)}
+                        title={`Delete lead ${lead.name}?`}
+                        description="This removes the lead from the list and the growth analytics. It can't be undone."
+                        successMessage="Lead deleted."
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

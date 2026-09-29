@@ -3,6 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteTeacher } from "./actions";
 
 export default async function AdminTeachersPage() {
   await requireRole("admin");
@@ -50,12 +52,15 @@ export default async function AdminTeachersPage() {
                   <TableHead>Level</TableHead>
                   <TableHead>Classrooms</TableHead>
                   <TableHead className="text-right">Students</TableHead>
+                  <TableHead className="w-10">
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(teachers ?? []).length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                       No active teachers yet.
                     </TableCell>
                   </TableRow>
@@ -72,6 +77,19 @@ export default async function AdminTeachersPage() {
                       <TableCell>{teacher.level_id ? levelNameById.get(teacher.level_id) : "—"}</TableCell>
                       <TableCell>{taught.length > 0 ? taught.map((c) => c.name).join(", ") : "—"}</TableCell>
                       <TableCell className="text-right">{taught.reduce((sum, c) => sum + c.students, 0)}</TableCell>
+                      <TableCell className="text-right">
+                        <ConfirmDeleteButton
+                          action={deleteTeacher.bind(null, teacher.id)}
+                          title={`Delete ${teacher.name}?`}
+                          description={
+                            taught.length > 0
+                              ? `${teacher.name} still leads ${taught.map((c) => c.name).join(", ")}. Assign a new teacher to those classrooms first, then delete.`
+                              : "This permanently deletes their account and messages. Homework they posted moves to each classroom's current teacher, and progress reports they wrote are kept. It can't be undone."
+                          }
+                          confirmLabel="Delete teacher"
+                          successMessage={`${teacher.name} was deleted.`}
+                        />
+                      </TableCell>
                     </TableRow>
                   );
                 })}

@@ -8,7 +8,7 @@ export default async function StudentRegisterPage() {
   const supabase = await createClient();
   const [{ data: levels }, { data: ayah }] = await Promise.all([
     supabase.from("levels").select("id, name").order("name"),
-    supabase.from("quran_ayahs").select("id, reference, arabic_text, translation").order("id"),
+    supabase.from("quran_ayahs").select("id, reference, arabic_text, translation").eq("in_rotation", true),
   ]);
 
   const randomAyah = pickRandomAyah(ayah ?? []);

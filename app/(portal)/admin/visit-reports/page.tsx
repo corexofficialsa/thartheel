@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteVisitReport } from "./actions";
 
 export default async function AdminVisitReportsPage() {
   const supabase = await createClient();
@@ -46,9 +48,17 @@ export default async function AdminVisitReportsPage() {
           {(!reports || reports.length === 0) && <p className="text-sm text-muted-foreground">No reports yet.</p>}
           {(reports ?? []).map((report) => (
             <div key={report.id} className="rounded-md border p-3 text-sm">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <p className="font-medium">{report.title}</p>
-                <span className="text-xs text-muted-foreground">{new Date(report.visited_at).toLocaleDateString()}</span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  {new Date(report.visited_at).toLocaleDateString()}
+                  <ConfirmDeleteButton
+                    action={deleteVisitReport.bind(null, report.id)}
+                    title={`Delete "${report.title}"?`}
+                    description="This permanently deletes the visit report and its attachment. It can't be undone."
+                    successMessage="Report deleted."
+                  />
+                </span>
               </div>
               {report.classroom_id && (
                 <p className="text-xs text-muted-foreground">{classroomNameById.get(report.classroom_id)}</p>

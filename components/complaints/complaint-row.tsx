@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { updateComplaintStatus, type Complaint, type UpdateComplaintState } from "@/lib/complaints/actions";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteComplaint, updateComplaintStatus, type Complaint, type UpdateComplaintState } from "@/lib/complaints/actions";
 
 export function ComplaintRow({ complaint }: { complaint: Complaint }) {
   const [state, formAction, isPending] = useActionState<UpdateComplaintState, FormData>(
@@ -25,7 +26,15 @@ export function ComplaintRow({ complaint }: { complaint: Complaint }) {
               {new Date(complaint.created_at).toLocaleDateString()}
             </p>
           </div>
-          <ComplaintStatusBadge status={complaint.status} />
+          <div className="flex items-center gap-1">
+            <ComplaintStatusBadge status={complaint.status} />
+            <ConfirmDeleteButton
+              action={() => deleteComplaint(complaint.id)}
+              title="Delete this support request?"
+              description={`"${complaint.subject}" from ${complaint.submitted_by_name} will be removed for everyone. It can't be undone.`}
+              successMessage="Support request deleted."
+            />
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">{complaint.description}</p>
 

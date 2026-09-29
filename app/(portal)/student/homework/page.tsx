@@ -6,6 +6,8 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import type { HomeworkMode } from "@/lib/supabase/types";
 import { PageHeader } from "@/components/portal/page-header";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { withdrawSubmission } from "./actions";
 
 export default async function StudentHomeworkPage() {
   const profile = await requireRole("student");
@@ -114,6 +116,16 @@ export default async function StudentHomeworkPage() {
                 existingVideoPath={submission?.video_url}
                 existingAudioPath={submission?.audio_url}
               />
+              {submission && !grade && !isPastDue && (
+                <ConfirmDeleteButton
+                  action={withdrawSubmission.bind(null, hw.id)}
+                  label="Withdraw"
+                  title="Withdraw your submission?"
+                  description="Your answer and any recordings will be deleted. You can submit again before the due date."
+                  confirmLabel="Withdraw"
+                  successMessage="Submission withdrawn."
+                />
+              )}
               {hasGrant && <span className="text-xs text-muted-foreground">Your teacher reopened this for you.</span>}
             </div>
           ) : (

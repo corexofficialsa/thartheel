@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ActionState = { error?: string; success?: boolean } | undefined;
 
@@ -44,4 +46,26 @@ export async function submitHomework(_prevState: ActionState, formData: FormData
 
   revalidatePath("/student/homework");
   return { success: true };
+}
+
+// Students can withdraw a submission while it's ungraded and before the due
+// date (RLS homework_submissions_delete_own). Its recordings are removed from
+// storage too — the paths come from the student's own deleted row.
+export async function withdrawSubmission(homeworkId: string): Promise<DeleteResult> {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false, error: "Not authenticated." };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("homework_submissions")
+    .delete()
+    .eq("homework_id", homeworkId)
+    .eq("student_id", profile.id)
+    .select("video_url, audio_url");
+  if (error || !data?.length) {
+    return { ok: false, error: "This submission can't be withdrawn (it's graded or past the due date)." };
+  }
+  const paths = [data[0].video_url, data[0].audio_url].filter((p): p is string => !!p);
+  if (paths.length > 0) await createAdminClient().storage.from("homework-submissions").remove(paths);
+  revalidatePath("/student/homework");
+  return { ok: true };
 }

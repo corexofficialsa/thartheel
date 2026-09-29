@@ -8,7 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { authorizeRealtime, createClient } from "@/lib/supabase/client";
-import { getMessages, openClassroomConversation, sendMessage, startConversation, type ChatMessage } from "@/lib/chat/actions";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import {
+  deleteMessage,
+  getMessages,
+  openClassroomConversation,
+  sendMessage,
+  startConversation,
+  type ChatMessage,
+} from "@/lib/chat/actions";
 import { markConversationRead } from "@/lib/notifications/actions";
 
 export type ChatContact = {
@@ -98,6 +106,12 @@ export function ChatInterface({
             }
           }
         )
+        // Delete events can't be filtered and only carry the id, so drop
+        // the message if it's one of ours on screen.
+        .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages" }, (payload) => {
+          const id = (payload.old as { id?: string }).id;
+          if (id) setMessages((prev) => prev.filter((m) => m.id !== id));
+        })
         .subscribe();
     });
 
@@ -186,18 +200,37 @@ export function ChatInterface({
               {messages.map((message) => {
                 const isMine = message.sender_id === currentUserId;
                 return (
-                  <div key={message.id} className={cn("w-fit max-w-[80%] md:max-w-xs", isMine && "ml-auto")}>
-                    {selectedContact.kind === "classroom" && !isMine && (
-                      <p className="mb-0.5 px-1 text-xs font-medium text-muted-foreground">{message.sender_name}</p>
+                  <div
+                    key={message.id}
+                    className={cn("group/message flex w-fit max-w-[85%] items-center gap-1 md:max-w-sm", isMine && "ml-auto")}
+                  >
+                    {/* Always visible on touch screens; revealed on hover with a mouse. */}
+                    {isMine && (
+                      <ConfirmDeleteButton
+                        action={async () => {
+                          const result = await deleteMessage(message.id);
+                          if (result.ok) setMessages((prev) => prev.filter((m) => m.id !== message.id));
+                          return result;
+                        }}
+                        title="Delete this message?"
+                        description="It will be removed for everyone in this chat. It can't be undone."
+                        successMessage="Message deleted."
+                        className="shrink-0 opacity-60 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover/message:opacity-100 [@media(hover:hover)]:focus-visible:opacity-100"
+                      />
                     )}
-                    <div
-                      className={cn(
-                        "rounded-2xl px-3.5 py-2 text-sm",
-                        "break-words whitespace-pre-wrap",
-                        isMine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-secondary"
+                    <div className="min-w-0">
+                      {selectedContact.kind === "classroom" && !isMine && (
+                        <p className="mb-0.5 px-1 text-xs font-medium text-muted-foreground">{message.sender_name}</p>
                       )}
-                    >
-                      {message.content}
+                      <div
+                        className={cn(
+                          "rounded-2xl px-3.5 py-2 text-sm",
+                          "break-words whitespace-pre-wrap",
+                          isMine ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-secondary"
+                        )}
+                      >
+                        {message.content}
+                      </div>
                     </div>
                   </div>
                 );

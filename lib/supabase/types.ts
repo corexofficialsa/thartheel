@@ -226,7 +226,7 @@ export type Database = {
           id: string;
           student_id: string;
           classroom_id: string;
-          granted_by: string;
+          granted_by: string | null;
           reason: string;
           created_at: string;
         };
@@ -313,7 +313,7 @@ export type Database = {
         Row: {
           id: string;
           student_id: string;
-          teacher_id: string;
+          teacher_id: string | null;
           period: "daily" | "weekly" | "monthly";
           notes: string;
           created_at: string;
@@ -485,8 +485,8 @@ export type Database = {
         Relationships: [];
       };
       quran_ayahs: {
-        Row: { id: string; reference: string; arabic_text: string; translation: string };
-        Insert: { id?: string; reference: string; arabic_text: string; translation: string };
+        Row: { id: string; reference: string; arabic_text: string; translation: string; in_rotation: boolean };
+        Insert: { id?: string; reference: string; arabic_text: string; translation: string; in_rotation?: boolean };
         Update: never;
         Relationships: [];
       };

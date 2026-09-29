@@ -1,6 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
+import { getCurrentProfile } from "@/lib/auth/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 // Used by both admin and board classroom-management pages — RLS
@@ -89,4 +92,34 @@ export async function unenrollStudentFromClassroom(formData: FormData): Promise<
   await supabase.from("classroom_students").delete().eq("classroom_id", classroomId).eq("student_id", studentId);
 
   revalidateClassroomPaths();
+}
+
+// Deletes a classroom and everything that belongs to it (enrollments,
+// homework and submissions, attendance, exams, its group chat). Admin/board
+// only — RLS would also let a teacher delete their own classroom, so the role
+// is checked here explicitly. Submission recordings live in storage, which
+// doesn't cascade, so they're removed first.
+export async function deleteClassroom(classroomId: string): Promise<DeleteResult> {
+  const caller = await getCurrentProfile();
+  if (!caller || caller.status !== "active" || (caller.role !== "admin" && caller.role !== "board")) {
+    return { ok: false, error: "Only admin or board can delete classrooms." };
+  }
+
+  const admin = createAdminClient();
+  const { data: homework } = await admin.from("homework").select("id").eq("classroom_id", classroomId);
+  const homeworkIds = (homework ?? []).map((h) => h.id);
+  if (homeworkIds.length > 0) {
+    const { data: submissions } = await admin
+      .from("homework_submissions")
+      .select("video_url, audio_url")
+      .in("homework_id", homeworkIds);
+    const paths = (submissions ?? []).flatMap((s) => [s.video_url, s.audio_url]).filter((p): p is string => !!p);
+    if (paths.length > 0) await admin.storage.from("homework-submissions").remove(paths);
+  }
+
+  const { error } = await admin.from("classrooms").delete().eq("id", classroomId);
+  if (error) return { ok: false, error: "Could not delete this classroom. Please try again." };
+
+  revalidateClassroomPaths();
+  return { ok: true };
 }

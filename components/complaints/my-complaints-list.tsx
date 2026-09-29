@@ -1,6 +1,7 @@
 import { ComplaintStatusBadge } from "@/components/complaints/complaint-status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Complaint } from "@/lib/complaints/actions";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteComplaint, type Complaint } from "@/lib/complaints/actions";
 
 export function MyComplaintsList({ complaints }: { complaints: Complaint[] }) {
   if (complaints.length === 0) {
@@ -14,7 +15,18 @@ export function MyComplaintsList({ complaints }: { complaints: Complaint[] }) {
           <CardContent className="space-y-2">
             <div className="flex items-start justify-between gap-2">
               <p className="font-medium">{complaint.subject}</p>
-              <ComplaintStatusBadge status={complaint.status} />
+              <div className="flex items-center gap-1">
+                <ComplaintStatusBadge status={complaint.status} />
+                {complaint.status === "open" && (
+                  <ConfirmDeleteButton
+                    action={deleteComplaint.bind(null, complaint.id)}
+                    title="Withdraw this support request?"
+                    description="The academy will no longer see it. You can send a new request any time."
+                    confirmLabel="Withdraw"
+                    successMessage="Support request withdrawn."
+                  />
+                )}
+              </div>
             </div>
             <p className="text-sm text-muted-foreground">{complaint.description}</p>
             {complaint.resolution_note && (

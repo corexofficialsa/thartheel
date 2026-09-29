@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { arabicFont } from "@/lib/fonts";
 import { MAX_RECITATION_BYTES } from "@/lib/registration/student-options";
 
-const MAX_DURATION_SECONDS = 90;
+// Long enough for the longer test ayahs (Maryam–Al-Furqan) at a slow pace.
+const MAX_DURATION_SECONDS = 180;
 
 function pickMimeType() {
   // Safari/iOS records MP4 (AAC); Chrome/Firefox/Android record WebM.

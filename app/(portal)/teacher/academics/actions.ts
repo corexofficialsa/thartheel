@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -134,4 +136,56 @@ export async function uploadTeachingNote(_prevState: ActionState, formData: Form
   if (error) return { error: "Could not save note metadata." };
 
   revalidatePath("/teacher/academics");
+}
+
+// Deletes below go through the teacher's own RLS-bound client, so a teacher
+// can only remove exams/results in their own classrooms and their own
+// progress reports. `.select()` confirms a row was actually deleted.
+
+export async function deleteExam(examId: string): Promise<DeleteResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("exams").delete().eq("id", examId).select("id");
+  if (error || !data?.length) return { ok: false, error: "Could not delete this exam." };
+  revalidatePath("/teacher/academics");
+  return { ok: true };
+}
+
+export async function deleteExamResult(examId: string, studentId: string): Promise<DeleteResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("exam_results")
+    .delete()
+    .eq("exam_id", examId)
+    .eq("student_id", studentId)
+    .select("exam_id");
+  if (error || !data?.length) return { ok: false, error: "Could not delete this result." };
+  revalidatePath("/teacher/academics");
+  return { ok: true };
+}
+
+export async function deleteProgressReport(reportId: string): Promise<DeleteResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("progress_reports").delete().eq("id", reportId).select("id");
+  if (error || !data?.length) return { ok: false, error: "Could not delete this report." };
+  revalidatePath("/teacher/academics");
+  return { ok: true };
+}
+
+// The notes library is shared, and its RLS lets any teacher write, so the
+// uploader check is enforced here. Storage only grants teachers insert, so
+// the file itself is removed with the service client.
+export async function deleteTeachingNote(noteId: string): Promise<DeleteResult> {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false, error: "Not authenticated." };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("teaching_notes")
+    .delete()
+    .eq("id", noteId)
+    .eq("uploaded_by", profile.id)
+    .select("file_url");
+  if (error || !data?.length) return { ok: false, error: "You can only delete notes you uploaded." };
+  await createAdminClient().storage.from("teaching-notes").remove([data[0].file_url]);
+  revalidatePath("/teacher/academics");
+  return { ok: true };
 }

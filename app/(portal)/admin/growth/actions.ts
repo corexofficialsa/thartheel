@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -37,4 +38,12 @@ export async function updateLeadStatus(formData: FormData): Promise<void> {
   await supabase.from("campaign_leads").update({ status: status as "new" | "contacted" | "converted" | "lost" }).eq("id", leadId);
 
   revalidatePath("/admin/growth");
+}
+
+export async function deleteLead(leadId: string): Promise<DeleteResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("campaign_leads").delete().eq("id", leadId).select("id");
+  if (error || !data?.length) return { ok: false, error: "Could not delete this lead." };
+  revalidatePath("/admin/growth");
+  return { ok: true };
 }

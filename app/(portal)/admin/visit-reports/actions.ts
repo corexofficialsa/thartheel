@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string } | undefined;
@@ -42,4 +44,21 @@ export async function uploadVisitReport(_prevState: ActionState, formData: FormD
 
   revalidatePath("/admin/visit-reports");
   revalidatePath("/board/visit-reports");
+}
+
+// RLS (halaqa_visit_reports_admin_write) gates the row delete; the attached
+// file is removed with the service client once the row is confirmed gone.
+export async function deleteVisitReport(reportId: string): Promise<DeleteResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("halaqa_visit_reports")
+    .delete()
+    .eq("id", reportId)
+    .select("file_url");
+  if (error || !data?.length) return { ok: false, error: "Could not delete this report." };
+  const fileUrl = data[0].file_url;
+  if (fileUrl) await createAdminClient().storage.from("halaqa-visit-reports").remove([fileUrl]);
+  revalidatePath("/admin/visit-reports");
+  revalidatePath("/board/visit-reports");
+  return { ok: true };
 }

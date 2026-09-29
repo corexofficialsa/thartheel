@@ -1,6 +1,8 @@
 "use server";
 
 import { getCurrentProfile } from "@/lib/auth/session";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type StartConversationResult = { ok: true; conversationId: string } | { ok: false; error: string };
@@ -77,4 +79,32 @@ export async function getMessages(conversationId: string): Promise<ChatMessage[]
   const nameById = new Map((senders ?? []).map((s) => [s.id, s.name]));
 
   return (messages ?? []).map((m) => ({ ...m, sender_name: nameById.get(m.sender_id) ?? "Unknown" }));
+}
+
+// Senders can delete their own messages (RLS messages_delete_own). The
+// "new message" notifications it produced carried the text as a preview, so
+// those are removed too — otherwise the deleted words would linger in
+// recipients' notification lists.
+export async function deleteMessage(messageId: string): Promise<DeleteResult> {
+  const profile = await getCurrentProfile();
+  if (!profile) return { ok: false, error: "Not authenticated." };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("messages")
+    .delete()
+    .eq("id", messageId)
+    .eq("sender_id", profile.id)
+    .select("conversation_id, content, created_at");
+  if (error || !data?.length) return { ok: false, error: "Could not delete this message." };
+
+  const deleted = data[0];
+  await createAdminClient()
+    .from("notifications")
+    .delete()
+    .eq("kind", "message")
+    .eq("conversation_id", deleted.conversation_id)
+    .eq("actor_id", profile.id)
+    .eq("body", deleted.content.slice(0, 140))
+    .gte("created_at", deleted.created_at);
+  return { ok: true };
 }

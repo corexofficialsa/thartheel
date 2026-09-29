@@ -12,6 +12,8 @@ import { requireRole } from "@/lib/auth/session";
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteExam, deleteExamResult, deleteProgressReport, deleteTeachingNote } from "./actions";
 
 export default async function TeacherAcademicsPage() {
   const profile = await requireRole("teacher");
@@ -24,7 +26,7 @@ export default async function TeacherAcademicsPage() {
     supabase.from("classrooms").select("id, name").eq("teacher_id", profile.id),
     supabase.from("syllabus_tracks").select("id, name, total_milestones"),
     supabase.from("levels").select("id, name"),
-    supabase.from("teaching_notes").select("id, title, file_url, level_id, created_at").order("created_at", { ascending: false }),
+    supabase.from("teaching_notes").select("id, title, file_url, level_id, uploaded_by, created_at").order("created_at", { ascending: false }),
   ]);
   const classroomIds = (classrooms ?? []).map((c) => c.id);
   const classroomNameById = new Map((classrooms ?? []).map((c) => [c.id, c.name]));
@@ -145,12 +147,20 @@ export default async function TeacherAcademicsPage() {
               {(progressReports ?? []).length === 0 && <p className="text-sm text-muted-foreground">No reports yet.</p>}
               {(progressReports ?? []).map((report) => (
                 <div key={report.id} className="rounded-md border p-3 text-sm">
-                  <p className="font-medium">
-                    {studentNameById.get(report.student_id) ?? "Student"}{" "}
-                    <span className="font-normal text-muted-foreground">
-                      — {report.period} — {new Date(report.created_at).toLocaleDateString()}
-                    </span>
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium">
+                      {studentNameById.get(report.student_id) ?? "Student"}{" "}
+                      <span className="font-normal text-muted-foreground">
+                        — {report.period} — {new Date(report.created_at).toLocaleDateString()}
+                      </span>
+                    </p>
+                    <ConfirmDeleteButton
+                      action={deleteProgressReport.bind(null, report.id)}
+                      title="Delete this progress report?"
+                      description="The report will be removed for the student too. It can't be undone."
+                      successMessage="Report deleted."
+                    />
+                  </div>
                   <p className="mt-1 text-muted-foreground">{report.notes}</p>
                 </div>
               ))}
@@ -170,26 +180,49 @@ export default async function TeacherAcademicsPage() {
 
           {(exams ?? []).map((exam) => (
             <Card key={exam.id}>
-              <CardHeader>
+              <CardHeader className="flex-row items-start justify-between gap-2">
+                <div className="space-y-1">
                 <CardTitle>{exam.title}</CardTitle>
                 <CardDescription>
                   {classroomNameById.get(exam.classroom_id) ?? "Classroom"} — {exam.exam_type} —{" "}
                   {new Date(exam.scheduled_at).toLocaleString()}
                 </CardDescription>
+                </div>
+                <ConfirmDeleteButton
+                  action={deleteExam.bind(null, exam.id)}
+                  title={`Delete ${exam.title}?`}
+                  description="This deletes the exam and every mark recorded for it. Students will no longer see it. It can't be undone."
+                  confirmLabel="Delete exam"
+                  successMessage="Exam deleted."
+                />
               </CardHeader>
               <CardContent>
                 <Separator className="mb-3" />
                 <p className="mb-2 text-sm font-medium">Marks</p>
                 <div className="space-y-2">
-                  {(enrolledByClassroom.get(exam.classroom_id) ?? []).map((studentId) => (
-                    <PublishResultForm
-                      key={studentId}
-                      examId={exam.id}
-                      studentId={studentId}
-                      studentName={studentNameById.get(studentId) ?? "Student"}
-                      existingMarks={resultByExamStudent.get(`${exam.id}:${studentId}`)}
-                    />
-                  ))}
+                  {(enrolledByClassroom.get(exam.classroom_id) ?? []).map((studentId) => {
+                    const marks = resultByExamStudent.get(`${exam.id}:${studentId}`);
+                    return (
+                      <div key={studentId} className="flex items-center gap-1">
+                        <div className="min-w-0 flex-1">
+                          <PublishResultForm
+                            examId={exam.id}
+                            studentId={studentId}
+                            studentName={studentNameById.get(studentId) ?? "Student"}
+                            existingMarks={marks}
+                          />
+                        </div>
+                        {marks !== undefined && (
+                          <ConfirmDeleteButton
+                            action={deleteExamResult.bind(null, exam.id, studentId)}
+                            title={`Delete ${studentNameById.get(studentId) ?? "this student"}'s result?`}
+                            description="Their mark for this exam will be removed. You can enter a new one afterwards."
+                            successMessage="Result deleted."
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -222,11 +255,21 @@ export default async function TeacherAcademicsPage() {
                         <span className="text-xs text-muted-foreground">({levelNameById.get(note.level_id)})</span>
                       )}
                     </div>
-                    {url && (
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">
-                        Download
-                      </a>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {url && (
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">
+                          Download
+                        </a>
+                      )}
+                      {note.uploaded_by === profile.id && (
+                        <ConfirmDeleteButton
+                          action={deleteTeachingNote.bind(null, note.id)}
+                          title={`Delete "${note.title}"?`}
+                          description="The note and its file are removed from the shared library for every teacher. It can't be undone."
+                          successMessage="Note deleted."
+                        />
+                      )}
+                    </div>
                   </div>
                 );
               })}

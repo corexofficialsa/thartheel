@@ -66,7 +66,7 @@ export function MarketingNav() {
                 <GraduationCap className="size-4" />
                 <span>
                   <span className="block font-medium">Register as a student</span>
-                  <span className="block text-xs text-muted-foreground">Join a Level 1, 2, or 3 class</span>
+                  <span className="block text-xs text-muted-foreground">Start with Al Asas (Level 1)</span>
                 </span>
               </DropdownMenuItem>
               <DropdownMenuItem render={<Link href="/register/teacher" />} className="gap-2">

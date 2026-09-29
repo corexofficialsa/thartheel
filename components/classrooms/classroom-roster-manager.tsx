@@ -7,7 +7,8 @@ import { RenameClassroomForm } from "@/components/classrooms/rename-classroom-fo
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { unenrollStudentFromClassroom } from "@/lib/classrooms/actions";
+import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
+import { deleteClassroom, unenrollStudentFromClassroom } from "@/lib/classrooms/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export async function ClassroomRosterManager() {
@@ -73,7 +74,16 @@ export async function ClassroomRosterManager() {
                 <RenameClassroomForm classroomId={classroom.id} currentName={classroom.name} />
                 <CardDescription>{levelNameById.get(classroom.level_id ?? "") ?? "No level"}</CardDescription>
               </div>
-              <JoinClassroomButton classroomId={classroom.id} label="Join class" />
+              <div className="flex items-center gap-1">
+                <JoinClassroomButton classroomId={classroom.id} label="Join class" />
+                <ConfirmDeleteButton
+                  action={deleteClassroom.bind(null, classroom.id)}
+                  title={`Delete ${classroom.name}?`}
+                  description={`This permanently deletes the classroom with its ${enrolledIds.length} enrollment${enrolledIds.length === 1 ? "" : "s"}, homework and submissions, attendance, exams and group chat. Students and the teacher keep their accounts. It can't be undone.`}
+                  confirmLabel="Delete classroom"
+                  successMessage={`${classroom.name} was deleted.`}
+                />
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>

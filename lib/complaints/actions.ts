@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
+import type { DeleteResult } from "@/components/common/confirm-delete-button";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string; success?: string } | undefined;
@@ -76,4 +77,19 @@ export async function updateComplaintStatus(
 
   revalidatePath("/admin/messages");
   revalidatePath("/board/messages");
+}
+
+// Admin/board can delete any request; a student/teacher can withdraw their
+// own only while it's still open. RLS (0044) enforces which applies.
+export async function deleteComplaint(complaintId: string): Promise<DeleteResult> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("complaints").delete().eq("id", complaintId).select("id");
+  if (error || !data?.length) {
+    return { ok: false, error: "This request can't be deleted (it may already be in review)." };
+  }
+  revalidatePath("/admin/messages");
+  revalidatePath("/board/messages");
+  revalidatePath("/student/chat");
+  revalidatePath("/teacher/chat");
+  return { ok: true };
 }
