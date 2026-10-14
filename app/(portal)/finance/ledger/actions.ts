@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
-export type ActionState = { error?: string } | undefined;
+export type ActionState = { error?: string; success?: string } | undefined;
 
 export async function addFinanceRecord(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const type = formData.get("type");
@@ -250,4 +250,33 @@ export async function deleteSalaryAllocation(formData: FormData): Promise<void> 
   const supabase = await createClient();
   await supabase.from("salary_allocations").delete().eq("id", allocationId);
   revalidatePath("/finance/ledger");
+}
+
+// Sets the registration fee for new registrations, and re-prices registration
+// invoices that haven't received any payment yet. Invoices with a payment
+// (partial or full) keep the amount they were issued at.
+export async function updateRegistrationFee(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.status !== "active" || (profile.role !== "finance" && profile.role !== "admin")) {
+    return { error: "Only finance or admin can change the registration fee." };
+  }
+  const fee = Number(formData.get("registrationFee"));
+  if (!Number.isFinite(fee) || fee < 0) return { error: "Enter a valid fee." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("academy_settings")
+    .update({ registration_fee: fee, updated_at: new Date().toISOString(), updated_by: profile.id })
+    .eq("id", 1);
+  if (error) return { error: "Could not save the fee." };
+
+  await supabase
+    .from("fee_invoices")
+    .update({ amount: fee })
+    .eq("period", "registration")
+    .eq("status", "due")
+    .eq("amount_paid", 0);
+
+  revalidateFinancePaths();
+  return { success: `Registration fee set to ${fee.toFixed(2)} SAR.` };
 }

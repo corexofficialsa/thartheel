@@ -484,6 +484,12 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      academy_settings: {
+        Row: { id: number; registration_fee: number; updated_at: string; updated_by: string | null };
+        Insert: never;
+        Update: { registration_fee?: number; updated_at?: string; updated_by?: string | null };
+        Relationships: [];
+      };
       quran_ayahs: {
         Row: { id: string; reference: string; arabic_text: string; translation: string; in_rotation: boolean };
         Insert: { id?: string; reference: string; arabic_text: string; translation: string; in_rotation?: boolean };

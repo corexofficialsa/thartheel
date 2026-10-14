@@ -197,6 +197,13 @@
   .dark .paper-grain::before {
     opacity: 0.05;
   }
+  /* A full-screen fixed overlay is a cost phones pay on every scroll frame;
+     the texture is subtle enough to drop there. */
+  @media (max-width: 767px) {
+    .paper-grain::before {
+      display: none;
+    }
+  }
   /* Horizontal scroll hint: a soft shadow appears at whichever edge has more
      content beyond it (the "local" cover layers scroll with the content and
      hide the shadow once an edge is reached). Set --scroll-cover to the
@@ -214,17 +221,77 @@
      applied on every portal page's main wrapper so navigation feels alive
      without a JS animation library. */
   .animate-page-in {
-    animation: page-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: page-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-in {
+    animation: none;
   }
 }
 
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(2px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+/* Printing (finance reports and any page): just the content, on white.
+   App chrome, buttons, tabs and form fields are hidden; the PrintHeader
+   letterhead (print-only) takes the place of the top bar. */
+@media print {
+  @page {
+    margin: 14mm 12mm;
+  }
+  :root,
+  .dark {
+    color-scheme: light;
+    --background: #fff;
+    --foreground: #111;
+    --card: #fff;
+    --card-foreground: #111;
+    --muted: #f4f4f4;
+    --muted-foreground: #555;
+    --border: #d9d9d9;
+    --primary: oklch(0.34 0.085 262);
+    --success: oklch(0.45 0.11 155);
+    --destructive: oklch(0.5 0.19 27);
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  .paper-grain::before,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  main button,
+  main [role="tablist"],
+  main input,
+  main select,
+  main textarea {
+    display: none !important;
+  }
+  [data-slot="card"] {
+    box-shadow: none !important;
+  }
+  [data-slot="table-container"] {
+    overflow: visible !important;
+    background: none !important;
+  }
+  tr {
+    break-inside: avoid;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  .animate-page-in {
+    animation: none !important;
   }
 }

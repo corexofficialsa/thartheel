@@ -4,6 +4,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { PrintButton } from "@/components/finance/print-button";
+import { PrintHeader } from "@/components/finance/print-header";
 
 const HISTORY_MONTHS = 12;
 
@@ -51,7 +53,23 @@ export default async function BoardFinancePage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Finance" description={<>Monthly finance history for the last {HISTORY_MONTHS} months.</>} />
+      <PrintHeader title="Finance — monthly history" subtitle={monthLabel(selectedMonth)} />
+      <PageHeader
+        title="Finance"
+        description={<>Monthly finance history for the last {HISTORY_MONTHS} months.</>}
+        className="print:hidden"
+        actions={
+          <>
+            <Link
+              href="/board/finance/summary"
+              className="inline-flex h-9 items-center rounded-lg bg-primary px-3.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Financial summary
+            </Link>
+            <PrintButton />
+          </>
+        }
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>

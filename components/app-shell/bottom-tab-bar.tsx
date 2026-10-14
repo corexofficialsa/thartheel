@@ -14,7 +14,7 @@ export function BottomTabBar({ role, unread }: { role: UserRole; unread: UnreadC
   const activeHref = getActiveHref(items, pathname);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t border-border/60 bg-background/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex print:hidden overflow-x-auto border-t border-border/60 bg-background/97 pb-[env(safe-area-inset-bottom)] md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {items.map((item) => {
         const active = item.href === activeHref;
         const Icon = item.icon;

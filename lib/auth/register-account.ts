@@ -1,4 +1,5 @@
 import "server-only";
+import { getRegistrationFee } from "@/lib/finance/settings";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SkillLevel, UserRole } from "@/lib/supabase/types";
 
@@ -129,7 +130,7 @@ export async function registerAccount(input: RegisterAccountInput): Promise<Regi
     await supabase.from("fee_invoices").insert({
       student_id: userId,
       period: "registration",
-      amount: 100,
+      amount: await getRegistrationFee(),
     });
   }
 

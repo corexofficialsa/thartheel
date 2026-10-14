@@ -2,6 +2,7 @@ import { StudentProgressTable } from "@/components/students/student-progress-tab
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { Download } from "lucide-react";
 import { PageHeader } from "@/components/portal/page-header";
 
 export default async function AdminStudentsPage() {
@@ -17,7 +18,19 @@ export default async function AdminStudentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Students" description="Every active student with their phase, attendance, and grades." />
+      <PageHeader
+        title="Students"
+        description="Every active student with their phase, attendance, and grades."
+        actions={
+          <a
+            href="/admin/students/export"
+            download
+            className="inline-flex h-9 items-center gap-2 rounded-lg border bg-card px-3.5 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <Download className="size-4" /> Export students (CSV)
+          </a>
+        }
+      />
       <Card>
         <CardHeader>
           <CardTitle>Student progress</CardTitle>

@@ -3,6 +3,8 @@ import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { PrintButton } from "@/components/finance/print-button";
+import { PrintHeader } from "@/components/finance/print-header";
 
 export default async function FinanceHomePage() {
   await requireRole("finance");
@@ -22,7 +24,13 @@ export default async function FinanceHomePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Finance overview" description="Income, expenses, and fee collection at a glance." />
+      <PrintHeader title="Finance overview" />
+      <PageHeader
+        title="Finance overview"
+        description="Income, expenses, and fee collection at a glance."
+        actions={<PrintButton />}
+        className="print:hidden"
+      />
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         <StatCard icon={Wallet} label="Fees due" value={feesDue ?? 0} href="/finance/ledger" />
         <StatCard icon={TrendingUp} label="Income this month" value={`${income.toFixed(0)} SAR`} />

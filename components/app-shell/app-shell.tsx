@@ -36,7 +36,7 @@ export function AppShell({
         <AppSidebar role={role} unread={unread} />
         <div className="relative flex min-h-svh w-full min-w-0 flex-1 flex-col">
           <TopBar name={name} role={role} unreadCount={unread.notifications} recent={recent} />
-          <main id="main" className="flex-1 px-4 pt-6 pb-24 md:px-8 md:pt-8 md:pb-12">
+          <main id="main" className="flex-1 px-4 pt-6 pb-24 md:px-8 md:pt-8 md:pb-12 print:p-0">
             <div className="mx-auto w-full max-w-6xl">
               <PageTransition>{children}</PageTransition>
             </div>

@@ -51,7 +51,7 @@ export function TopBar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-md md:px-8">
+    <header className="sticky top-0 z-30 flex h-14 print:hidden items-center justify-between border-b border-border/60 bg-background/95 px-4 md:bg-background/80 md:px-8 md:backdrop-blur-md">
       <span className="flex items-center gap-2.5 md:hidden">
         <LogoMark className="size-7" />
         <span className="font-heading text-[1.05rem] font-medium tracking-[-0.01em]">Mirqath</span>

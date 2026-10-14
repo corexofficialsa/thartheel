@@ -12,6 +12,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
 import { deleteBudget, deleteFeeInvoice, deleteFinanceRecord, deleteSalaryAllocation } from "./actions";
 import { PageHeader } from "@/components/portal/page-header";
+import { PrintButton } from "@/components/finance/print-button";
+import { PrintHeader } from "@/components/finance/print-header";
+import { RegistrationFeeForm } from "@/components/finance/registration-fee-form";
+import { getRegistrationFee } from "@/lib/finance/settings";
 
 const SALARY_CATEGORY_LABEL = {
   staff: "Staff",
@@ -58,6 +62,7 @@ export default async function FinanceLedgerPage() {
   const students = activeStudents;
   const studentNameById = new Map((allStudents ?? []).map((s) => [s.id, s.name]));
 
+  const registrationFee = await getRegistrationFee();
   const admissionInvoices = (invoices ?? []).filter((invoice) => invoice.period === "registration");
 
   const spentByPeriodCategory = new Map<string, number>();
@@ -72,7 +77,13 @@ export default async function FinanceLedgerPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Finance" description="Ledger, fees, budgets, and salary allocations." />
+      <PrintHeader title="Finance — ledger" />
+      <PageHeader
+        title="Finance"
+        description="Ledger, fees, budgets, and salary allocations. Print shows the tab you're on."
+        actions={<PrintButton />}
+        className="print:hidden"
+      />
 
       <Tabs defaultValue="ledger">
         <TabsList>
@@ -84,7 +95,7 @@ export default async function FinanceLedgerPage() {
         </TabsList>
 
         <TabsContent value="ledger" className="space-y-4">
-          <Card>
+          <Card className="print:hidden">
             <CardHeader>
               <CardTitle>Add expense / income</CardTitle>
             </CardHeader>
@@ -131,6 +142,14 @@ export default async function FinanceLedgerPage() {
         </TabsContent>
 
         <TabsContent value="admission" className="space-y-4">
+          <Card className="print:hidden">
+            <CardHeader>
+              <CardTitle>Registration fee</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RegistrationFeeForm currentFee={registrationFee} />
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>Registration fees</CardTitle>
@@ -198,7 +217,7 @@ export default async function FinanceLedgerPage() {
         </TabsContent>
 
         <TabsContent value="fees" className="space-y-4">
-          <Card>
+          <Card className="print:hidden">
             <CardHeader>
               <CardTitle>Create fee invoice</CardTitle>
             </CardHeader>
@@ -264,7 +283,7 @@ export default async function FinanceLedgerPage() {
         </TabsContent>
 
         <TabsContent value="budgets" className="space-y-4">
-          <Card>
+          <Card className="print:hidden">
             <CardHeader>
               <CardTitle>Set a budget</CardTitle>
             </CardHeader>
@@ -319,7 +338,7 @@ export default async function FinanceLedgerPage() {
         </TabsContent>
 
         <TabsContent value="salaries" className="space-y-4">
-          <Card>
+          <Card className="print:hidden">
             <CardHeader>
               <CardTitle>Set salary allocation</CardTitle>
             </CardHeader>

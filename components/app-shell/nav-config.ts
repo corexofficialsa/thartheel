@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   DollarSign,
+  FileText,
   GraduationCap,
   Home,
   LayoutDashboard,
@@ -58,6 +59,7 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   finance: [
     { href: "/finance", label: "Home", icon: LayoutDashboard },
     { href: "/finance/ledger", label: "Finance", icon: Wallet },
+    { href: "/finance/summary", label: "Summary", icon: FileText },
   ],
 };
 

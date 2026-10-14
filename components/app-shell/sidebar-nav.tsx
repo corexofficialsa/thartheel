@@ -28,7 +28,7 @@ export function AppSidebar({ role, unread }: { role: UserRole; unread: UnreadCou
   const activeHref = getActiveHref(items, pathname);
 
   return (
-    <Sidebar collapsible="none" className="sticky top-0 hidden h-svh border-r border-sidebar-border md:flex">
+    <Sidebar collapsible="none" className="sticky top-0 hidden h-svh border-r border-sidebar-border md:flex print:hidden">
       <SidebarHeader className="px-5 pt-6 pb-4">
         <Link href={items[0]?.href ?? "/"} className="flex items-center gap-3">
           <LogoMark className="size-10" />

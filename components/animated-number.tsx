@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const DURATION_MS = 800;
+const DURATION_MS = 450;
 
 // Plain rAF count-up instead of pulling in framer-motion — this is the only
 // thing StatCard needs it for, and StatCard renders on every portal home
@@ -18,6 +18,10 @@ export function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?:
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      node.textContent = `${value}${suffix}`;
+      return;
+    }
     let frame: number;
     const start = performance.now();
 
