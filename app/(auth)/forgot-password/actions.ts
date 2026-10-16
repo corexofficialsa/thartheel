@@ -1,6 +1,7 @@
 "use server";
 
 import { notify } from "@/lib/notify";
+import { clientIp, rateLimit, TOO_MANY } from "@/lib/security/rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { forgotPasswordSchema } from "@/lib/validation/auth";
 
@@ -20,6 +21,7 @@ export async function requestPasswordReset(
   const parsed = forgotPasswordSchema.safeParse({ email: formData.get("email") });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Enter a valid email address" };
   const { email } = parsed.data;
+  if (!(await rateLimit(`forgot:ip:${await clientIp()}`, 20, 60 * 60))) return { error: TOO_MANY };
 
   const admin = createAdminClient();
   const { data: profile } = await admin

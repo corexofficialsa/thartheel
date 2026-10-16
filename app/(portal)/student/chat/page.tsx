@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ChatInterface, type ChatContact } from "@/components/chat/chat-interface";
 import { MyComplaintsList } from "@/components/complaints/my-complaints-list";
 import { SubmitComplaintForm } from "@/components/complaints/submit-complaint-form";
@@ -7,6 +8,8 @@ import { requireRole } from "@/lib/auth/session";
 import { getUnreadByContact } from "@/lib/notifications/counts";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Chat" };
 
 export default async function StudentChatPage() {
   const profile = await requireRole("student");

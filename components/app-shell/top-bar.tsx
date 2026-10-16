@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
@@ -17,6 +18,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { NotificationItem } from "@/lib/notifications/kinds";
 import { NotificationBell } from "./notification-bell";
+import { PortalSearch } from "./portal-search";
 import { createClient } from "@/lib/supabase/client";
 import { ROLE_LABEL } from "./nav-config";
 import type { UserRole } from "@/lib/supabase/types";
@@ -52,12 +54,13 @@ export function TopBar({
 
   return (
     <header className="sticky top-0 z-30 flex h-14 print:hidden items-center justify-between border-b border-border/60 bg-background/95 px-4 md:bg-background/80 md:px-8 md:backdrop-blur-md">
-      <span className="flex items-center gap-2.5 md:hidden">
+      <Link href={`/${role}`} className="flex items-center gap-2.5 md:hidden" aria-label="Mirqath — portal home">
         <LogoMark className="size-7" />
         <span className="font-heading text-[1.05rem] font-medium tracking-[-0.01em]">Mirqath</span>
-      </span>
+      </Link>
       <span className="hidden text-sm text-muted-foreground md:block">{ROLE_LABEL[role]} portal</span>
       <div className="flex items-center gap-1">
+        <PortalSearch role={role} />
         <ThemeToggle />
         <NotificationBell role={role} unreadCount={unreadCount} items={recent} />
         <DropdownMenu>

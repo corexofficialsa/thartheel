@@ -2,7 +2,7 @@ import { z } from "zod";
 import { GENDERS, TIME_SLOTS } from "@/lib/registration/student-options";
 
 export const passwordSchema = z.string().min(8, "Password must be at least 8 characters");
-const phoneSchema = z.string().min(6, "Enter a valid phone number");
+const phoneSchema = z.string().min(6, "Enter a valid phone number").max(32, "Enter a valid phone number");
 const internationalPhoneSchema = z
   .string()
   .trim()
@@ -14,7 +14,7 @@ const skillSchema = z.enum(["beginner", "intermediate", "advanced"], "Choose one
 // slice before moving on, and the server validates the whole thing.
 export const studentStepSchemas = [
   z.object({
-    name: z.string().trim().min(2, "Enter your full name"),
+    name: z.string().trim().min(2, "Enter your full name").max(120, "Name is too long"),
     gender: z
       .enum(GENDERS.map((g) => g.value), "Select your gender")
       .refine((g) => GENDERS.some((o) => o.value === g && o.open), "Enrollments are currently closed for this option"),
@@ -22,8 +22,8 @@ export const studentStepSchemas = [
       (v) => (v === "" ? undefined : v),
       z.coerce.number("Enter your age").int("Enter a valid age").min(4, "Enter a valid age").max(90, "Enter a valid age")
     ),
-    place: z.string().trim().min(2, "Enter your country and city"),
-    address: z.string().trim().min(5, "Enter your current address"),
+    place: z.string().trim().min(2, "Enter your country and city").max(200, "Too long"),
+    address: z.string().trim().min(5, "Enter your current address").max(500, "Address is too long"),
     phone: internationalPhoneSchema,
     whatsappNumber: internationalPhoneSchema,
     email: z.email("Enter a valid email"),
@@ -60,10 +60,11 @@ export const studentRegistrationSchema = studentStepSchemas[0]
 
 export const teacherRegistrationSchema = z
   .object({
-    name: z.string().min(2, "Enter your full name"),
+    name: z.string().min(2, "Enter your full name").max(120, "Name is too long"),
     username: z
       .string()
       .min(3, "Username must be at least 3 characters")
+      .max(40, "Username is too long")
       .regex(/^[a-zA-Z0-9_.]+$/, "Letters, numbers, dots and underscores only"),
     email: z.email("Enter a valid email"),
     phone: phoneSchema,

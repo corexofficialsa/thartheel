@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { UploadVisitReportForm } from "@/components/admin/upload-visit-report-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSignedUrl } from "@/lib/storage/signed-url";
@@ -5,6 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { deleteVisitReport } from "./actions";
+import { formatDate } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Halaqa visit reports" };
 
 export default async function AdminVisitReportsPage() {
   const supabase = await createClient();
@@ -51,7 +55,7 @@ export default async function AdminVisitReportsPage() {
               <div className="flex items-center justify-between gap-2">
                 <p className="font-medium">{report.title}</p>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  {new Date(report.visited_at).toLocaleDateString()}
+                  {formatDate(report.visited_at)}
                   <ConfirmDeleteButton
                     action={deleteVisitReport.bind(null, report.id)}
                     title={`Delete "${report.title}"?`}

@@ -5,6 +5,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { parseAllowedModes } from "@/lib/homework/modes";
 import { notify } from "@/lib/notify";
 import { createClient } from "@/lib/supabase/server";
+import { formatDate } from "@/lib/format-date";
 
 export type ActionState = { error?: string } | undefined;
 
@@ -55,7 +56,7 @@ export async function createHomework(_prevState: ActionState, formData: FormData
             name: s.name,
             classroomName: classroom?.name ?? "your classroom",
             title: title.trim(),
-            dueDate: new Date(dueDate).toLocaleDateString(),
+            dueDate: formatDate(dueDate),
           })
         )
     );

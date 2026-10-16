@@ -1,16 +1,22 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { matches, QueryNotice, readQuery } from "@/components/portal/query-notice";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { deleteTeacher } from "./actions";
+import { PhoneLink, EmailLink } from "@/components/common/contact-links";
 
-export default async function AdminTeachersPage() {
+export const metadata: Metadata = { title: "Teachers" };
+
+export default async function AdminTeachersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const q = readQuery((await searchParams).q);
   await requireRole("admin");
   const supabase = await createClient();
 
-  const [{ data: teachers }, { data: levels }, { data: classrooms }, { data: enrollments }] = await Promise.all([
+  const [{ data: allTeachers }, { data: levels }, { data: classrooms }, { data: enrollments }] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, name, email, phone, level_id")
@@ -21,6 +27,7 @@ export default async function AdminTeachersPage() {
     supabase.from("classrooms").select("id, name, teacher_id"),
     supabase.from("classroom_students").select("classroom_id"),
   ]);
+  const teachers = (allTeachers ?? []).filter((p) => matches(q, p.name, p.email));
 
   const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
   const studentCountByClassroom = new Map<string, number>();
@@ -37,6 +44,7 @@ export default async function AdminTeachersPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Teachers" description="Every active teacher and the classrooms they lead." />
+      {q && <QueryNotice q={q} clearHref="/admin/teachers" count={teachers.length} />}
       <Card>
         <CardHeader>
           <CardTitle>Directory</CardTitle>
@@ -71,9 +79,9 @@ export default async function AdminTeachersPage() {
                     <TableRow key={teacher.id}>
                       <TableCell>
                         <div className="font-medium">{teacher.name}</div>
-                        <div className="text-xs text-muted-foreground">{teacher.email}</div>
+                        <div className="text-xs text-muted-foreground"><EmailLink value={teacher.email} /></div>
                       </TableCell>
-                      <TableCell>{teacher.phone ?? "—"}</TableCell>
+                      <TableCell><PhoneLink value={teacher.phone} /></TableCell>
                       <TableCell>{teacher.level_id ? levelNameById.get(teacher.level_id) : "—"}</TableCell>
                       <TableCell>{taught.length > 0 ? taught.map((c) => c.name).join(", ") : "—"}</TableCell>
                       <TableCell className="text-right">{taught.reduce((sum, c) => sum + c.students, 0)}</TableCell>

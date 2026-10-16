@@ -1,7 +1,9 @@
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { matches } from "@/components/portal/query-notice";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteStudentButton } from "./delete-student-button";
+import { EmailLink } from "@/components/common/contact-links";
 
 // Shared by the admin Students page (every active student) and the teacher
 // Students page (students enrolled in that teacher's classrooms). RLS scopes
@@ -9,8 +11,11 @@ import { DeleteStudentButton } from "./delete-student-button";
 export async function StudentProgressTable({
   studentIds,
   deletable = false,
+  query = "",
 }: {
   studentIds: string[];
+  // Filter by name or email (from portal search).
+  query?: string;
   // Admin only: adds a delete button per student.
   deletable?: boolean;
 }) {
@@ -102,7 +107,7 @@ export async function StudentProgressTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {(students ?? []).map((student) => {
+          {(students ?? []).filter((s) => matches(query, s.name, s.email)).map((student) => {
             const levelName = student.level_id ? levelNameById.get(student.level_id) : undefined;
             const track = levelName ? trackByName.get(levelName) : undefined;
             const phase = track ? (phaseByStudentTrack.get(`${student.id}:${track.id}`) ?? 0) : 0;
@@ -111,7 +116,7 @@ export async function StudentProgressTable({
               <TableRow key={student.id}>
                 <TableCell>
                   <div className="font-medium">{student.name}</div>
-                  <div className="text-xs text-muted-foreground">{student.email}</div>
+                  <div className="text-xs text-muted-foreground"><EmailLink value={student.email} /></div>
                 </TableCell>
                 <TableCell>{levelName ?? "—"}</TableCell>
                 <TableCell>{classroomsByStudent.get(student.id)?.join(", ") ?? "—"}</TableCell>

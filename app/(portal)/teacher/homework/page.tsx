@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { RotateCcw } from "lucide-react";
 import { DeleteRecordButton } from "@/components/finance/delete-record-button";
 import { CreateHomeworkForm } from "@/components/teacher/create-homework-form";
@@ -13,6 +14,9 @@ import { createClient } from "@/lib/supabase/server";
 import type { HomeworkMode } from "@/lib/supabase/types";
 import { allowResubmission, deleteHomework } from "./actions";
 import { PageHeader } from "@/components/portal/page-header";
+import { formatDateTime } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Homework" };
 
 const MODE_LABEL: Record<HomeworkMode, string> = { text: "Text", audio: "Audio", video: "Video" };
 
@@ -155,7 +159,7 @@ export default async function TeacherHomeworkPage() {
               <div className="space-y-1">
                 <CardTitle>{hw.title}</CardTitle>
                 <CardDescription>
-                  {classroomNameById.get(hw.classroom_id) ?? "Classroom"} — due {new Date(hw.due_date).toLocaleString()}
+                  {classroomNameById.get(hw.classroom_id) ?? "Classroom"} — due {formatDateTime(hw.due_date)}
                 </CardDescription>
                 <div className="flex flex-wrap gap-1 pt-1">
                   {hw.allowed_modes.map((m) => (

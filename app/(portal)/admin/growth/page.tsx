@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { AddLeadForm } from "@/components/admin/add-lead-form";
 import { LeadStatusSelect } from "@/components/admin/lead-status-select";
 import { MonthlyComparisonChart } from "@/components/academics/monthly-comparison-chart";
@@ -9,12 +10,14 @@ import { PageHeader } from "@/components/portal/page-header";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { deleteLead } from "./actions";
 
+export const metadata: Metadata = { title: "Growth" };
+
 function lastSixMonths(): { key: string; label: string }[] {
   const months = [];
   const now = new Date();
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ key: d.toISOString().slice(0, 7), label: d.toLocaleDateString(undefined, { month: "short" }) });
+    months.push({ key: d.toISOString().slice(0, 7), label: d.toLocaleDateString("en-GB", { month: "short" }) });
   }
   return months;
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { enrollStudent, type ActionState } from "@/app/(portal)/teacher/classrooms/actions";
+import { enrollStudent } from "@/app/(portal)/teacher/classrooms/actions";
 
 export function EnrollStudentForm({
   classroomId,
@@ -12,7 +12,7 @@ export function EnrollStudentForm({
   classroomId: string;
   availableStudents: { id: string; name: string; email: string }[];
 }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(enrollStudent, undefined);
+  const [state, formAction, isPending] = useActionToast(enrollStudent, "Student enrolled.");
 
   if (availableStudents.length === 0) {
     return <p className="text-xs text-muted-foreground">No more active students to enroll.</p>;

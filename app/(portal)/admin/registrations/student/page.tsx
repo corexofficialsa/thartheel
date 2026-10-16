@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { RegistrationRowActions } from "@/components/admin/registration-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,9 @@ import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
 import { SKILL_LABEL, timeSlotLabel } from "@/lib/registration/student-options";
+import { PhoneLink, EmailLink } from "@/components/common/contact-links";
+
+export const metadata: Metadata = { title: "Student registrations" };
 
 export default async function StudentRegistrationsPage() {
   const supabase = await createClient();
@@ -13,7 +17,7 @@ export default async function StudentRegistrationsPage() {
     supabase
       .from("profiles")
       .select(
-        "id, name, email, phone, whatsapp_number, level_id, age, place, gender, address, makharij_level, qaida_level, tajweed_level, preferred_time_slot, terms_accepted_at, created_at"
+        "id, name, email, phone, whatsapp_number, level_id, age, place, gender, address, makharij_level, qaida_level, tajweed_level, preferred_time_slot, terms_accepted_at, utm_source, utm_medium, utm_campaign, created_at"
       )
       .eq("role", "student")
       .eq("status", "pending")
@@ -89,7 +93,7 @@ export default async function StudentRegistrationsPage() {
                                 <dt className="text-muted-foreground">Address</dt>
                                 <dd>{row.address ?? "—"}</dd>
                                 <dt className="text-muted-foreground">WhatsApp</dt>
-                                <dd>{row.whatsapp_number}</dd>
+                                <dd><PhoneLink value={row.whatsapp_number} /></dd>
                                 <dt className="text-muted-foreground">Makharij</dt>
                                 <dd>{row.makharij_level ? SKILL_LABEL[row.makharij_level] : "—"}</dd>
                                 <dt className="text-muted-foreground">Qaida</dt>
@@ -98,16 +102,20 @@ export default async function StudentRegistrationsPage() {
                                 <dd>{row.tajweed_level ? SKILL_LABEL[row.tajweed_level] : "—"}</dd>
                                 <dt className="text-muted-foreground">Time slot</dt>
                                 <dd>{timeSlotLabel(row.preferred_time_slot)}</dd>
+                                <dt className="text-muted-foreground">Came from</dt>
+                                <dd>
+                                  {[row.utm_source, row.utm_medium, row.utm_campaign].filter(Boolean).join(" · ") || "Direct / unknown"}
+                                </dd>
                                 <dt className="text-muted-foreground">Terms</dt>
-                                <dd>Accepted {new Date(row.terms_accepted_at).toLocaleDateString("en-GB")}</dd>
+                                <dd>Accepted {new Date(row.terms_accepted_at).toLocaleDateString("en-GB", { timeZone: "Asia/Riyadh" })}</dd>
                               </dl>
                             </details>
                           )}
                         </TableCell>
                         <TableCell>{row.age ?? "—"}</TableCell>
                         <TableCell>{row.place ?? "—"}</TableCell>
-                        <TableCell>{row.email}</TableCell>
-                        <TableCell>{row.phone}</TableCell>
+                        <TableCell><EmailLink value={row.email} /></TableCell>
+                        <TableCell><PhoneLink value={row.phone} /></TableCell>
                         <TableCell>{(row.level_id && levelNameById.get(row.level_id)) ?? "—"}</TableCell>
                         <TableCell>
                           {recitation && signedAudioUrl ? (

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { editInvoiceAmount, markFeePaid, recordInstallment } from "@/app/(portal)/finance/ledger/actions";
 
-type Mode = "installment" | "edit" | null;
+type Mode = "installment" | "edit" | "full" | null;
 
 export function InvoicePaymentControls({
   invoiceId,
@@ -40,6 +40,7 @@ export function InvoicePaymentControls({
     startTransition(async () => {
       await markFeePaid(formData);
       toast.success("Payment recorded.");
+      setMode(null);
     });
   }
 
@@ -62,7 +63,7 @@ export function InvoicePaymentControls({
     <>
       {!isPaid && (
         <>
-          <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={payInFull}>
+          <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={() => open("full")}>
             {amountPaid > 0 ? `Pay rest (${remaining.toFixed(0)})` : "Mark paid"}
           </Button>
           <Button type="button" size="sm" variant="ghost" onClick={() => open("installment")}>
@@ -74,7 +75,27 @@ export function InvoicePaymentControls({
         <Pencil className="size-3.5" />
       </Button>
 
-      <Dialog open={mode !== null} onOpenChange={(next) => !next && setMode(null)}>
+      {/* Recording money is easy to misclick — confirm the full-payment shortcut first. */}
+      <Dialog open={mode === "full"} onOpenChange={(next) => !next && !isPending && setMode(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Record {remaining.toFixed(2)} SAR as paid?</DialogTitle>
+            <DialogDescription>
+              This marks the invoice fully paid and adds {remaining.toFixed(2)} SAR of income to the ledger dated today.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setMode(null)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button type="button" disabled={isPending} onClick={payInFull}>
+              {isPending ? "Recording..." : "Record payment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={mode === "installment" || mode === "edit"} onOpenChange={(next) => !next && setMode(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{mode === "edit" ? "Edit invoice total" : "Record an installment"}</DialogTitle>

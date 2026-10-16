@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { Pencil } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { renameClassroom, type ActionState } from "@/lib/classrooms/actions";
@@ -10,7 +11,10 @@ export function RenameClassroomForm({ classroomId, currentName }: { classroomId:
   const [editing, setEditing] = useState(false);
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(async (prev, formData) => {
     const result = await renameClassroom(prev, formData);
-    if (!result?.error) setEditing(false);
+    if (!result?.error) {
+      setEditing(false);
+      toast.success("Classroom renamed.");
+    }
     return result;
   }, undefined);
 

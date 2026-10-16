@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createFeeInvoice, type ActionState } from "@/app/(portal)/finance/ledger/actions";
+import { createFeeInvoice } from "@/app/(portal)/finance/ledger/actions";
 
 export function CreateInvoiceForm({ students }: { students: { id: string; name: string }[] }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(createFeeInvoice, undefined);
+  const [state, formAction, isPending] = useActionToast(createFeeInvoice, "Invoice created.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

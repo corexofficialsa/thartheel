@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudentRegistrationForm } from "@/components/registration/student-registration-form";
+import { getRegistrationFee } from "@/lib/finance/settings";
 import { pickRandomAyah } from "@/lib/quran/random-ayah";
 import { createClient } from "@/lib/supabase/server";
 import { registerStudent } from "./actions";
+
+export const metadata: Metadata = { title: "Student registration", description: "Register as a student at Mirqath Quran Academy — four short steps, about five minutes." };
 
 export default async function StudentRegisterPage() {
   const supabase = await createClient();
@@ -12,6 +16,7 @@ export default async function StudentRegisterPage() {
   ]);
 
   const randomAyah = pickRandomAyah(ayah ?? []);
+  const registrationFee = await getRegistrationFee();
 
   return (
     <Card data-wide>
@@ -23,6 +28,7 @@ export default async function StudentRegisterPage() {
         <StudentRegistrationForm
           action={registerStudent}
           levels={levels ?? []}
+          registrationFee={registrationFee}
           ayah={
             randomAyah
               ? {

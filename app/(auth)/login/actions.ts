@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { clientIp, rateLimit } from "@/lib/security/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation/auth";
 
@@ -18,11 +20,19 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
     return { error: parsed.error.issues[0]?.message ?? GENERIC_ERROR };
   }
 
+  const ip = await clientIp();
+  const identifier = parsed.data.identifier.trim().toLowerCase();
+  if (!(await rateLimit(`login:ip:${ip}`, 100, 15 * 60)) || !(await rateLimit(`login:id:${identifier}`, 8, 15 * 60))) {
+    return { error: "Too many login attempts. Please wait 15 minutes and try again." };
+  }
+
   const rememberMe = formData.get("rememberMe") != null;
   const supabase = await createClient({ rememberMe });
 
-  const { data: email, error: resolveError } = await supabase.rpc("resolve_login_identifier", {
-    p_identifier: parsed.data.identifier,
+  // Resolved with the service role: the lookup maps usernames to emails, so
+  // it isn't exposed to signed-out visitors (see 0049).
+  const { data: email, error: resolveError } = await createAdminClient().rpc("resolve_login_identifier", {
+    p_identifier: parsed.data.identifier.trim(),
   });
   if (resolveError || !email) {
     return { error: GENERIC_ERROR };

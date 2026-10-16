@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Briefcase, GraduationCap, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+export const metadata: Metadata = { title: "Log in", description: "Log in to the Mirqath Quran Academy student, teacher or staff portal." };
 
 export default function LoginChooserPage() {
   return (

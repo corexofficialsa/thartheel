@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { FileText } from "lucide-react";
 import { MilestoneHistogram } from "@/components/academics/milestone-histogram";
 import { CreateExamForm } from "@/components/teacher/create-exam-form";
@@ -14,6 +15,9 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { deleteExam, deleteExamResult, deleteProgressReport, deleteTeachingNote } from "./actions";
+import { formatDate, formatDateTime } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Academics" };
 
 export default async function TeacherAcademicsPage() {
   const profile = await requireRole("teacher");
@@ -151,7 +155,7 @@ export default async function TeacherAcademicsPage() {
                     <p className="font-medium">
                       {studentNameById.get(report.student_id) ?? "Student"}{" "}
                       <span className="font-normal text-muted-foreground">
-                        — {report.period} — {new Date(report.created_at).toLocaleDateString()}
+                        — {report.period} — {formatDate(report.created_at)}
                       </span>
                     </p>
                     <ConfirmDeleteButton
@@ -185,7 +189,7 @@ export default async function TeacherAcademicsPage() {
                 <CardTitle>{exam.title}</CardTitle>
                 <CardDescription>
                   {classroomNameById.get(exam.classroom_id) ?? "Classroom"} — {exam.exam_type} —{" "}
-                  {new Date(exam.scheduled_at).toLocaleString()}
+                  {formatDateTime(exam.scheduled_at)}
                 </CardDescription>
                 </div>
                 <ConfirmDeleteButton

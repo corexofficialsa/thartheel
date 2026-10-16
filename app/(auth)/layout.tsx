@@ -7,7 +7,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <Link href="/" aria-label="Mirqath Quran Academy — home" className="relative">
         <LogoFull priority className="w-40 md:w-44" />
       </Link>
-      <div className="relative w-full max-w-sm has-[[data-wide]]:max-w-xl">{children}</div>
+      <main id="main" className="relative w-full max-w-sm has-[[data-wide]]:max-w-xl">
+        {children}
+      </main>
     </div>
   );
 }

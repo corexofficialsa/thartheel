@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createExam, type ActionState } from "@/app/(portal)/teacher/academics/actions";
+import { createExam } from "@/app/(portal)/teacher/academics/actions";
 
 export function CreateExamForm({ classrooms }: { classrooms: { id: string; name: string }[] }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(createExam, undefined);
+  const [state, formAction, isPending] = useActionToast(createExam, "Exam scheduled.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { FinancialSummary } from "@/components/finance/financial-summary";
 import { PrintButton } from "@/components/finance/print-button";
 import { PrintHeader } from "@/components/finance/print-header";
 import { PageHeader } from "@/components/portal/page-header";
 import { requireRole } from "@/lib/auth/session";
 import { resolvePeriod } from "@/lib/finance/period";
+
+export const metadata: Metadata = { title: "Financial summary" };
 
 export default async function BoardFinanceSummaryPage({
   searchParams,

@@ -1,16 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AnswerModeCheckboxes } from "@/components/teacher/answer-mode-checkboxes";
-import { createHomework, type ActionState } from "@/app/(portal)/teacher/homework/actions";
+import { createHomework } from "@/app/(portal)/teacher/homework/actions";
 
 export function CreateHomeworkForm({ classrooms }: { classrooms: { id: string; name: string }[] }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(createHomework, undefined);
+  const [state, formAction, isPending] = useActionToast(createHomework, "Homework posted.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-2">

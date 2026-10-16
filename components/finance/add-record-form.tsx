@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { addFinanceRecord, type ActionState } from "@/app/(portal)/finance/ledger/actions";
+import { addFinanceRecord } from "@/app/(portal)/finance/ledger/actions";
 
 export function AddRecordForm() {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(addFinanceRecord, undefined);
+  const [state, formAction, isPending] = useActionToast(addFinanceRecord, "Record added.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-5">

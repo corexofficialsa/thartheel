@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { uploadTeachingNote, type ActionState } from "@/app/(portal)/teacher/academics/actions";
+import { uploadTeachingNote } from "@/app/(portal)/teacher/academics/actions";
 
 export function UploadTeachingNoteForm({ levels }: { levels: { id: string; name: string }[] }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(uploadTeachingNote, undefined);
+  const [state, formAction, isPending] = useActionToast(uploadTeachingNote, "Teaching note uploaded.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

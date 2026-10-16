@@ -1,16 +1,17 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { setSalaryAllocation, type ActionState } from "@/app/(portal)/finance/ledger/actions";
+import { setSalaryAllocation } from "@/app/(portal)/finance/ledger/actions";
 
 type Person = { id: string; name: string; role: "teacher" | "admin" };
 type Category = "staff" | "tech_support" | "tech_maintenance";
 
 export function SetSalaryForm({ people }: { people: Person[] }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(setSalaryAllocation, undefined);
+  const [state, formAction, isPending] = useActionToast(setSalaryAllocation, "Salary allocation saved.");
   const [category, setCategory] = useState<Category>("staff");
 
   return (

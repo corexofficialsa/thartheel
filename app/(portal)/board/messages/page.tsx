@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ChatInterface, type ChatContact } from "@/components/chat/chat-interface";
 import { ComplaintRow } from "@/components/complaints/complaint-row";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +7,8 @@ import { requireRole } from "@/lib/auth/session";
 import { getUnreadByContact } from "@/lib/notifications/counts";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Messages" };
 
 export default async function BoardMessagesPage() {
   const profile = await requireRole("board");

@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { ClassroomRosterManager } from "@/components/classrooms/classroom-roster-manager";
 import { requireRole } from "@/lib/auth/session";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Classrooms" };
 
 export default async function BoardClassroomsPage() {
   await requireRole("board");

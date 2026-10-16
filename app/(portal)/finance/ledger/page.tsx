@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { AddRecordForm } from "@/components/finance/add-record-form";
 import { CreateInvoiceForm } from "@/components/finance/create-invoice-form";
 import { DeleteRecordButton } from "@/components/finance/delete-record-button";
@@ -16,6 +17,9 @@ import { PrintButton } from "@/components/finance/print-button";
 import { PrintHeader } from "@/components/finance/print-header";
 import { RegistrationFeeForm } from "@/components/finance/registration-fee-form";
 import { getRegistrationFee } from "@/lib/finance/settings";
+import { formatDate } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Finance" };
 
 const SALARY_CATEGORY_LABEL = {
   staff: "Staff",
@@ -121,7 +125,7 @@ export default async function FinanceLedgerPage() {
               <TableBody>
                 {(records ?? []).map((record) => (
                   <TableRow key={record.id}>
-                    <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatDate(record.date)}</TableCell>
                     <TableCell className="capitalize">{record.type}</TableCell>
                     <TableCell>{record.category}</TableCell>
                     <TableCell>{record.description ?? "—"}</TableCell>

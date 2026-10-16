@@ -1,15 +1,16 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { removeStudent, type ActionState } from "@/app/(portal)/board/students/actions";
+import { removeStudent } from "@/app/(portal)/board/students/actions";
 
 export function RemoveStudentDialog({ profileId }: { profileId: string }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(removeStudent, undefined);
+  const [state, formAction, isPending] = useActionToast(removeStudent, "Student removed.");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

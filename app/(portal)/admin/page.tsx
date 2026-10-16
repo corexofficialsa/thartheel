@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { BookOpen, GraduationCap, UserCog, UserPlus, Users } from "lucide-react";
 import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Admin overview" };
 
 export default async function AdminHomePage() {
   await requireRole("admin");

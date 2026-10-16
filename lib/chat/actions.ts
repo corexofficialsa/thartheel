@@ -1,6 +1,7 @@
 "use server";
 
 import { getCurrentProfile } from "@/lib/auth/session";
+import { rateLimit } from "@/lib/security/rate-limit";
 import type { DeleteResult } from "@/components/common/confirm-delete-button";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -44,6 +45,7 @@ export async function sendMessage(conversationId: string, content: string): Prom
 
   const profile = await getCurrentProfile();
   if (!profile) return { ok: false, error: "Not authenticated." };
+  if (!(await rateLimit(`chat:${profile.id}`, 30, 60))) return { ok: false, error: "You're sending messages too fast. Please slow down." };
   const supabase = await createClient();
 
   // Returns the inserted row so the sender's own UI can show it immediately

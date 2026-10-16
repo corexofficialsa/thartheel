@@ -2,6 +2,7 @@
 
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/format-date";
 
 export function DownloadInvoiceButton({
   studentName,
@@ -35,7 +36,7 @@ export function DownloadInvoiceButton({
       ["Period", period === "registration" ? "Registration fee" : period],
       ["Amount", `${amount.toFixed(2)} SAR`],
       ["Status", "Paid"],
-      ["Paid on", paidAt ? new Date(paidAt).toLocaleDateString() : "—"],
+      ["Paid on", paidAt ? formatDate(paidAt) : "—"],
     ];
     let y = 50;
     for (const [label, value] of rows) {

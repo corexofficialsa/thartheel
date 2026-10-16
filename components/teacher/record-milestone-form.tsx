@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { recordMilestone, type ActionState } from "@/app/(portal)/teacher/academics/actions";
+import { recordMilestone } from "@/app/(portal)/teacher/academics/actions";
 
 export function RecordMilestoneForm({
   students,
@@ -13,7 +13,7 @@ export function RecordMilestoneForm({
   students: { id: string; name: string }[];
   tracks: { id: string; name: string; total_milestones: number }[];
 }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(recordMilestone, undefined);
+  const [state, formAction, isPending] = useActionToast(recordMilestone, "Phase recorded.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

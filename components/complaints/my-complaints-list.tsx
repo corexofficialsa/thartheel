@@ -2,6 +2,7 @@ import { ComplaintStatusBadge } from "@/components/complaints/complaint-status-b
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { deleteComplaint, type Complaint } from "@/lib/complaints/actions";
+import { formatDate } from "@/lib/format-date";
 
 export function MyComplaintsList({ complaints }: { complaints: Complaint[] }) {
   if (complaints.length === 0) {
@@ -35,7 +36,7 @@ export function MyComplaintsList({ complaints }: { complaints: Complaint[] }) {
                 {complaint.resolution_note}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">{new Date(complaint.created_at).toLocaleDateString()}</p>
+            <p className="text-xs text-muted-foreground">{formatDate(complaint.created_at)}</p>
           </CardContent>
         </Card>
       ))}

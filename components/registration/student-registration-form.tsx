@@ -4,6 +4,7 @@ import { startTransition, useActionState, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { GENDERS, PROGRAMS, SKILL_QUESTIONS, TERMS_URL, TIME_SLOTS } from "@/lib/registration/student-options";
@@ -58,10 +59,12 @@ export function StudentRegistrationForm({
   action,
   levels,
   ayah,
+  registrationFee,
 }: {
   action: RegisterAction;
   levels: Level[];
   ayah: Ayah;
+  registrationFee: number;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const [step, setStep] = useState(0);
@@ -286,11 +289,19 @@ export function StudentRegistrationForm({
       <section hidden={step !== 3} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Create a password" error={errors.password} name="password" hint="At least 8 characters.">
-            <Input {...bind("password")} type="password" autoComplete="new-password" />
+            <PasswordInput {...bind("password")} autoComplete="new-password" />
           </Field>
           <Field label="Confirm password" error={errors.confirmPassword} name="confirmPassword">
-            <Input {...bind("confirmPassword")} type="password" autoComplete="new-password" />
+            <PasswordInput {...bind("confirmPassword")} autoComplete="new-password" />
           </Field>
+        </div>
+
+        <div className="flex items-baseline justify-between gap-3 rounded-2xl border bg-card p-4">
+          <div>
+            <p className="text-sm font-medium">Registration fee</p>
+            <p className="text-xs text-muted-foreground">Our finance team confirms your payment before an admin approves you.</p>
+          </div>
+          <p className="shrink-0 font-heading text-2xl tabular-nums">{registrationFee.toLocaleString("en-US")} SAR</p>
         </div>
 
         <div className="space-y-3 rounded-2xl border bg-muted/30 p-4">

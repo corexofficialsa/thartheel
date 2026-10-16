@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AttendanceToggle } from "@/components/teacher/attendance-toggle";
@@ -9,6 +10,8 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Attendance" };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -79,7 +82,7 @@ export default async function TeacherAttendancePage({
   const [year, month] = date.split("-").map(Number);
   const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const leadingBlanks = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
-  const monthLabel = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(undefined, {
+  const monthLabel = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString("en-GB", {
     month: "long",
     year: "numeric",
     timeZone: "UTC",
@@ -110,7 +113,7 @@ export default async function TeacherAttendancePage({
           <CardHeader className="flex-row flex-wrap items-start justify-between gap-3">
             <div className="space-y-1">
               <CardTitle>
-                {new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined, {
+                {new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",

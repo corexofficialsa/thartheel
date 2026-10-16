@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { RemoveTeacherDialog } from "@/components/board/remove-teacher-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -5,14 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { matches, QueryNotice, readQuery } from "@/components/portal/query-notice";
+import { EmailLink } from "@/components/common/contact-links";
 
-export default async function BoardTeachersPage() {
+export const metadata: Metadata = { title: "Teachers" };
+
+export default async function BoardTeachersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const q = readQuery((await searchParams).q);
   const supabase = await createClient();
 
-  const [{ data: teachers }, { data: levels }] = await Promise.all([
+  const [{ data: allTeachers }, { data: levels }] = await Promise.all([
     supabase.from("profiles").select("id, name, email, phone, level_id, status").eq("role", "teacher").order("name"),
     supabase.from("levels").select("id, name"),
   ]);
+  const teachers = (allTeachers ?? []).filter((p) => matches(q, p.name, p.email));
   const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
 
   const teacherIds = (teachers ?? []).map((t) => t.id);
@@ -36,6 +43,7 @@ export default async function BoardTeachersPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Teachers" description="Full teacher directory and attendance." />
+      {q && <QueryNotice q={q} clearHref="/board/teachers" count={teachers.length} />}
       <Card>
         <CardHeader>
           <CardTitle>Directory</CardTitle>
@@ -62,7 +70,7 @@ export default async function BoardTeachersPage() {
                         {teacher.name}
                       </Link>
                     </TableCell>
-                    <TableCell>{teacher.email}</TableCell>
+                    <TableCell><EmailLink value={teacher.email} /></TableCell>
                     <TableCell>{teacher.level_id ? levelNameById.get(teacher.level_id) : "—"}</TableCell>
                     <TableCell>
                       <Badge variant={teacher.status === "active" ? "default" : "secondary"}>{teacher.status}</Badge>

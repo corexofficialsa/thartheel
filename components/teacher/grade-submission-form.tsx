@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { gradeSubmission, type ActionState } from "@/app/(portal)/teacher/homework/actions";
+import { gradeSubmission } from "@/app/(portal)/teacher/homework/actions";
 
 export function GradeSubmissionForm({
   submissionId,
@@ -15,7 +15,7 @@ export function GradeSubmissionForm({
   existingGrade?: number | null;
   existingFeedback?: string | null;
 }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(gradeSubmission, undefined);
+  const [state, formAction, isPending] = useActionToast(gradeSubmission, "Grade saved.");
 
   return (
     <form action={formAction} className="flex flex-wrap items-start gap-2">

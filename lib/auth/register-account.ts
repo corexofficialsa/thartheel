@@ -1,5 +1,6 @@
 import "server-only";
 import { getRegistrationFee } from "@/lib/finance/settings";
+import type { Utm } from "@/lib/registration/utm";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SkillLevel, UserRole } from "@/lib/supabase/types";
 
@@ -25,6 +26,7 @@ type RegisterAccountInput = {
     tajweedLevel: SkillLevel;
     preferredTimeSlot: string;
   } | null;
+  utm?: Utm | null;
 };
 
 export type RegisterAccountResult = { ok: true } | { ok: false; error: string };
@@ -63,6 +65,10 @@ export async function registerAccount(input: RegisterAccountInput): Promise<Regi
     level_id: input.levelId,
     age: input.age ?? null,
     place: input.place ?? null,
+    utm_source: input.utm?.utmSource ?? null,
+    utm_medium: input.utm?.utmMedium ?? null,
+    utm_campaign: input.utm?.utmCampaign ?? null,
+    utm_landing: input.utm?.utmLanding ?? null,
     ...(input.details
       ? {
           gender: input.details.gender,

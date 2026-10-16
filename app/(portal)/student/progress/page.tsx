@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { formatDate } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Progress" };
 
 export default async function StudentProgressPage() {
   const profile = await requireRole("student");
@@ -70,7 +74,7 @@ export default async function StudentProgressPage() {
           {(reports ?? []).map((report) => (
             <div key={report.id} className="rounded-md border p-3 text-sm">
               <p className="font-medium capitalize">
-                {report.period} — <span className="font-normal text-muted-foreground">{new Date(report.created_at).toLocaleDateString()}</span>
+                {report.period} — <span className="font-normal text-muted-foreground">{formatDate(report.created_at)}</span>
               </p>
               <p className="mt-1 text-muted-foreground">{report.notes}</p>
             </div>

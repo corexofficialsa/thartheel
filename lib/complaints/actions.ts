@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
 import type { DeleteResult } from "@/components/common/confirm-delete-button";
+import { rateLimit } from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string; success?: string } | undefined;
@@ -13,6 +14,9 @@ export async function submitComplaint(_prevState: ActionState, formData: FormDat
   if (typeof subject !== "string" || !subject.trim()) return { error: "Enter a subject." };
   if (typeof description !== "string" || !description.trim()) return { error: "Describe the issue." };
 
+  const me = await getCurrentProfile();
+  if (!me) return { error: "Not authenticated." };
+  if (!(await rateLimit(`complaint:${me.id}`, 5, 60 * 60))) return { error: "You've sent several requests recently. Please wait before sending another." };
   const supabase = await createClient();
   const { error } = await supabase.rpc("submit_complaint", {
     p_subject: subject.trim(),

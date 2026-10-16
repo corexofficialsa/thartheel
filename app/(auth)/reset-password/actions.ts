@@ -1,5 +1,6 @@
 "use server";
 
+import { clientIp, rateLimit, TOO_MANY } from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import { resetPasswordSchema } from "@/lib/validation/auth";
 
@@ -15,6 +16,7 @@ export async function resetPassword(_prevState: ResetPasswordState, formData: Fo
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Please check the form." };
 
+  if (!(await rateLimit(`reset:ip:${await clientIp()}`, 30, 15 * 60))) return { error: TOO_MANY };
   const supabase = await createClient();
   const { error: verifyError } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: parsed.data.tokenHash });
   if (verifyError) {

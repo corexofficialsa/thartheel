@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { assignTeacher, type ActionState } from "@/lib/classrooms/actions";
+import { assignTeacher } from "@/lib/classrooms/actions";
 
 export function AssignTeacherForm({
   classroomId,
@@ -14,7 +14,7 @@ export function AssignTeacherForm({
   currentTeacherId: string;
   teachers: { id: string; name: string }[];
 }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(assignTeacher, undefined);
+  const [state, formAction, isPending] = useActionToast(assignTeacher, "Teacher assigned.");
 
   return (
     <form action={formAction} className="flex items-center gap-2">

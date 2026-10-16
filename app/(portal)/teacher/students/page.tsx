@@ -1,10 +1,15 @@
+import type { Metadata } from "next";
 import { StudentProgressTable } from "@/components/students/student-progress-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { QueryNotice, readQuery } from "@/components/portal/query-notice";
 
-export default async function TeacherStudentsPage() {
+export const metadata: Metadata = { title: "Students" };
+
+export default async function TeacherStudentsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const q = readQuery((await searchParams).q);
   const profile = await requireRole("teacher");
   const supabase = await createClient();
 
@@ -19,13 +24,14 @@ export default async function TeacherStudentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Students" description="Students in your classrooms, with their phase, attendance, and grades." />
+      {q && <QueryNotice q={q} clearHref="/teacher/students"/>}
       <Card>
         <CardHeader>
           <CardTitle>Student progress</CardTitle>
           <CardDescription>{studentIds.length} students</CardDescription>
         </CardHeader>
         <CardContent>
-          <StudentProgressTable studentIds={studentIds} />
+          <StudentProgressTable studentIds={studentIds} query={q} />
         </CardContent>
       </Card>
     </div>

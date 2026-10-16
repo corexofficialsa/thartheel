@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,6 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
 import { PrintButton } from "@/components/finance/print-button";
 import { PrintHeader } from "@/components/finance/print-header";
+import { formatDate } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Finance" };
 
 const HISTORY_MONTHS = 12;
 
@@ -15,7 +19,7 @@ function monthKey(date: Date) {
 
 function monthLabel(key: string) {
   const [year, month] = key.split("-").map(Number);
-  return new Date(year, month - 1, 1).toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  return new Date(year, month - 1, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
 export default async function BoardFinancePage({
@@ -149,7 +153,7 @@ export default async function BoardFinancePage({
             <TableBody>
               {selectedRecords.map((record) => (
                 <TableRow key={record.id}>
-                  <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{formatDate(record.date)}</TableCell>
                   <TableCell className="capitalize">{record.type}</TableCell>
                   <TableCell>{record.category}</TableCell>
                   <TableCell>{record.description ?? "—"}</TableCell>

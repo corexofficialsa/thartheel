@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createProgressReport, type ActionState } from "@/app/(portal)/teacher/academics/actions";
+import { createProgressReport } from "@/app/(portal)/teacher/academics/actions";
 
 export function ProgressReportForm({ students }: { students: { id: string; name: string }[] }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(createProgressReport, undefined);
+  const [state, formAction, isPending] = useActionToast(createProgressReport, "Progress report saved.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

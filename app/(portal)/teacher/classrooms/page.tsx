@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { X } from "lucide-react";
 import { JoinClassroomButton } from "@/components/classroom/join-classroom-button";
 import { ClassroomLockToggle } from "@/components/teacher/classroom-lock-toggle";
@@ -12,6 +13,8 @@ import { createClient } from "@/lib/supabase/server";
 import { unenrollStudent } from "./actions";
 import { PageHeader } from "@/components/portal/page-header";
 
+export const metadata: Metadata = { title: "Classrooms" };
+
 export default async function TeacherClassroomsPage() {
   const profile = await requireRole("teacher");
   const supabase = await createClient();
@@ -23,7 +26,8 @@ export default async function TeacherClassroomsPage() {
       .eq("teacher_id", profile.id)
       .order("created_at", { ascending: false }),
     supabase.from("levels").select("id, name"),
-    supabase.from("profiles").select("id, name, email").eq("role", "student").eq("status", "active"),
+    // Names/emails only (enrollable_students), not full student profiles.
+    supabase.rpc("enrollable_students"),
   ]);
 
   const classroomIds = (classrooms ?? []).map((c) => c.id);

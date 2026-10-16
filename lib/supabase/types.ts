@@ -61,6 +61,10 @@ export type Database = {
           tajweed_level: SkillLevel | null;
           preferred_time_slot: string | null;
           terms_accepted_at: string | null;
+          utm_source: string | null;
+          utm_medium: string | null;
+          utm_campaign: string | null;
+          utm_landing: string | null;
           rejection_reason: string | null;
           created_at: string;
           updated_at: string;
@@ -85,6 +89,10 @@ export type Database = {
           tajweed_level?: SkillLevel | null;
           preferred_time_slot?: string | null;
           terms_accepted_at?: string | null;
+          utm_source?: string | null;
+          utm_medium?: string | null;
+          utm_campaign?: string | null;
+          utm_landing?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
         Relationships: [];
@@ -558,10 +566,8 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       resolve_login_identifier: { Args: { p_identifier: string }; Returns: string | null };
-      update_my_contact_info: {
-        Args: { p_name: string | null; p_phone: string | null; p_whatsapp: string | null };
-        Returns: void;
-      };
+      hit_rate_limit: { Args: { p_key: string; p_max: number; p_window_seconds: number }; Returns: boolean };
+      enrollable_students: { Args: Record<string, never>; Returns: { id: string; name: string; email: string }[] };
       approve_profile: { Args: { p_profile_id: string }; Returns: void };
       reject_profile: { Args: { p_profile_id: string; p_reason: string }; Returns: void };
       remove_profile: { Args: { p_profile_id: string; p_reason: string }; Returns: void };

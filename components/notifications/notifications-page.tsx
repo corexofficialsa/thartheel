@@ -7,6 +7,7 @@ import { NOTIFICATION_ICON } from "@/lib/notifications/kinds";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/portal/page-header";
+import { formatDate } from "@/lib/format-date";
 
 
 function timeAgo(iso: string) {
@@ -16,7 +17,7 @@ function timeAgo(iso: string) {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  return days < 7 ? `${days}d ago` : new Date(iso).toLocaleDateString();
+  return days < 7 ? `${days}d ago` : formatDate(iso);
 }
 
 export async function NotificationsPage({ userId }: { userId: string }) {

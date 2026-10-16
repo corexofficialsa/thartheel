@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, CalendarCheck, ClipboardList } from "lucide-react";
 import { StatCard } from "@/components/portal/stat-card";
@@ -6,6 +7,8 @@ import { riyadhToday } from "@/lib/attendance/dates";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Home" };
 
 export default async function TeacherHomePage() {
   const profile = await requireRole("teacher");

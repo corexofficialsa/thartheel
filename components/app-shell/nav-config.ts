@@ -19,7 +19,15 @@ import {
 import type { UserRole } from "@/lib/supabase/types";
 
 // badge: which unread count (if any) to show on this nav item.
-export type NavItem = { href: string; label: string; icon: LucideIcon; badge?: "messages" | "notifications" };
+// primary: shown in the phone tab bar when a role has more items than fit;
+// the rest go under "More".
+export type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  badge?: "messages" | "notifications";
+  primary?: boolean;
+};
 
 const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   student: [
@@ -30,31 +38,31 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { href: "/student/chat", label: "Chat", icon: MessageSquare, badge: "messages" },
   ],
   teacher: [
-    { href: "/teacher", label: "Home", icon: Home },
-    { href: "/teacher/classrooms", label: "Classrooms", icon: BookOpen },
+    { href: "/teacher", label: "Home", icon: Home, primary: true },
+    { href: "/teacher/classrooms", label: "Classrooms", icon: BookOpen, primary: true },
     { href: "/teacher/students", label: "Students", icon: GraduationCap },
     { href: "/teacher/attendance", label: "Attendance", icon: CalendarCheck },
-    { href: "/teacher/homework", label: "Homework", icon: ClipboardList },
+    { href: "/teacher/homework", label: "Homework", icon: ClipboardList, primary: true },
     { href: "/teacher/academics", label: "Academics", icon: BarChart3 },
-    { href: "/teacher/chat", label: "Chat", icon: MessageSquare, badge: "messages" },
+    { href: "/teacher/chat", label: "Chat", icon: MessageSquare, badge: "messages", primary: true },
   ],
   admin: [
-    { href: "/admin", label: "Home", icon: LayoutDashboard },
-    { href: "/admin/students", label: "Students", icon: GraduationCap },
+    { href: "/admin", label: "Home", icon: LayoutDashboard, primary: true },
+    { href: "/admin/students", label: "Students", icon: GraduationCap, primary: true },
     { href: "/admin/teachers", label: "Teachers", icon: Users },
-    { href: "/admin/classrooms", label: "Classrooms", icon: BookOpen },
-    { href: "/admin/registrations/student", label: "Student Reg", icon: UserPlus },
+    { href: "/admin/classrooms", label: "Classrooms", icon: BookOpen, primary: true },
+    { href: "/admin/registrations/student", label: "Student Reg", icon: UserPlus, primary: true },
     { href: "/admin/registrations/teacher", label: "Teacher Reg", icon: UserCog },
     { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   ],
   board: [
-    { href: "/board", label: "Home", icon: LayoutDashboard },
+    { href: "/board", label: "Home", icon: LayoutDashboard, primary: true },
     { href: "/board/teachers", label: "Teachers", icon: Users },
-    { href: "/board/students", label: "Students", icon: GraduationCap },
+    { href: "/board/students", label: "Students", icon: GraduationCap, primary: true },
     { href: "/board/classrooms", label: "Classrooms", icon: BookOpen },
     { href: "/board/visit-reports", label: "Visit Reports", icon: ClipboardCheck },
-    { href: "/board/finance", label: "Finance", icon: DollarSign },
-    { href: "/board/messages", label: "Messages", icon: MessageSquare, badge: "messages" },
+    { href: "/board/finance", label: "Finance", icon: DollarSign, primary: true },
+    { href: "/board/messages", label: "Messages", icon: MessageSquare, badge: "messages", primary: true },
   ],
   finance: [
     { href: "/finance", label: "Home", icon: LayoutDashboard },

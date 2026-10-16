@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { setBudget, type ActionState } from "@/app/(portal)/finance/ledger/actions";
+import { setBudget } from "@/app/(portal)/finance/ledger/actions";
 
 export function SetBudgetForm() {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(setBudget, undefined);
+  const [state, formAction, isPending] = useActionToast(setBudget, "Budget saved.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

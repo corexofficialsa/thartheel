@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { deleteComplaint, updateComplaintStatus, type Complaint, type UpdateComplaintState } from "@/lib/complaints/actions";
+import { formatDate } from "@/lib/format-date";
 
 export function ComplaintRow({ complaint }: { complaint: Complaint }) {
   const [state, formAction, isPending] = useActionState<UpdateComplaintState, FormData>(
@@ -23,7 +24,7 @@ export function ComplaintRow({ complaint }: { complaint: Complaint }) {
             <p className="font-medium">{complaint.subject}</p>
             <p className="text-xs text-muted-foreground">
               {complaint.submitted_by_name} &middot; <span className="capitalize">{complaint.submitted_by_role}</span> &middot;{" "}
-              {new Date(complaint.created_at).toLocaleDateString()}
+              {formatDate(complaint.created_at)}
             </p>
           </div>
           <div className="flex items-center gap-1">

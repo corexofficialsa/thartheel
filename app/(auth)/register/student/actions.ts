@@ -1,6 +1,8 @@
 "use server";
 
+import { clientIp, rateLimit } from "@/lib/security/rate-limit";
 import { registerAccount } from "@/lib/auth/register-account";
+import { readUtm } from "@/lib/registration/utm";
 import { MAX_RECITATION_BYTES, OPEN_LEVEL_NAMES } from "@/lib/registration/student-options";
 import { createClient } from "@/lib/supabase/server";
 import { studentRegistrationSchema } from "@/lib/validation/registration";
@@ -8,6 +10,9 @@ import { studentRegistrationSchema } from "@/lib/validation/registration";
 export type RegisterState = { error?: string; success?: boolean } | undefined;
 
 export async function registerStudent(_prevState: RegisterState, formData: FormData): Promise<RegisterState> {
+  if (!(await rateLimit(`register:ip:${await clientIp()}`, 20, 60 * 60))) {
+    return { error: "Too many registrations from this connection. Please try again in an hour." };
+  }
   const field = (name: string) => formData.get(name) ?? "";
   const parsed = studentRegistrationSchema.safeParse({
     name: field("name"),
@@ -52,6 +57,7 @@ export async function registerStudent(_prevState: RegisterState, formData: FormD
   }
 
   const result = await registerAccount({
+    utm: await readUtm(),
     role: "student",
     name: data.name,
     email: data.email,

@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { addLead, type ActionState } from "@/app/(portal)/admin/growth/actions";
+import { addLead } from "@/app/(portal)/admin/growth/actions";
 
 export function AddLeadForm() {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(addLead, undefined);
+  const [state, formAction, isPending] = useActionToast(addLead, "Lead added.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

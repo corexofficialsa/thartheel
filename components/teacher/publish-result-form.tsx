@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionToast } from "@/lib/use-action-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { publishResult, type ActionState } from "@/app/(portal)/teacher/academics/actions";
+import { publishResult } from "@/app/(portal)/teacher/academics/actions";
 
 export function PublishResultForm({
   examId,
@@ -16,7 +16,7 @@ export function PublishResultForm({
   studentName: string;
   existingMarks?: number | null;
 }) {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(publishResult, undefined);
+  const [state, formAction, isPending] = useActionToast(publishResult, "Result saved.");
 
   return (
     <form action={formAction} className="flex items-center gap-2 text-sm">

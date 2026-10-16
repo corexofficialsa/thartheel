@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BarChart3, CalendarCheck, ClipboardList, Flame } from "lucide-react";
 import { StatCard } from "@/components/portal/stat-card";
 import { LeaderboardCard } from "@/components/student/leaderboard-card";
@@ -5,6 +6,8 @@ import { requireRole } from "@/lib/auth/session";
 import { computeStreak } from "@/lib/attendance/streak";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Home" };
 
 export default async function StudentHomePage() {
   const profile = await requireRole("student");

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { HomeworkSubmitDialog } from "@/components/student/homework-submit-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,9 @@ import type { HomeworkMode } from "@/lib/supabase/types";
 import { PageHeader } from "@/components/portal/page-header";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { withdrawSubmission } from "./actions";
+import { formatDateTime } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Homework" };
 
 export default async function StudentHomeworkPage() {
   const profile = await requireRole("student");
@@ -84,7 +88,7 @@ export default async function StudentHomeworkPage() {
             <CardTitle>{hw.title}</CardTitle>
             <CardDescription>
               {classroomNameById.get(hw.classroom_id) ?? "Classroom"} — due{" "}
-              {new Date(hw.due_date).toLocaleString()}
+              {formatDateTime(hw.due_date)}
             </CardDescription>
           </div>
           {submission ? (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { RegistrationRowActions } from "@/components/admin/registration-row-actions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,6 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { PhoneLink, EmailLink } from "@/components/common/contact-links";
+
+export const metadata: Metadata = { title: "Teacher registrations" };
 
 export default async function TeacherRegistrationsPage() {
   const supabase = await createClient();
@@ -67,8 +71,8 @@ export default async function TeacherRegistrationsPage() {
                       <TableRow key={row.id}>
                         <TableCell className="font-medium">{row.name}</TableCell>
                         <TableCell>{row.username}</TableCell>
-                        <TableCell>{row.email}</TableCell>
-                        <TableCell>{row.phone}</TableCell>
+                        <TableCell><EmailLink value={row.email} /></TableCell>
+                        <TableCell><PhoneLink value={row.phone} /></TableCell>
                         <TableCell>{(row.level_id && levelNameById.get(row.level_id)) ?? "—"}</TableCell>
                         <TableCell>
                           {signedCvUrl ? (

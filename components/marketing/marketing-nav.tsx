@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GraduationCap, LogIn, Menu, UserPlus, Users } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo-mark";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,8 +16,9 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const NAV_LINKS = [
-  { href: "#programs", label: "Programs" },
-  { href: "#features", label: "How it works" },
+  { href: "/#programs", label: "Programs" },
+  { href: "/#features", label: "How it works" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export function MarketingNav() {
@@ -42,7 +44,9 @@ export function MarketingNav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <LogoMark className="size-9" />
-          <span className="font-heading text-lg font-medium tracking-[-0.01em]">Mirqath Quran Academy</span>
+          <span className="font-heading text-lg font-medium tracking-[-0.01em]">
+            Mirqath<span className="hidden sm:inline"> Quran Academy</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -54,6 +58,7 @@ export function MarketingNav() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           <Button variant="ghost" nativeButton={false} render={<Link href="/login" />}>
             <LogIn className="size-4" /> Log in
           </Button>
@@ -80,9 +85,12 @@ export function MarketingNav() {
           </DropdownMenu>
         </div>
 
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
-          <Menu className="size-5" />
-        </Button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <Menu className="size-5" />
+          </Button>
+        </div>
       </div>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

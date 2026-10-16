@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { PhoneLink } from "@/components/common/contact-links";
+import { formatDate } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Teacher" };
 
 export default async function TeacherDetailPage({ params }: { params: Promise<{ teacherId: string }> }) {
   const { teacherId } = await params;
@@ -45,7 +50,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
         </CardHeader>
         <CardContent className="grid gap-2 text-sm sm:grid-cols-2">
           <p>
-            <span className="text-muted-foreground">Phone:</span> {teacher.phone ?? "—"}
+            <span className="text-muted-foreground">Phone:</span> <PhoneLink value={teacher.phone} />
           </p>
           <p>
             <span className="text-muted-foreground">WhatsApp:</span> {teacher.whatsapp_number ?? "—"}
@@ -82,7 +87,7 @@ export default async function TeacherDetailPage({ params }: { params: Promise<{ 
           {(attendance ?? []).map((row) => (
             <div key={row.id} className="flex items-center justify-between border-b py-1 last:border-0">
               <span>{classroomNameById.get(row.classroom_id) ?? "Classroom"}</span>
-              <span className="text-muted-foreground">{new Date(row.date).toLocaleDateString()}</span>
+              <span className="text-muted-foreground">{formatDate(row.date)}</span>
             </div>
           ))}
         </CardContent>

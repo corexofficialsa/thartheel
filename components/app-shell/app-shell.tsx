@@ -2,6 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import type { UnreadCounts } from "@/lib/notifications/counts";
 import type { NotificationItem } from "@/lib/notifications/kinds";
 import type { UserRole } from "@/lib/supabase/types";
+import { BackToTop } from "@/components/site/back-to-top";
 import { BottomTabBar } from "./bottom-tab-bar";
 import { NotificationsListener } from "./notifications-listener";
 import { PageTransition } from "./page-transition";
@@ -26,12 +27,6 @@ export function AppShell({
   return (
     <SidebarProvider defaultOpen>
       <NotificationsListener userId={userId} />
-      <a
-        href="#main"
-        className="sr-only z-50 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-      >
-        Skip to content
-      </a>
       <div className="paper-grain flex min-h-svh w-full">
         <AppSidebar role={role} unread={unread} />
         <div className="relative flex min-h-svh w-full min-w-0 flex-1 flex-col">
@@ -42,6 +37,7 @@ export function AppShell({
             </div>
           </main>
           <BottomTabBar role={role} unread={unread} />
+          <BackToTop offsetClassName="bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6" />
         </div>
       </div>
     </SidebarProvider>

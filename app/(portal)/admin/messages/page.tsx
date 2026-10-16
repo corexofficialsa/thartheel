@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { ComplaintRow } from "@/components/complaints/complaint-row";
 import { getVisibleComplaints } from "@/lib/complaints/actions";
 import { requireRole } from "@/lib/auth/session";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Messages" };
 
 export default async function AdminMessagesPage() {
   await requireRole("admin");

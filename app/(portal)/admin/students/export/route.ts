@@ -24,7 +24,7 @@ export async function GET() {
       supabase
         .from("profiles")
         .select(
-          "id, name, email, phone, whatsapp_number, gender, age, place, address, level_id, status, makharij_level, qaida_level, tajweed_level, preferred_time_slot, created_at"
+          "id, name, email, phone, whatsapp_number, gender, age, place, address, level_id, status, makharij_level, qaida_level, tajweed_level, preferred_time_slot, utm_source, utm_medium, utm_campaign, created_at"
         )
         .eq("role", "student")
         .order("name"),
@@ -47,7 +47,7 @@ export async function GET() {
   const header = [
     "Name", "Email", "Phone", "WhatsApp", "Gender", "Age", "Country & city", "Address", "Level", "Status",
     "Classroom", "Makharij", "Qaida Madaniyya", "Tajweed", "Preferred time", "Registration fee (SAR)",
-    "Fee paid (SAR)", "Fee status", "Registered on",
+    "Fee paid (SAR)", "Fee status", "Registered on", "Source", "Medium", "Campaign",
   ];
   const rows = (students ?? []).map((s) => {
     const inv = invoiceByStudent.get(s.id);
@@ -58,6 +58,7 @@ export async function GET() {
       s.tajweed_level ? SKILL_LABEL[s.tajweed_level] : "", s.preferred_time_slot ? timeSlotLabel(s.preferred_time_slot) : "",
       inv?.amount ?? "", inv?.amount_paid ?? "", inv?.status ?? "",
       new Date(s.created_at).toISOString().slice(0, 10),
+      s.utm_source ?? "", s.utm_medium ?? "", s.utm_campaign ?? "",
     ];
   });
 

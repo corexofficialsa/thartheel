@@ -1,7 +1,11 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSignedUrl } from "@/lib/storage/signed-url";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+import { formatDate } from "@/lib/format-date";
+
+export const metadata: Metadata = { title: "Halaqa visit reports" };
 
 export default async function BoardVisitReportsPage() {
   const supabase = await createClient();
@@ -38,7 +42,7 @@ export default async function BoardVisitReportsPage() {
             <div key={report.id} className="rounded-md border p-3 text-sm">
               <div className="flex items-center justify-between">
                 <p className="font-medium">{report.title}</p>
-                <span className="text-xs text-muted-foreground">{new Date(report.visited_at).toLocaleDateString()}</span>
+                <span className="text-xs text-muted-foreground">{formatDate(report.visited_at)}</span>
               </div>
               {report.classroom_id && (
                 <p className="text-xs text-muted-foreground">{classroomNameById.get(report.classroom_id)}</p>

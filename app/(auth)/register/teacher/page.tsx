@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherRegistrationForm } from "@/components/registration/teacher-registration-form";
 import { createClient } from "@/lib/supabase/server";
 import { registerTeacher } from "./actions";
+
+export const metadata: Metadata = { title: "Teacher registration", description: "Apply to teach at Mirqath Quran Academy." };
 
 export default async function TeacherRegisterPage() {
   const supabase = await createClient();

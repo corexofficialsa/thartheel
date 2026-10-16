@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { JoinClassroomButton } from "@/components/classroom/join-classroom-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
+
+export const metadata: Metadata = { title: "Classrooms" };
 
 export default async function StudentClassroomsPage() {
   const profile = await requireRole("student");

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { StatCard } from "@/components/portal/stat-card";
 import { requireRole } from "@/lib/auth/session";
@@ -5,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/portal/page-header";
 import { PrintButton } from "@/components/finance/print-button";
 import { PrintHeader } from "@/components/finance/print-header";
+
+export const metadata: Metadata = { title: "Finance overview" };
 
 export default async function FinanceHomePage() {
   await requireRole("finance");
