@@ -26,7 +26,7 @@ export const studentStepSchemas = [
     address: z.string().trim().min(5, "Enter your current address").max(500, "Address is too long"),
     phone: internationalPhoneSchema,
     whatsappNumber: internationalPhoneSchema,
-    email: z.email("Enter a valid email"),
+    email: z.string().trim().toLowerCase().pipe(z.email("Enter a valid email")),
   }),
   z.object({
     makharij: skillSchema,
@@ -66,7 +66,7 @@ export const teacherRegistrationSchema = z
       .min(3, "Username must be at least 3 characters")
       .max(40, "Username is too long")
       .regex(/^[a-zA-Z0-9_.]+$/, "Letters, numbers, dots and underscores only"),
-    email: z.email("Enter a valid email"),
+    email: z.string().trim().toLowerCase().pipe(z.email("Enter a valid email")),
     phone: phoneSchema,
     whatsappNumber: phoneSchema,
     levelId: z.uuid("Select the level you teach"),
