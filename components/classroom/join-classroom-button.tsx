@@ -1,12 +1,14 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { joinClassroom } from "@/lib/classroom/actions";
 
 export function JoinClassroomButton({ classroomId, label = "Join Classroom" }: { classroomId: string; label?: string }) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleClick() {
     // Mobile browsers (iOS Safari especially) only allow window.open() to
@@ -29,11 +31,14 @@ export function JoinClassroomButton({ classroomId, label = "Join Classroom" }: {
       }
       if (result.locked) {
         pendingTab?.close();
-        toast.error(
-          result.reason === "join_window_closed"
-            ? "This class is no longer accepting new joins. Ask your teacher to unlock it."
-            : "You have incomplete homework due for this class. Complete it first, or ask your teacher for an emergency bypass."
-        );
+        if (result.reason === "join_window_closed") {
+          toast.error("This class is no longer accepting new joins. Ask your teacher to unlock it.", { duration: 10000 });
+        } else {
+          toast.error(
+            "You can't join yet: you have overdue homework for this class that wasn't submitted. Submit it, or ask your teacher to grant you access.",
+            { duration: 15000, action: { label: "Homework", onClick: () => router.push("/student/homework") } }
+          );
+        }
         return;
       }
       if (!result.meetingLink) {
@@ -42,14 +47,20 @@ export function JoinClassroomButton({ classroomId, label = "Join Classroom" }: {
         return;
       }
 
+      const meetingLink = result.meetingLink;
       if (pendingTab) {
-        pendingTab.location.href = result.meetingLink;
+        pendingTab.location.href = meetingLink;
       } else {
         // Popup blocked outright (e.g. blocker settings) — fall back to
         // navigating the current tab so joining still works.
-        window.location.href = result.meetingLink;
+        window.location.href = meetingLink;
       }
-      toast.success("Attendance recorded — opening the class.");
+      // Some browsers (in-app browsers, installed iPhone apps) hand back a tab
+      // that never navigates. Tapping this is a fresh user gesture, so it opens.
+      toast.success("Attendance recorded — opening the class.", {
+        duration: 30000,
+        action: { label: "Open class", onClick: () => window.open(meetingLink, "_blank", "noopener") },
+      });
     });
   }
 

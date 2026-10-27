@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { RotateCcw } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import { DeleteRecordButton } from "@/components/finance/delete-record-button";
 import { CreateHomeworkForm } from "@/components/teacher/create-homework-form";
 import { EditHomeworkDialog } from "@/components/teacher/edit-homework-dialog";
@@ -15,6 +15,7 @@ import type { HomeworkMode } from "@/lib/supabase/types";
 import { allowResubmission, deleteHomework } from "./actions";
 import { PageHeader } from "@/components/portal/page-header";
 import { formatDateTime } from "@/lib/format-date";
+import { HomeworkImage } from "@/components/homework/homework-image";
 
 export const metadata: Metadata = { title: "Homework" };
 
@@ -43,6 +44,35 @@ function AllowResubmitButton({
   );
 }
 
+// Signed URLs come from storage RLS; if one can't be made, say so rather than
+// rendering nothing (an empty card read as "the student sent nothing").
+function SubmissionMedia({ kind, url }: { kind: "video" | "audio"; url: string | null }) {
+  if (!url) {
+    return (
+      <p className="text-xs text-destructive">
+        This {kind} recording couldn&apos;t be loaded. Refresh the page, or ask the student to re-upload it.
+      </p>
+    );
+  }
+  return (
+    <div className="w-full space-y-1 sm:w-auto">
+      {kind === "video" ? (
+        <video src={url} controls playsInline preload="metadata" className="max-h-72 w-full rounded-md bg-black sm:w-96" />
+      ) : (
+        <audio src={url} controls preload="metadata" className="w-full sm:w-80" />
+      )}
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        <Download className="size-3" /> Open / download {kind}
+      </a>
+    </div>
+  );
+}
+
 export default async function TeacherHomeworkPage() {
   const profile = await requireRole("teacher");
   const supabase = await createClient();
@@ -59,7 +89,7 @@ export default async function TeacherHomeworkPage() {
     classroomIds.length > 0
       ? supabase
           .from("homework")
-          .select("id, classroom_id, title, description, due_date, allowed_modes")
+          .select("id, classroom_id, title, description, due_date, allowed_modes, attachment_url")
           .in("classroom_id", classroomIds)
           .order("due_date", { ascending: false })
       : Promise.resolve({
@@ -70,6 +100,7 @@ export default async function TeacherHomeworkPage() {
             description: string | null;
             due_date: string;
             allowed_modes: HomeworkMode[];
+            attachment_url: string | null;
           }[],
         }),
     classroomIds.length > 0
@@ -117,9 +148,15 @@ export default async function TeacherHomeworkPage() {
   const grantKeys = new Set((grants ?? []).map((g) => `${g.homework_id}:${g.student_id}`));
 
   const mediaPaths = (submissions ?? []).flatMap((s) => [s.video_url, s.audio_url].filter((p): p is string => Boolean(p)));
-  const signedUrls = new Map<string, string | null>(
-    await Promise.all(mediaPaths.map(async (path) => [path, await createSignedUrl("homework-submissions", path)] as const))
-  );
+  const attachmentPaths = (homeworkList ?? []).map((h) => h.attachment_url).filter((p): p is string => Boolean(p));
+  const [signedUrls, attachmentUrls] = await Promise.all([
+    Promise.all(mediaPaths.map(async (path) => [path, await createSignedUrl("homework-submissions", path)] as const)).then(
+      (entries) => new Map<string, string | null>(entries)
+    ),
+    Promise.all(
+      attachmentPaths.map(async (path) => [path, await createSignedUrl("homework-attachments", path)] as const)
+    ).then((entries) => new Map<string, string | null>(entries)),
+  ]);
 
   const submissionsByHomeworkId = new Map<string, NonNullable<typeof submissions>>();
   for (const submission of submissions ?? []) {
@@ -181,7 +218,8 @@ export default async function TeacherHomeworkPage() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {hw.description && <p className="text-sm text-muted-foreground">{hw.description}</p>}
+              {hw.description && <p className="whitespace-pre-line text-sm text-muted-foreground">{hw.description}</p>}
+              {hw.attachment_url && <HomeworkImage url={attachmentUrls.get(hw.attachment_url) ?? null} />}
               <Separator />
               <p className="text-sm font-medium">Submissions ({hwSubmissions.length})</p>
               {hwSubmissions.length === 0 ? (
@@ -205,11 +243,11 @@ export default async function TeacherHomeworkPage() {
                         </div>
                         {submission.text_answer && <p className="mt-1 text-muted-foreground">{submission.text_answer}</p>}
                         <div className="mt-2 flex flex-wrap gap-3">
-                          {submission.video_url && signedUrls.get(submission.video_url) && (
-                            <video src={signedUrls.get(submission.video_url)!} controls className="h-32 rounded-md" />
+                          {submission.video_url && (
+                            <SubmissionMedia kind="video" url={signedUrls.get(submission.video_url) ?? null} />
                           )}
-                          {submission.audio_url && signedUrls.get(submission.audio_url) && (
-                            <audio src={signedUrls.get(submission.audio_url)!} controls />
+                          {submission.audio_url && (
+                            <SubmissionMedia kind="audio" url={signedUrls.get(submission.audio_url) ?? null} />
                           )}
                         </div>
                         <div className="mt-3">

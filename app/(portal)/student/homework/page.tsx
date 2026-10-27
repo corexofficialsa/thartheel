@@ -10,6 +10,8 @@ import { PageHeader } from "@/components/portal/page-header";
 import { ConfirmDeleteButton } from "@/components/common/confirm-delete-button";
 import { withdrawSubmission } from "./actions";
 import { formatDateTime } from "@/lib/format-date";
+import { createSignedUrl } from "@/lib/storage/signed-url";
+import { HomeworkImage } from "@/components/homework/homework-image";
 
 export const metadata: Metadata = { title: "Homework" };
 
@@ -30,7 +32,7 @@ export default async function StudentHomeworkPage() {
     classroomIds.length > 0
       ? supabase
           .from("homework")
-          .select("id, classroom_id, title, description, due_date, allowed_modes")
+          .select("id, classroom_id, title, description, due_date, allowed_modes, attachment_url")
           .in("classroom_id", classroomIds)
           .order("due_date", { ascending: true })
       : Promise.resolve({
@@ -41,6 +43,7 @@ export default async function StudentHomeworkPage() {
             description: string | null;
             due_date: string;
             allowed_modes: HomeworkMode[];
+            attachment_url: string | null;
           }[],
         }),
   ]);
@@ -67,6 +70,14 @@ export default async function StudentHomeworkPage() {
     supabase.from("homework_resubmit_grants").select("homework_id").eq("student_id", profile.id),
   ]);
   const gradeBySubmissionId = new Map((grades ?? []).map((g) => [g.submission_id, g]));
+  const attachmentUrls = new Map<string, string | null>(
+    await Promise.all(
+      (homeworkList ?? [])
+        .map((h) => h.attachment_url)
+        .filter((p): p is string => Boolean(p))
+        .map(async (path) => [path, await createSignedUrl("homework-attachments", path)] as const)
+    )
+  );
   const grantedHomeworkIds = new Set((grants ?? []).map((g) => g.homework_id));
 
   const currentHomework = (homeworkList ?? []).filter((hw) => !submissionByHomeworkId.has(hw.id));
@@ -98,7 +109,8 @@ export default async function StudentHomeworkPage() {
           )}
         </CardHeader>
         <CardContent className="space-y-4">
-          {hw.description && <p className="text-sm text-muted-foreground">{hw.description}</p>}
+          {hw.description && <p className="whitespace-pre-line text-sm text-muted-foreground">{hw.description}</p>}
+          {hw.attachment_url && <HomeworkImage url={attachmentUrls.get(hw.attachment_url) ?? null} />}
 
           {grade && (
             <div className="rounded-md border bg-secondary/40 p-3 text-sm">

@@ -9,6 +9,35 @@ import { formatDate } from "@/lib/format-date";
 
 export type ActionState = { error?: string } | undefined;
 
+const ATTACHMENT_BUCKET = "homework-attachments";
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // matches the bucket limit (0053)
+const IMAGE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/heic": "heic",
+  "image/heif": "heif",
+};
+
+// Returns the stored path, null when no image was picked, or an error.
+async function uploadHomeworkImage(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  teacherId: string,
+  formData: FormData
+): Promise<{ path: string | null } | { error: string }> {
+  const image = formData.get("image");
+  if (!(image instanceof File) || image.size === 0) return { path: null };
+  const extension = IMAGE_EXTENSIONS[image.type];
+  if (!extension) return { error: "The picture must be a JPG, PNG, WebP or GIF image." };
+  if (image.size > MAX_IMAGE_BYTES) return { error: "The picture is too large — the limit is 8 MB." };
+
+  const path = `${teacherId}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from(ATTACHMENT_BUCKET).upload(path, image, { contentType: image.type });
+  if (error) return { error: "Could not upload the picture. Please try again." };
+  return { path };
+}
+
 export async function createHomework(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const classroomId = formData.get("classroomId");
   const title = formData.get("title");
@@ -25,6 +54,9 @@ export async function createHomework(_prevState: ActionState, formData: FormData
   if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
 
+  const image = await uploadHomeworkImage(supabase, profile.id, formData);
+  if ("error" in image) return { error: image.error };
+
   const { data: homework, error } = await supabase
     .from("homework")
     .insert({
@@ -34,11 +66,15 @@ export async function createHomework(_prevState: ActionState, formData: FormData
       description: typeof description === "string" && description.trim() ? description.trim() : null,
       due_date: new Date(dueDate).toISOString(),
       allowed_modes: allowedModes,
+      attachment_url: image.path,
     })
     .select("id")
     .single();
 
-  if (error || !homework) return { error: "Could not create homework." };
+  if (error || !homework) {
+    if (image.path) await supabase.storage.from(ATTACHMENT_BUCKET).remove([image.path]);
+    return { error: "Could not create homework." };
+  }
 
   const [{ data: classroom }, { data: enrollments }] = await Promise.all([
     supabase.from("classrooms").select("name").eq("id", classroomId).single(),
@@ -104,7 +140,17 @@ export async function updateHomework(_prevState: ActionState, formData: FormData
   if (typeof dueDate !== "string" || !dueDate) return { error: "Set a due date." };
   if (allowedModes.length === 0) return { error: "Pick at least one accepted answer type." };
 
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Not authenticated." };
   const supabase = await createClient();
+  const { data: existing } = await supabase.from("homework").select("attachment_url").eq("id", homeworkId).single();
+  if (!existing) return { error: "Could not update homework." };
+
+  const image = await uploadHomeworkImage(supabase, profile.id, formData);
+  if ("error" in image) return { error: image.error };
+  const removeImage = formData.get("removeImage") != null;
+  const attachmentUrl = image.path ?? (removeImage ? null : existing.attachment_url);
+
   const { error } = await supabase
     .from("homework")
     .update({
@@ -112,9 +158,16 @@ export async function updateHomework(_prevState: ActionState, formData: FormData
       description: typeof description === "string" && description.trim() ? description.trim() : null,
       due_date: new Date(dueDate).toISOString(),
       allowed_modes: allowedModes,
+      attachment_url: attachmentUrl,
     })
     .eq("id", homeworkId);
-  if (error) return { error: "Could not update homework." };
+  if (error) {
+    if (image.path) await supabase.storage.from(ATTACHMENT_BUCKET).remove([image.path]);
+    return { error: "Could not update homework." };
+  }
+  if (existing.attachment_url && existing.attachment_url !== attachmentUrl) {
+    await supabase.storage.from(ATTACHMENT_BUCKET).remove([existing.attachment_url]);
+  }
 
   revalidatePath("/teacher/homework");
   revalidatePath("/student/homework");
@@ -124,7 +177,9 @@ export async function deleteHomework(formData: FormData): Promise<void> {
   const homeworkId = formData.get("homeworkId");
   if (typeof homeworkId !== "string") return;
   const supabase = await createClient();
-  await supabase.from("homework").delete().eq("id", homeworkId);
+  const { data: deleted } = await supabase.from("homework").delete().eq("id", homeworkId).select("attachment_url");
+  const attachment = deleted?.[0]?.attachment_url;
+  if (attachment) await supabase.storage.from(ATTACHMENT_BUCKET).remove([attachment]);
   revalidatePath("/teacher/homework");
   revalidatePath("/student/homework");
 }

@@ -4,6 +4,8 @@ import { JoinClassroomButton } from "@/components/classroom/join-classroom-butto
 import { ClassroomLockToggle } from "@/components/teacher/classroom-lock-toggle";
 import { EnrollStudentForm } from "@/components/teacher/enroll-student-form";
 import { MeetingLinkForm } from "@/components/teacher/meeting-link-form";
+import { GrantClassAccessDialog } from "@/components/teacher/grant-class-access-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -31,10 +33,36 @@ export default async function TeacherClassroomsPage() {
   ]);
 
   const classroomIds = (classrooms ?? []).map((c) => c.id);
-  const { data: enrollments } =
+  const [{ data: enrollments }, { data: overdueHomework }, { data: passes }] =
     classroomIds.length > 0
-      ? await supabase.from("classroom_students").select("classroom_id, student_id").in("classroom_id", classroomIds)
-      : { data: [] as { classroom_id: string; student_id: string }[] };
+      ? await Promise.all([
+          supabase.from("classroom_students").select("classroom_id, student_id").in("classroom_id", classroomIds),
+          supabase
+            .from("homework")
+            .select("id, classroom_id")
+            .in("classroom_id", classroomIds)
+            .lt("due_date", new Date().toISOString()),
+          supabase.from("homework_lock_overrides").select("classroom_id, student_id").in("classroom_id", classroomIds),
+        ])
+      : [
+          { data: [] as { classroom_id: string; student_id: string }[] },
+          { data: [] as { id: string; classroom_id: string }[] },
+          { data: [] as { classroom_id: string; student_id: string }[] },
+        ];
+
+  // Mirrors join_classroom()'s homework lock: any overdue homework in the
+  // classroom without a submission blocks the student's Join button.
+  const overdueIds = (overdueHomework ?? []).map((h) => h.id);
+  const { data: overdueSubmissions } =
+    overdueIds.length > 0
+      ? await supabase.from("homework_submissions").select("homework_id, student_id").in("homework_id", overdueIds)
+      : { data: [] as { homework_id: string; student_id: string }[] };
+  const submittedKeys = new Set((overdueSubmissions ?? []).map((s) => `${s.homework_id}:${s.student_id}`));
+  const passKeys = new Set((passes ?? []).map((p) => `${p.classroom_id}:${p.student_id}`));
+  function missingHomeworkCount(classroomId: string, studentId: string) {
+    return (overdueHomework ?? []).filter((h) => h.classroom_id === classroomId && !submittedKeys.has(`${h.id}:${studentId}`))
+      .length;
+  }
 
   const levelNameById = new Map((levels ?? []).map((l) => [l.id, l.name]));
   const studentById = new Map((activeStudents ?? []).map((s) => [s.id, s]));
@@ -96,20 +124,45 @@ export default async function TeacherClassroomsPage() {
                   <p className="text-sm text-muted-foreground">No students enrolled yet.</p>
                 ) : (
                   <ul className="space-y-1">
-                    {enrolledStudents.map((student) => (
-                      <li key={student.id} className="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm">
-                        <span>
-                          {student.name} <span className="text-muted-foreground">({student.email})</span>
-                        </span>
-                        <form action={unenrollStudent}>
-                          <input type="hidden" name="classroomId" value={classroom.id} />
-                          <input type="hidden" name="studentId" value={student.id} />
-                          <Button type="submit" size="icon-sm" variant="ghost">
-                            <X className="size-4" />
-                          </Button>
-                        </form>
-                      </li>
-                    ))}
+                    {enrolledStudents.map((student) => {
+                      const missing = missingHomeworkCount(classroom.id, student.id);
+                      const hasPass = passKeys.has(`${classroom.id}:${student.id}`);
+                      return (
+                        <li
+                          key={student.id}
+                          className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-1.5 text-sm"
+                        >
+                          <span>
+                            {student.name} <span className="text-muted-foreground">({student.email})</span>
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {missing > 0 &&
+                              (hasPass ? (
+                                <Badge variant="secondary">Pass granted for next class</Badge>
+                              ) : (
+                                <>
+                                  <Badge variant="destructive">
+                                    Blocked: {missing} homework missing
+                                  </Badge>
+                                  <GrantClassAccessDialog
+                                    classroomId={classroom.id}
+                                    studentId={student.id}
+                                    studentName={student.name}
+                                    missingCount={missing}
+                                  />
+                                </>
+                              ))}
+                            <form action={unenrollStudent}>
+                              <input type="hidden" name="classroomId" value={classroom.id} />
+                              <input type="hidden" name="studentId" value={student.id} />
+                              <Button type="submit" size="icon-sm" variant="ghost" aria-label={`Remove ${student.name}`}>
+                                <X className="size-4" />
+                              </Button>
+                            </form>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>

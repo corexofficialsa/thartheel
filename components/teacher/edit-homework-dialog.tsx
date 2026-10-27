@@ -22,7 +22,14 @@ function toLocalInput(iso: string) {
 export function EditHomeworkDialog({
   homework,
 }: {
-  homework: { id: string; title: string; description: string | null; due_date: string; allowed_modes: HomeworkMode[] };
+  homework: {
+    id: string;
+    title: string;
+    description: string | null;
+    due_date: string;
+    allowed_modes: HomeworkMode[];
+    attachment_url: string | null;
+  };
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(async (prev, formData) => {
@@ -62,6 +69,21 @@ export function EditHomeworkDialog({
           <div className="space-y-2">
             <Label htmlFor={`desc-${homework.id}`}>Instructions</Label>
             <Textarea id={`desc-${homework.id}`} name="description" defaultValue={homework.description ?? ""} rows={3} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`image-${homework.id}`}>{homework.attachment_url ? "Replace picture" : "Picture (optional)"}</Label>
+            <Input
+              id={`image-${homework.id}`}
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif"
+            />
+            {homework.attachment_url && (
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                <input type="checkbox" name="removeImage" className="size-4 accent-[var(--primary)]" />
+                Remove the current picture
+              </label>
+            )}
           </div>
           <AnswerModeCheckboxes defaultModes={homework.allowed_modes} />
           {state?.error && <p className="text-sm text-destructive">{state.error}</p>}

@@ -10,6 +10,8 @@ import { NextResponse, type NextRequest } from "next/server";
 //      expired session, writing the new cookies — the one job that must
 //      happen here, since Server Components can't set cookies;
 //   2. sends visitors without a valid session to /login.
+// It also runs on /login so a returning, still-signed-in user's session is
+// refreshed there and the login layout can send them straight to their portal.
 // Role and status (active/removed) are enforced next to the database by
 // requireRole() in each portal's layout (PortalLayout), and by RLS.
 export async function proxy(request: NextRequest) {
@@ -35,12 +37,12 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) {
+  if (!data?.claims?.sub && !request.nextUrl.pathname.startsWith("/login")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   return response;
 }
 
 export const config = {
-  matcher: ["/student/:path*", "/teacher/:path*", "/admin/:path*", "/board/:path*", "/finance/:path*"],
+  matcher: ["/login/:path*", "/student/:path*", "/teacher/:path*", "/admin/:path*", "/board/:path*", "/finance/:path*"],
 };

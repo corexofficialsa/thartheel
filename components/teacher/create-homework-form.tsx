@@ -41,6 +41,11 @@ export function CreateHomeworkForm({ classrooms }: { classrooms: { id: string; n
         <Label htmlFor="description">Instructions (optional)</Label>
         <Textarea id="description" name="description" rows={3} />
       </div>
+      <div className="space-y-2 sm:col-span-2">
+        <Label htmlFor="image">Picture (optional)</Label>
+        <Input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif" />
+        <p className="text-xs text-muted-foreground">e.g. a page of the mushaf or a worksheet. Up to 8 MB.</p>
+      </div>
       <div className="sm:col-span-2">
         <AnswerModeCheckboxes />
       </div>

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { clientIp, rateLimit } from "@/lib/security/rate-limit";
+import { landingPath } from "@/lib/auth/landing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema } from "@/lib/validation/auth";
@@ -77,11 +78,5 @@ export async function signIn(_prevState: LoginState, formData: FormData): Promis
     };
   }
 
-  // Students and teachers land straight in their classrooms rather than
-  // the stats dashboard — "Home" in the nav still reaches the dashboard.
-  const LANDING_PATH: Partial<Record<typeof profile.role, string>> = {
-    student: "/student/classrooms",
-    teacher: "/teacher/classrooms",
-  };
-  redirect(LANDING_PATH[profile.role] ?? `/${profile.role}`);
+  redirect(landingPath(profile.role));
 }
