@@ -24,7 +24,7 @@ export async function createClient(opts?: { rememberMe?: boolean }) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
             const resolvedOptions =
-              opts?.rememberMe === undefined
+              opts?.rememberMe === undefined || options.maxAge === 0 // 0 deletes a cookie; keep that
                 ? options
                 : opts.rememberMe
                   ? { ...options, maxAge: REMEMBER_ME_MAX_AGE_SECONDS, expires: undefined }
